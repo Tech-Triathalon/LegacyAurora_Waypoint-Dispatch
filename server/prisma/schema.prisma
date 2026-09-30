@@ -1,0 +1,212 @@
+// Waypoint Dispatch — Prisma schema (PostgreSQL 16)
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  dispatcher
+  driver
+  loader
+  manager
+}
+
+enum OrderStatus {
+  queued
+  allocated
+  deferred
+  delivered
+}
+
+enum TempRequirement {
+  chilled
+  ambient
+}
+
+enum TripStatus {
+  planned
+  loading
+  departed
+  completed
+}
+
+enum EventType {
+  loaded
+  departed
+  arrived
+  pod
+  issue
+  receipt
+}
+
+enum DeferralReason {
+  CAP // capacity overflow
+  REF // reefer shortfall (no cold-chain vehicle available)
+  INV // invalid: hard feasibility violation (window/van_only)
+}
+
+enum FlagStatus {
+  open
+  acknowledged
+  resolved
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  passwordHash String
+  role         Role
+  name         String
+  vehicleId    Int? @unique // driver linked to vehicle
+  outletId     String? @unique // manager linked to outlet  createdAt    DateTime @default(now())
+
+  vehicle Vehicle?  @relation(fields: [vehicleId], references: [id])
+  outlet  Outlet?   @relation(fields: [outletId], references: [outletId])
+}
+
+model Outlet {
+  outletId          String   @id // OUT001...
+  brand             String // Fresh | Style | Tech
+  district          String
+  depot             String // Peliyagoda | Kandy
+  dockType          String // street | rear_dock | mall_bay
+  parkingConstraint String // normal | van_only | mall_dock
+  mallWindow        String? // "09:00-11:00"
+  windowOpen        String // "05:00"
+  windowClose       String // "07:30"
+
+  orders  Order[]
+  users   User[]
+}
+
+model Vehicle {
+  id               Int      @id @default(autoincrement())
+  vehicleId        String   @unique // VEH001
+  type             String // truck | van
+  temp             String // reefer | ambient
+  weightCapKg      Float
+  volumeCapM3      Float
+  fuelType         String
+  kmPerL           Float
+  weeklyFuelQuotaL Float
+  depot            String
+  status           String   @default("available") // available | assigned | maintenance
+  telemetryStale   Boolean  @default(false) // outage simulation toggle
+
+  trips        Trip[]
+  user         User?
+}
+
+model Order {
+  id                Int             @id @default(autoincrement())
+  outletId          String
+  brand             String
+  district          String
+  depot             String
+  tempRequirement   TempRequirement
+  units             Int
+  weightKg          Float
+  volumeM3          Float
+  orderDate         DateTime @db.Date
+  windowOpen        String
+  windowClose       String
+  deferredYesterday Boolean  @default(false)
+  status            OrderStatus @default(queued)
+  deferralReason    DeferralReason?
+  promiseDate       DateTime? @db.Date
+  createdAt         DateTime @default(now())
+
+  outlet        Outlet         @relation(fields: [outletId], references: [outletId])
+  stops         TripStop[]
+  events        DeliveryEvent[]
+  flags         ShortageFlag[]
+  deferrals     DeferralLedger[]
+
+  @@index([orderDate, status])
+}
+
+model Trip {
+  id          Int        @id @default(autoincrement())
+  vehicleId   Int
+  tripNo      Int // 1 | 2
+  brand       String
+  district    String
+  depot       String
+  totalWeight Float
+  totalVolume Float
+  estMinutes  Float
+  distanceKm  Float
+  fuelLiters  Float
+  status      TripStatus @default(planned)
+  committedAt DateTime?
+  createdAt   DateTime   @default(now())
+
+  vehicle Vehicle    @relation(fields: [vehicleId], references: [id])
+  stops   TripStop[]
+
+  @@unique([vehicleId, tripNo])
+}
+
+model TripStop {
+  id            Int      @id @default(autoincrement())
+  tripId        Int
+  seq           Int
+  orderId       Int
+  plannedArrival String // "05:45"
+
+  trip  Trip  @relation(fields: [tripId], references: [id])
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@unique([tripId, seq])
+  @@unique([orderId])
+}
+
+model DeliveryEvent {
+  id              Int       @id @default(autoincrement())
+  eventId         String    @unique // client UUID — idempotency key
+  orderId         Int?
+  vehicleId       Int?
+  type            EventType
+  payload         Json      @default("{}")
+  clientTimestamp DateTime
+  serverTimestamp DateTime  @default(now())
+  syncedFlag      Boolean   @default(false)
+
+  order Order? @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+  @@index([serverTimestamp])
+}
+
+model ShortageFlag {
+  id        Int        @id @default(autoincrement())
+  orderId   Int
+  itemDesc  String
+  qty       Int
+  reason    String
+  photoPath String?
+  status    FlagStatus @default(open)
+  createdBy String
+  createdAt DateTime   @default(now())
+
+  order Order @relation(fields: [orderId], references: [id])
+}
+
+model DeferralLedger {
+  id              Int      @id @default(autoincrement())
+  orderId         Int
+  reason          DeferralReason
+  detail          String   @default("")
+  promiseDate     DateTime @db.Date
+  promisedAt      DateTime @default(now())
+  kept            Boolean?
+  resolvedAt      DateTime?
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@index([promiseDate])
+}
