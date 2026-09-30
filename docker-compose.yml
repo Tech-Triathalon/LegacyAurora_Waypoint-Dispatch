@@ -1,0 +1,39 @@
+# Waypoint Dispatch — full stack for judges: `docker compose up`
+# Starts PostgreSQL 16 (migrated + seeded automatically) and the Node API
+# serving the static client on http://localhost:8080
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: waypoint
+      POSTGRES_PASSWORD: waypoint
+      POSTGRES_DB: waypoint
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U waypoint -d waypoint"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: ./server
+    environment:
+      DATABASE_URL: postgresql://waypoint:waypoint@db:5432/waypoint
+      JWT_SECRET: waypoint-demo-secret-change-me
+      NODE_ENV: production
+      PORT: 8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "npx prisma db push --skip-generate &&
+             node prisma/seed.js &&
+             node src/index.js"
+
+volumes:
+  pgdata:
