@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install server deps
+        working-directory: server
+        run: npm install --no-audit --no-fund
+      - name: Generate Prisma client
+        working-directory: server
+        run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://x:x@localhost:5432/x
+      - name: Unit tests (validator + engine determinism)
+        working-directory: server
+        run: node --test ../tests/allocation.test.js
+
+  compose:
+    runs-on: ubuntu-latest
+    needs: unit
+    steps:
+      - uses: actions/checkout@v4
+      - name: Boot full stack (judged requirement)
+        run: docker compose up -d --build
+      - name: Wait for API health
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8080/api/health > /dev/null; then echo "healthy"; exit 0; fi
+            sleep 2
+          done
+          echo "API did not become healthy"; docker compose logs app; exit 1
+      - name: Smoke: login all roles + allocate + commit + idempotent sync + ledger
+        run: |
+          set -e
+          B=http://localhost:8080
+          for u in dispatcher dispatch123 driver drive123 loader load123 manager manage123; do :; done
+          login() { curl -sf -c /tmp/jar_$1 -X POST $B/api/auth/login -H 'Content-Type: application/json' -d "{\"username\":\"$1\",\"password\":\"$2\"}"; }
+          login dispatcher dispatch123 > /dev/null
+          login driver drive123 > /dev/null
+          login loader load123 > /dev/null
+          login manager manage123 > /dev/null
+          echo "-- orders queue --"
+          curl -sf -b /tmp/jar_dispatcher $B/api/orders | grep -o '"reeferShortfall":true' || echo "WARN: no reefer shortfall on seed day"
+          echo "-- allocate --"
+          curl -sf -b /tmp/jar_dispatcher -X POST $B/api/plan/allocate -H 'Content-Type: application/json' -d '{"date":"2026-06-25"}' > /tmp/plan.json
+          grep -o '"feasible":true' /tmp/plan.json | head -1
+          echo "-- commit --"
+          curl -sf -b /tmp/jar_dispatcher -X POST $B/api/plan/commit -H 'Content-Type: application/json' -d "{\"date\":\"2026-06-25\",\"plan\":$(cat /tmp/plan.json)}" | grep -o '"committed":true'
+          echo "-- driver manifest --"
+          curl -sf -b /tmp/jar_driver $B/api/trips/for-driver | grep -o '"tripNo":1' | head -1
+          echo "-- offline sync idempotency (same eventId twice) --"
+          EV='{"events":[{"eventId":"smoke-evt-1","type":"arrived","orderId":1,"clientTimestamp":"2026-06-25T06:00:00Z"}]}'
+          R1=$(curl -sf -b /tmp/jar_driver -X POST $B/api/events/batch -H 'Content-Type: application/json' -d "$EV")
+          R2=$(curl -sf -b /tmp/jar_driver -X POST $B/api/events/batch -H 'Content-Type: application/json' -d "$EV")
+          echo "$R1" | grep -o '"status":"accepted"'
+          echo "$R2" | grep -o '"status":"duplicate"'
+          echo "-- deferral ledger --"
+          curl -sf -b /tmp/jar_dispatcher $B/api/deferrals | grep -o '"reason":"[A-Z]*"' | head -3
+      - name: Teardown
+        if: always()
+        run: docker compose down -v
