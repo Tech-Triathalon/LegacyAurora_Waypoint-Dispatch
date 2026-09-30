@@ -1,0 +1,2122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Driver Delivery Console | Waypoint Logistics</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-canvas: #2d3238;
+            --bg-card: #ffffff;
+            --bg-subtle: #FAF9F6;
+            
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --text-light: #94a3b8;
+            --border-color: #e2e8f0;
+            --border-subtle: #f1f5f9;
+
+            --primary-red: #d92d20;
+            --primary-red-hover: #b42318;
+            --primary-red-soft: #fee4e2;
+            --primary-red-border: #fecdca;
+
+            --accent-amber: #f59e0b;
+            --accent-amber-bg: #fffbeb;
+            --accent-amber-border: #fde68a;
+            --accent-amber-text: #b45309;
+
+            --accent-green: #10b981;
+            --accent-green-bg: #ecfdf5;
+            --accent-green-border: #a7f3d0;
+            --accent-green-text: #065f46;
+
+            --accent-blue: #2563eb;
+            --accent-blue-bg: #eff6ff;
+            --accent-blue-border: #bfdbfe;
+
+            --radius-xs: 4px;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --radius-pill: 9999px;
+
+            --shadow-card: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-modal: 0 20px 40px -15px rgba(0,0,0,0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 8px 40px;
+        }
+
+        /* --- TOP SCREEN PICKER BAR --- */
+        .top-screen-switcher-bar {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .screen-select-dropdown {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 7px 14px;
+            border-radius: var(--radius-pill);
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-dark);
+            outline: none;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+
+        /* --- MOBILE PHONE DEVICE FRAME --- */
+        .phone-mockup-frame {
+            width: 100%;
+            max-width: 410px;
+            background: #FAF9F6;
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            border: 8px solid #1e293b;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            min-height: 840px;
+        }
+
+        @media (max-width: 440px) {
+            body {
+                padding: 0;
+            }
+            .phone-mockup-frame {
+                max-width: 100vw;
+                border-radius: 0;
+                border: none;
+                min-height: 100vh;
+            }
+            .top-screen-switcher-bar {
+                padding: 8px 12px;
+                margin-bottom: 0;
+            }
+        }
+
+        /* --- PHONE STATUS BAR --- */
+        .ios-status-bar {
+            height: 36px;
+            background: #FAF9F6;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 22px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #0f172a;
+            user-select: none;
+            flex-shrink: 0;
+        }
+
+        .ios-status-icons {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* --- SCROLLABLE PHONE SCREEN CONTAINER --- */
+        .phone-screen-viewport {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            background: #FAF9F6;
+            padding-bottom: 70px;
+        }
+
+        .driver-screen {
+            display: none;
+            flex-direction: column;
+            animation: fadeIn 0.15s ease;
+        }
+
+        .driver-screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(3px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- REUSABLE HEADERS & BANNERS --- */
+        .driver-top-user-bar {
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #FAF9F6;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .user-chip-name {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+            cursor: pointer;
+        }
+
+        .pill-offline-beige {
+            background: #fdf6e7;
+            border: 1px solid #fde68a;
+            color: #b45309;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: var(--radius-pill);
+            text-transform: uppercase;
+        }
+
+        .pill-online-green {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: var(--radius-pill);
+            text-transform: uppercase;
+        }
+
+        /* SOLID YELLOW ALERT BANNER */
+        .banner-yellow-solid {
+            background: #f59e0b;
+            color: #ffffff;
+            padding: 9px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .banner-yellow-subtle {
+            background: #fffbeb;
+            color: #92400e;
+            border-bottom: 1px solid #fde68a;
+            padding: 8px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* GREEN SYNCED BANNER */
+        .banner-green-bar {
+            background: #ecfdf5;
+            color: #065f46;
+            border-bottom: 1px solid #a7f3d0;
+            padding: 9px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* ==========================================================================
+           TAB 1: HOME (DRIVER OVERVIEW)
+           ========================================================================== */
+        .home-overview-pad {
+            padding: 18px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .home-profile-card {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .home-profile-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .driver-badge-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f59e0b;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 15px;
+        }
+
+        .home-stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .home-stat-box {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        /* ==========================================================================
+           TAB 2: DELIVERIES (SCREENSHOT 2: DRIVER-HOME)
+           ========================================================================== */
+        .home-pad {
+            padding: 18px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .home-main-title {
+            font-size: 22px;
+            font-weight: 900;
+            color: #0f172a;
+            text-align: center;
+        }
+
+        .trip-active-card {
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 18px 16px;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .trip-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .trip-orange-label {
+            font-size: 10px;
+            font-weight: 800;
+            color: #ea580c;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .pill-3-stops {
+            background: #fef3c7;
+            color: #b45309;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: var(--radius-pill);
+        }
+
+        .trip-name-title {
+            font-size: 18px;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        .trip-tags-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tag-gray-pill {
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: var(--radius-xs);
+            font-size: 11px;
+            font-weight: 700;
+            color: #334155;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .trip-progress-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stop-progress-text {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .timeline-dots-track {
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding: 4px 0;
+        }
+
+        .dot-circle {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 900;
+            z-index: 2;
+        }
+
+        .dot-circle.done {
+            background: #10b981;
+            color: #ffffff;
+        }
+
+        .dot-circle.current {
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+        .dot-circle.pending {
+            border: 2px solid #cbd5e1;
+            background: #ffffff;
+        }
+
+        .dots-line-segment {
+            flex: 1;
+            height: 2px;
+            border-top: 2px dotted #cbd5e1;
+        }
+
+        .dots-line-segment.active-line {
+            border-top: 2px dotted #10b981;
+        }
+
+        .pill-chilled-blue {
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .trip-locked-banner {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .notif-orange-card {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-left: 4px solid #f59e0b;
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .btn-red-pill {
+            background: var(--primary-red);
+            color: #ffffff;
+            border: none;
+            padding: 16px;
+            border-radius: var(--radius-pill);
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(217, 45, 32, 0.25);
+            transition: background 0.15s ease;
+        }
+
+        .btn-red-pill:hover {
+            background: var(--primary-red-hover);
+        }
+
+        /* ==========================================================================
+           TAB 3: ROUTES (SCREENSHOT 3: STOP-LIST)
+           ========================================================================== */
+        .stop-list-title-header {
+            font-size: 20px;
+            font-weight: 900;
+            color: #0f172a;
+            text-align: center;
+            padding: 8px 0;
+        }
+
+        .stop-list-scroll {
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .stop-item-box {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stop-item-box.active-blue-card {
+            background: #eff6ff;
+            border: 1.5px solid #3b82f6;
+            border-radius: var(--radius-lg);
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+            padding: 14px;
+        }
+
+        .stop-active-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .pill-wait-blue {
+            background: #dbeafe;
+            color: #1e40af;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: var(--radius-xs);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .big-min-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid #3b82f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #1e40af;
+            font-size: 14px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .big-min-circle span {
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .dual-actions-bar {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 10px;
+            padding: 12px 16px;
+        }
+
+        .btn-issue-white {
+            background: #ffffff;
+            color: #0f172a;
+            border: 1px solid var(--border-color);
+            padding: 13px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-serviced-red {
+            background: var(--primary-red);
+            color: #ffffff;
+            border: none;
+            padding: 13px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        /* ==========================================================================
+           TAB 4: ACTIVITY (SCREENSHOT 4: STOP-DETAIL)
+           ========================================================================== */
+        .detail-top-nav-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .btn-tap-call-green {
+            background: #10b981;
+            color: #ffffff;
+            border: none;
+            padding: 10px 14px;
+            border-radius: var(--radius-pill);
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin: 12px 16px 6px;
+        }
+
+        .detail-content-pad {
+            padding: 0 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .input-form-text {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            outline: none;
+            background: #ffffff;
+        }
+
+        .camera-box-dashed {
+            border: 1.5px dashed #cbd5e1;
+            border-radius: var(--radius-md);
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            background: #FAF9F6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        /* ==========================================================================
+           DEFERRAL DRAWER (SCREENSHOT 5 & NEXT ORDER FLOW)
+           ========================================================================== */
+        .defer-screen-body {
+            padding: 16px 18px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background: #FAF9F6;
+        }
+
+        .defer-title-bar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            padding-top: 4px;
+        }
+
+        .defer-main-heading {
+            font-size: 19px;
+            font-weight: 900;
+            color: #0f172a;
+            line-height: 1.25;
+            letter-spacing: -0.02em;
+        }
+
+        .close-circle-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 15px;
+            color: #475569;
+            flex-shrink: 0;
+            transition: background 0.15s ease;
+        }
+
+        .close-circle-btn:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .assistant-ranking-label {
+            font-size: 13px;
+            font-weight: 800;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 2px;
+        }
+
+        .assistant-ranking-label svg,
+        .assistant-ranking-label span {
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .defer-grid-table {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #ffffff;
+        }
+
+        .defer-grid-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            font-size: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .defer-grid-row:last-child {
+            border-bottom: none;
+        }
+
+        .defer-row-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .defer-row-val {
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .alert-red-warning-card {
+            background: #fff5f5;
+            border: 1px solid #fecdd3;
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .alert-red-warning-card svg {
+            width: 18px;
+            height: 18px;
+            color: #e11d48;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .alert-red-title {
+            font-size: 12px;
+            font-weight: 800;
+            color: #e11d48;
+            margin-bottom: 2px;
+        }
+
+        .alert-red-desc {
+            font-size: 11px;
+            color: #be123c;
+            line-height: 1.4;
+            font-weight: 500;
+        }
+
+        .form-field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-field-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: #334155;
+        }
+
+        .form-field-textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #0f172a;
+            outline: none;
+            resize: vertical;
+            background: #ffffff;
+            font-family: inherit;
+        }
+
+        .form-field-textarea:focus,
+        .form-field-select:focus {
+            border-color: #2563eb;
+        }
+
+        .form-field-select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #0f172a;
+            outline: none;
+            background: #ffffff;
+            cursor: pointer;
+        }
+
+        .alert-blue-notice-card {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-blue-notice-card svg {
+            width: 16px;
+            height: 16px;
+            color: #2563eb;
+            flex-shrink: 0;
+        }
+
+        .alert-blue-desc {
+            font-size: 11px;
+            color: #1d4ed8;
+            line-height: 1.4;
+            font-weight: 500;
+        }
+
+        .defer-actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 12px;
+            margin-top: 4px;
+        }
+
+        .btn-cancel-white {
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            color: #0f172a;
+            padding: 13px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s ease;
+        }
+
+        .btn-cancel-white:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+        }
+
+        .btn-defer-red {
+            background: #d92d20;
+            color: #ffffff;
+            border: none;
+            padding: 13px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(217, 45, 32, 0.25);
+            transition: background 0.15s ease;
+        }
+
+        .btn-defer-red:hover {
+            background: #b42318;
+        }
+
+        /* ==========================================================================
+           TAB 5: MORE (CONNECTIVITY & SYNC: SCREENSHOTS 1, 6, 7, 8)
+           ========================================================================== */
+        .queue-rows-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 10px 16px;
+        }
+
+        .queue-item-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .queue-item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-square-box {
+            width: 34px;
+            height: 34px;
+            border-radius: var(--radius-sm);
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+        }
+
+        .pill-tag-queued {
+            background: #fffbeb;
+            color: #b45309;
+            border: 1px solid #fde68a;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: var(--radius-xs);
+        }
+
+        .pill-tag-synced {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: var(--radius-xs);
+        }
+
+        .wifi-switch-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #334155;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* TOGGLE SWITCH */
+        .ios-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .ios-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .ios-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1;
+            transition: .2s;
+            border-radius: 24px;
+        }
+
+        .ios-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .2s;
+            border-radius: 50%;
+        }
+
+        input:checked + .ios-slider {
+            background-color: #10b981;
+        }
+
+        input:checked + .ios-slider:before {
+            transform: translateX(20px);
+        }
+
+        /* --- BOTTOM APP NAVIGATION BAR --- */
+        .phone-tab-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 58px;
+            background: #FAF9F6;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 50;
+        }
+
+        .nav-tab-action {
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            font-size: 9px;
+            font-weight: 800;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        .nav-tab-action.active {
+            color: #2563eb;
+        }
+
+        /* AUTH LOCK */
+        #auth-lock-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+        }
+
+        /* SIGNATURE CANVAS */
+        #canvas-wrap {
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 8px;
+            background: #ffffff;
+            position: relative;
+            margin-top: 6px;
+        }
+
+        #pod-canvas {
+            width: 100%;
+            height: 110px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- AUTH LOCK OVERLAY -->
+    <div id="auth-lock-screen">
+        <div class="auth-card">
+            <div style="font-size: 11px; font-weight: 800; color: #b42318; text-transform: uppercase; margin-bottom: 6px;">
+                🔒 Driver Authentication Required
+            </div>
+            <h2 style="font-size: 20px; font-weight: 900; margin-bottom: 8px;">Driver Portal</h2>
+            <p style="font-size: 12px; color: #64748b; margin-bottom: 20px;">Please login with your driver credentials to access the delivery routes.</p>
+            
+            <form onsubmit="handleDriverAuth(event)">
+                <input type="text" id="driver-user" placeholder="Username (driver)" required style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                <input type="password" id="driver-pass" placeholder="Password (drive123)" required style="width: 100%; padding: 12px; margin-bottom: 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                <button type="submit" style="width: 100%; padding: 12px; background: #0f172a; color: #ffffff; border: none; border-radius: 8px; font-weight: 800; cursor: pointer;">Unlock Driver Portal</button>
+            </form>
+
+            <button type="button" onclick="quickFillDriverAuth()" style="margin-top: 12px; background: none; border: 1px dashed #cbd5e1; padding: 8px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; color: #475569; width: 100%; cursor: pointer;">
+                ⚡ Auto-fill Demo (driver / drive123)
+            </button>
+            <div style="margin-top: 14px;">
+                <a href="index.html" style="font-size: 11px; color: #64748b; text-decoration: none; font-weight: 600;">← Return to Main Login</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOP SCREEN SELECTOR JUMP BAR -->
+    <div class="top-screen-switcher-bar">
+        <span style="font-size: 11px; font-weight: 800; color: #ffffff;">📱 SELECT DRIVER SCREEN:</span>
+        <select class="screen-select-dropdown" id="screen-dropdown" onchange="jumpToScreen(this.value)">
+            <option value="driver-overview">1. Home (Driver Profile & Summary)</option>
+            <option value="driver-home">2. Deliveries (Trip 1 Kandy Corridor)</option>
+            <option value="stop-list">3. Routes (Stop List & Current Stop OUT088)</option>
+            <option value="stop-detail">4. Activity (Activities & POD Sign-off)</option>
+            <option value="screen-10-defer">5. Deferral Drawer (ORD-2241 OUT074)</option>
+            <option value="connectivity-v3b">6. More: Connectivity (4 Queued)</option>
+            <option value="connectivity-v3c">7. More: Synced State</option>
+            <option value="notification-driver">8. Notification (4 Records Accepted / Conflict Resolved)</option>
+        </select>
+    </div>
+
+    <!-- PHONE DEVICE FRAME -->
+    <div class="phone-mockup-frame">
+        
+        <!-- STATUS BAR -->
+        <div class="ios-status-bar">
+            <span id="phone-clock">08:41</span>
+            <div class="ios-status-icons">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                <span>5G</span>
+                <span style="font-size: 10px;">100%</span>
+            </div>
+        </div>
+
+        <!-- INNER VIEWPORT -->
+        <div class="phone-screen-viewport">
+
+            <!-- ================================================================
+                 TAB 1: HOME (DRIVER OVERVIEW)
+                 ================================================================ -->
+            <div class="driver-screen active" id="scr-driver-overview">
+                
+                <!-- TOP OFFLINE BANNER -->
+                <div style="margin: 8px 16px 4px; background: #FAF9F6; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: #475569; font-weight: 600;" onclick="jumpToScreen('connectivity-v3b')" title="Tap to view offline buffer">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+                    <span><strong>Offline</strong> · Working locally · 4 queued · last synced 06:18</span>
+                </div>
+
+                <!-- TOP HEADER -->
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px 10px; background: #FAF9F6;">
+                    <button onclick="jumpToScreen('driver-overview')" style="background: none; border: none; font-size: 20px; color: var(--text-dark); cursor: pointer; display: flex; align-items: center; padding: 2px 4px;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                    <h1 style="font-size: 18px; font-weight: 900; color: var(--text-dark); margin: 0;">Home</h1>
+                    <div style="display: flex; align-items: center; gap: 8px; cursor: pointer;" onclick="jumpToScreen('connectivity-v3b')">
+                        <div style="position: relative;">
+                            <div style="width: 34px; height: 34px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #1e293b; border: 1.5px solid #cbd5e1;">
+                                SP
+                            </div>
+                            <span style="position: absolute; bottom: -2px; right: -2px; width: 14px; height: 14px; border-radius: 50%; background: #f1f5f9; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 8px;">📶</span>
+                        </div>
+                        <div style="line-height: 1.2;">
+                            <div style="font-size: 12px; font-weight: 800; color: var(--text-dark);">Sunil</div>
+                            <div style="font-size: 10px; color: #64748b;">VEH045</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 1: TODAY'S ROUTE -->
+                <div style="margin: 4px 16px 10px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; box-shadow: var(--shadow-card);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #2563eb;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                            <span>Today's Route</span>
+                        </div>
+                        <span style="background: #ecfdf5; color: #059669; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 9999px; display: flex; align-items: center; gap: 4px;">
+                            <span>✓</span> ON TIME
+                        </span>
+                    </div>
+
+                    <div style="font-size: 20px; font-weight: 900; color: var(--text-dark); margin: 6px 0 10px;">
+                        Kandy Corridor
+                    </div>
+
+                    <!-- TIMELINE PROGRESS BAR -->
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; align-items: center; gap: 4px; height: 6px; margin-bottom: 6px;">
+                            <div style="height: 6px; width: 38%; background: #10b981; border-radius: 9999px;"></div>
+                            <div style="height: 6px; width: 62%; background: #e2e8f0; border-radius: 9999px;"></div>
+                        </div>
+                        <div style="font-size: 11px; color: #64748b; font-weight: 600;">
+                            Stop <strong style="color: #2563eb;">2</strong> of 5
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 10px; font-size: 11px; color: #475569; font-weight: 600; flex-wrap: wrap; margin-bottom: 8px;">
+                        <span>🚗 Tech Standard</span>
+                        <span>•</span>
+                        <span>⏱️ 118/270 min</span>
+                        <span>•</span>
+                        <span>🔋 85%</span>
+                    </div>
+
+                    <div>
+                        <span style="background: #f1f5f9; color: #475569; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 9999px; display: inline-block;">
+                            dairy • meat • produce
+                        </span>
+                    </div>
+                </div>
+
+                <!-- CARD 2: CURRENT STOP -->
+                <div style="margin: 0 16px 12px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; box-shadow: var(--shadow-card);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#2563eb"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                            <span style="font-size: 16px; font-weight: 900; color: #2563eb;">2</span>
+                            <span style="color: #cbd5e1; margin: 0 2px;">|</span>
+                            <span style="font-size: 14px; font-weight: 800; color: var(--text-dark);">Cold Storage Hub</span>
+                        </div>
+                        <span style="background: #2563eb; color: #ffffff; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 9999px;">
+                            CURRENT
+                        </span>
+                    </div>
+
+                    <div style="font-size: 11px; color: #64748b; margin-bottom: 12px; padding-left: 22px;">
+                        🕒 07:00–07:30
+                    </div>
+
+                    <div style="padding-top: 10px; border-top: 1px solid #f1f5f9; display: flex; align-items: center; gap: 14px;">
+                        <!-- CIRCULAR TIMER RING -->
+                        <div style="position: relative; width: 44px; height: 44px; flex-shrink: 0;">
+                            <svg width="44" height="44" viewBox="0 0 36 36">
+                                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e2e8f0" stroke-width="3.5"/>
+                                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831" fill="none" stroke="#2563eb" stroke-width="3.5" stroke-dasharray="60, 100" stroke-linecap="round"/>
+                            </svg>
+                            <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1;">
+                                <span style="font-size: 10px; font-weight: 900; color: #0f172a;">16</span>
+                                <span style="font-size: 7px; color: #64748b; font-weight: 700;">min</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div style="font-size: 12px; font-weight: 800; color: #0f172a;">WAIT 16 min</div>
+                            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Dock constraints: 20ft max · Rear only</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QUICK ACTIONS -->
+                <div style="padding: 0 16px 12px;">
+                    <div style="font-size: 12px; font-weight: 800; color: var(--text-dark); margin-bottom: 8px;">Quick Actions</div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                        <button onclick="jumpToScreen('stop-list')" style="background: #FAF9F6; border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 11px; font-weight: 700; color: #0f172a; cursor: pointer; box-shadow: var(--shadow-card);">
+                            <span style="color: #2563eb;">🧭</span> Navigate
+                        </button>
+                        <button onclick="alert('Calling Dispatcher Command Center: +94 11 234 5678')" style="background: #FAF9F6; border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 11px; font-weight: 700; color: #0f172a; cursor: pointer; box-shadow: var(--shadow-card);">
+                            <span style="color: #2563eb;">📞</span> Dispatcher
+                        </button>
+                        <button onclick="jumpToScreen('screen-10-defer')" style="background: #FAF9F6; border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 11px; font-weight: 700; color: #0f172a; cursor: pointer; box-shadow: var(--shadow-card);">
+                            <span style="color: #dc2626;">⚠️</span> Issue
+                        </button>
+                    </div>
+                </div>
+
+                <!-- NOTIFICATIONS CARD -->
+                <div style="margin: 0 16px 16px; background: #FAF9F6; border: 1px solid var(--border-color); border-radius: 14px; padding: 12px 14px; cursor: pointer; box-shadow: var(--shadow-card);" onclick="jumpToScreen('notification-driver')">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #0f172a;">
+                            <span style="color: #ea580c;">🔔</span> Notifications
+                        </div>
+                        <span style="background: #ef4444; color: #ffffff; font-size: 10px; font-weight: 800; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            1
+                        </span>
+                    </div>
+
+                    <div style="display: flex; align-items: flex-start; gap: 10px;">
+                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #fef3c7; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #d97706; flex-shrink: 0;">
+                            ⚠️
+                        </div>
+                        <div style="font-size: 11px; line-height: 1.35; color: #475569;">
+                            <div style="font-weight: 700; color: #0f172a;">Kandy Corridor Schedule Shifted –</div>
+                            <div>Stop 2 window opens <strong style="color: #2563eb;">07:00</strong></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PRIMARY CTA BUTTON -->
+                <div style="padding: 0 16px 14px;">
+                    <button class="btn-red-pill" onclick="jumpToScreen('stop-list')" style="width: 100%; padding: 14px; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <span>Continue to Stop 2</span>
+                        <span style="font-size: 16px;">›</span>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- ================================================================
+                 TAB 2: DELIVERIES (SCREENSHOT 2: DRIVER-HOME)
+                 ================================================================ -->
+            <div class="driver-screen" id="scr-driver-home">
+                <div class="home-pad">
+                    <h2 class="home-main-title">Deliveries</h2>
+
+                    <!-- TRIP 1 OF 2 -->
+                    <div class="trip-active-card">
+                        <div class="trip-top-row">
+                            <span class="trip-orange-label">TRIP 1 OF 2</span>
+                            <span class="pill-3-stops">3 stops</span>
+                        </div>
+
+                        <div class="trip-name-title">Kandy corridor</div>
+
+                        <div class="trip-tags-row">
+                            <span class="tag-gray-pill">🔥 118/270 min >85%</span>
+                            <span class="tag-gray-pill">🗂️ Tech standard</span>
+                        </div>
+
+                        <div class="trip-progress-box">
+                            <span class="stop-progress-text">Stop progress: stop 2 of 3</span>
+                            <div class="timeline-dots-track">
+                                <div class="dot-circle done">✓</div>
+                                <div class="dots-line-segment active-line"></div>
+                                <div class="dot-circle current"></div>
+                                <div class="dots-line-segment"></div>
+                                <div class="dot-circle pending"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="pill-chilled-blue">📦 chilled: dairy • meat • produce</span>
+                        </div>
+                    </div>
+
+                    <!-- TRIP 2 OF 2 LOCKED -->
+                    <div class="trip-locked-banner">
+                        <div>
+                            <div style="font-size: 13px; font-weight: 800; color: #0f172a;">Trip 2 of 2</div>
+                            <div style="font-size: 11px; color: #64748b;">Awaiting dispatch</div>
+                        </div>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+
+                    <!-- NOTIFICATIONS -->
+                    <div>
+                        <div style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 6px;">NOTIFICATIONS</div>
+                        <div class="notif-orange-card" onclick="jumpToScreen('notification-driver')" style="cursor: pointer;" title="Tap to inspect notification">
+                            <div style="font-size: 12px; font-weight: 800; color: #92400e; display: flex; justify-content: space-between; align-items: center;">
+                                <span>⚠️ Kandy Corridor Schedule Shifted</span>
+                                <span style="font-size: 10px; color: #ea580c; font-weight: 700;">View Details ›</span>
+                            </div>
+                            <div style="font-size: 11px; color: #b45309; margin-top: 3px;">
+                                Stop 2: Cold Storage Hub arrival window opens 07:00.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CONTINUE BUTTON -->
+                    <button class="btn-red-pill" onclick="jumpToScreen('stop-list')">
+                        Continue to stop 2
+                    </button>
+                </div>
+            </div>
+
+            <!-- ================================================================
+                 TAB 3: ROUTES (SCREENSHOT 3: STOP-LIST)
+                 =============================================================== -->
+            <div class="driver-screen" id="scr-stop-list">
+                
+                <div class="driver-top-user-bar">
+                    <div class="user-chip-name" onclick="jumpToScreen('connectivity-v3b')">
+                        <span>👋 Sunil • VEH045</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+                    <span class="pill-offline-beige" onclick="jumpToScreen('connectivity-v3b')">OFFLINE • 4 QUEUED</span>
+                </div>
+
+                <div class="banner-yellow-subtle" onclick="jumpToScreen('connectivity-v3b')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    Offline • Working locally • 4 queued • synced 06:18
+                </div>
+
+                <div class="stop-list-title-header">Routes</div>
+
+                <div style="padding: 0 16px; font-size: 12px; font-weight: 800; color: #0f172a;">
+                    Stop list • fully usable offline
+                </div>
+
+                <div class="stop-list-scroll">
+                    
+                    <!-- STOP 1 -->
+                    <div class="stop-item-box">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="color: #10b981; font-weight: 900;">✓</div>
+                            <div>
+                                <div style="font-size: 13px; font-weight: 800;">1 • Warehouse</div>
+                                <div style="font-size: 10px; color: #64748b;">Departed 05:42</div>
+                            </div>
+                        </div>
+                        <span style="font-size: 11px; font-weight: 800; color: #94a3b8;">#1</span>
+                    </div>
+
+                    <!-- STOP 2 (CURRENT ACTIVE BLUE CARD) -->
+                    <div class="stop-item-box active-blue-card" onclick="jumpToScreen('stop-detail')">
+                        <div class="stop-active-top-row">
+                            <span style="font-size: 14px; font-weight: 800; color: #1e3a8a;">2 • Cold Storage Hub (current)</span>
+                        </div>
+
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <span class="pill-wait-blue">🕒 WAIT</span>
+                                <div style="font-size: 13px; font-weight: 900; color: #0f172a; margin-top: 4px;">OUT088 • arrived 06:36</div>
+                                <div style="font-size: 11px; color: #2563eb;">window opens 07:00 • wait 16 min</div>
+                                <div style="font-size: 10px; font-weight: 700; color: #1e40af; margin-top: 4px;">📦 Goods • chilled</div>
+                            </div>
+                            <div class="big-min-circle">
+                                16
+                                <span>min</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STOP 3 -->
+                    <div class="stop-item-box">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="color: #10b981; font-weight: 900;">✓</div>
+                            <div>
+                                <div style="font-size: 13px; font-weight: 800;">3 • Metro Fresh Market</div>
+                                <div style="font-size: 10px; color: #64748b;">Serviced 06:02</div>
+                            </div>
+                        </div>
+                        <span style="font-size: 11px; font-weight: 800; color: #94a3b8;">#3</span>
+                    </div>
+
+                    <!-- STOP 4 -->
+                    <div class="stop-item-box">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="color: #cbd5e1; font-weight: 900;">○</div>
+                            <div>
+                                <div style="font-size: 13px; font-weight: 800;">4 • Sunrise Supermart</div>
+                                <div style="font-size: 10px; color: #64748b;">Pending</div>
+                            </div>
+                        </div>
+                        <span style="font-size: 11px; font-weight: 800; color: #94a3b8;">#4</span>
+                    </div>
+
+                </div>
+
+                <div class="dual-actions-bar">
+                    <button class="btn-issue-white" onclick="jumpToScreen('screen-10-defer')">ISSUE</button>
+                    <button class="btn-serviced-red" onclick="jumpToScreen('stop-detail')">MARK SERVICED</button>
+                </div>
+            </div>
+
+            <!-- ================================================================
+                 TAB 4: ACTIVITY (SCREENSHOT 4: STOP-DETAIL / ACTIVITIES)
+                 ================================================================ -->
+            <div class="driver-screen" id="scr-stop-detail">
+                
+                <div class="detail-top-nav-bar">
+                    <span style="font-size: 14px; font-weight: 900; color: #0f172a;">Activities</span>
+                    <button style="background: none; border: none; font-size: 18px; cursor: pointer;" onclick="jumpToScreen('stop-list')">✕</button>
+                </div>
+
+                <div style="padding: 12px 16px 0; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <h2 style="font-size: 24px; font-weight: 900; color: #0f172a;" id="stop-detail-outlet-title">OUT088</h2>
+                        <div style="font-size: 11px; color: #64748b;" id="stop-detail-outlet-sub">Springfield Industrial District</div>
+                    </div>
+                    <span class="pill-tag-synced">SYNCED ✓</span>
+                </div>
+
+                <button class="btn-tap-call-green" id="stop-detail-call-btn" onclick="alert('Calling Alex at 077 191 2223...')">
+                    📞 Tap to call - Alex, 077 191 2223
+                </button>
+
+                <div class="detail-content-pad">
+                    
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: #eff6ff; padding: 12px 14px; border-radius: 10px;">
+                        <div>
+                            <span class="pill-wait-blue">WAIT</span>
+                            <div style="font-size: 12px; color: #1e40af; font-weight: 800; margin-top: 3px;">Arrival window starts 07:00</div>
+                            <div style="font-size: 10px; color: #64748b;">Dock empty • wait required</div>
+                        </div>
+                        <div class="big-min-circle">18m</div>
+                    </div>
+
+                    <!-- GOODS BREAKDOWN -->
+                    <div>
+                        <div style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 6px;">GOODS BREAKDOWN</div>
+                        <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                            <span style="background: #f1f5f9; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700;">Dairy</span>
+                            <span style="background: #f1f5f9; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700;">Meat</span>
+                            <span style="background: #f1f5f9; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700;">Produce</span>
+                        </div>
+                        <div style="font-size: 10px; color: #64748b;">Dock constraints: Street dock • ~16 min allowance</div>
+                    </div>
+
+                    <!-- PROOF OF DELIVERY (POD) -->
+                    <div>
+                        <div style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 6px;">PROOF OF DELIVERY (POD)</div>
+                        
+                        <label style="display: block; font-size: 11px; color: #64748b; margin-bottom: 4px;">Recipient Name</label>
+                        <input type="text" class="input-form-text" id="recipient-name-input" placeholder="Enter recipient name" value="T. Vance">
+
+                        <label style="display: block; font-size: 11px; color: #64748b; margin-top: 8px; margin-bottom: 4px;">Outcome status</label>
+                        <select class="input-form-text" id="outcome-status-select">
+                            <option>delivered — full</option>
+                            <option>delivered — partial</option>
+                        </select>
+
+                        <!-- DIGITAL SIGNATURE -->
+                        <div id="canvas-wrap">
+                            <canvas id="pod-canvas"></canvas>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #94a3b8; font-size: 11px; pointer-events: none;" id="pod-label">Recipient signature pad</div>
+                        </div>
+
+                        <div class="camera-box-dashed" style="margin-top: 8px;" onclick="alert('Camera module ready. Dock photo captured.')">
+                            📷 Take photo proof of goods
+                        </div>
+                    </div>
+
+                    <div style="font-size: 10px; color: #64748b; display: flex; align-items: center; gap: 4px;">
+                        <span>ℹ️</span> High sunlight glare? Check curb & vehicle shadows.
+                    </div>
+
+                </div>
+
+                <div class="dual-actions-bar">
+                    <button class="btn-issue-white" onclick="handleArrivalNextOrder()">ISSUE</button>
+                    <button class="btn-serviced-red" onclick="handleArrivalNextOrder()">ARRIVED</button>
+                </div>
+            </div>
+
+            <!-- ================================================================
+                 DEFERRAL DRAWER (SCREENSHOT 5 & NEXT ORDER FLOW)
+                 ================================================================ -->
+            <div class="driver-screen" id="scr-screen-10-defer">
+                <div class="defer-screen-body">
+                    
+                    <div class="defer-title-bar">
+                        <h2 class="defer-main-heading">Defer ORD-2241 · OUT074 · chilled · 420 kg</h2>
+                        <button class="close-circle-btn" onclick="jumpToScreen('stop-list')" title="Close">✕</button>
+                    </div>
+
+                    <div class="assistant-ranking-label">
+                        <span>Assistant ranking</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </div>
+
+                    <div class="defer-grid-table">
+                        <div class="defer-grid-row">
+                            <div class="defer-row-left">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                <span>days_since_last_served</span>
+                            </div>
+                            <span class="defer-row-val">2</span>
+                        </div>
+                        <div class="defer-grid-row">
+                            <div class="defer-row-left">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                                <span>window</span>
+                            </div>
+                            <span class="defer-row-val">Next delivery window</span>
+                        </div>
+                        <div class="defer-grid-row">
+                            <div class="defer-row-left">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                                <span>temp flexibility</span>
+                            </div>
+                            <span class="defer-row-val">High (chilled)</span>
+                        </div>
+                        <div class="defer-grid-row">
+                            <div class="defer-row-left">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                <span>cost</span>
+                            </div>
+                            <span class="defer-row-val">Low</span>
+                        </div>
+                    </div>
+
+                    <div class="alert-red-warning-card">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <div>
+                            <div class="alert-red-title">Consecutive-defer warning</div>
+                            <div class="alert-red-desc">OUT074 was deferred yesterday (by ORD-2198). Consecutive deferrals may affect service score.</div>
+                        </div>
+                    </div>
+
+                    <div class="form-field-group">
+                        <label class="form-field-label">Override note (optional)</label>
+                        <textarea class="form-field-textarea" id="defer-override-note" rows="3" placeholder="Add context for this deferral (visible to store and audit trail)"></textarea>
+                    </div>
+
+                    <div class="form-field-group">
+                        <label class="form-field-label">Reason code *</label>
+                        <select class="form-field-select" id="defer-reason-code">
+                            <option value="">Select a reason</option>
+                            <option value="REE" selected>Reefer Capacity / Load Balancing</option>
+                            <option value="STORE_CLOSED">Store Closed / Receiver Unavailable</option>
+                            <option value="DOCK_BLOCKED">Dock Congestion / Access Blocked</option>
+                            <option value="CUST_REQ">Customer Request</option>
+                        </select>
+                    </div>
+
+                    <div class="form-field-group">
+                        <label class="form-field-label">Next run promise *</label>
+                        <select class="form-field-select" id="defer-next-promise">
+                            <option value="tomorrow_0630">📅 tomorrow · promised 06:30</option>
+                            <option value="tomorrow_0800">📅 tomorrow · promised 08:00</option>
+                            <option value="today_1800">📅 today · promised 18:00 (Evening)</option>
+                        </select>
+                    </div>
+
+                    <div class="alert-blue-notice-card">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        <div class="alert-blue-desc">This deferral will notify the store manager immediately and be recorded in the order trail.</div>
+                    </div>
+
+                    <div class="defer-actions-grid">
+                        <button class="btn-cancel-white" onclick="cancelDeferralAndContinueOrder()">Cancel</button>
+                        <button class="btn-defer-red" onclick="executeDeferral()">Defer Order</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ================================================================
+                 TAB 5: MORE (CONNECTIVITY-V3B: OFFLINE 4 QUEUED) (SCREENSHOT 1 & 7)
+                 ================================================================ -->
+            <div class="driver-screen" id="scr-connectivity-v3b">
+                
+                <div class="driver-top-user-bar">
+                    <div class="user-chip-name">
+                        <span>☰ 👋 Sunil • VEH045</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+                    <span class="pill-offline-beige">OFFLINE</span>
+                </div>
+
+                <div class="banner-yellow-solid">
+                    <span>⚠️ 4 queued • last synced 06:18 • offline mode</span>
+                    <span>🔄</span>
+                </div>
+
+                <div style="padding: 12px 16px 4px; font-size: 11px; font-weight: 800; color: #64748b; display: flex; justify-content: space-between;">
+                    <span>QUEUED FOR SYNC</span>
+                    <span style="color: #b45309;">4 records queued</span>
+                </div>
+
+                <div class="queue-rows-container">
+                    <div class="queue-item-card">
+                        <div class="queue-item-left">
+                            <div class="icon-square-box">📄</div>
+                            <div>
+                                <div style="font-size: 12px; font-weight: 800;">Delivery #D9382</div>
+                                <div style="font-size: 10px; color: #64748b;">POD captured • 06:22</div>
+                            </div>
+                        </div>
+                        <span class="pill-tag-queued">QUEUED</span>
+                    </div>
+
+                    <div class="queue-item-card">
+                        <div class="queue-item-left">
+                            <div class="icon-square-box">📍</div>
+                            <div>
+                                <div style="font-size: 12px; font-weight: 800;">Stop #S7124 updated</div>
+                                <div style="font-size: 10px; color: #64748b;">Departed warehouse • 06:34</div>
+                            </div>
+                        </div>
+                        <span class="pill-tag-queued">QUEUED</span>
+                    </div>
+
+                    <div class="queue-item-card">
+                        <div class="queue-item-left">
+                            <div class="icon-square-box">📝</div>
+                            <div>
+                                <div style="font-size: 12px; font-weight: 800;">Delivery #D9383</div>
+                                <div style="font-size: 10px; color: #64748b;">Customer signature • 06:45</div>
+                            </div>
+                        </div>
+                        <span class="pill-tag-queued">QUEUED</span>
+                    </div>
+
+                    <div class="queue-item-card">
+                        <div class="queue-item-left">
+                            <div class="icon-square-box">✓</div>
+                            <div>
+                                <div style="font-size: 12px; font-weight: 800;">Stop #S7125 completed</div>
+                                <div style="font-size: 10px; color: #64748b;">Arrived at hub • 06:50</div>
+                            </div>
+                        </div>
+                        <span class="pill-tag-queued">QUEUED</span>
+                    </div>
+                </div>
+
+                <div class="wifi-switch-row">
+                    <span>Upload on Wi-Fi only</span>
+                    <label class="ios-switch">
+                        <input type="checkbox">
+                        <span class="ios-slider"></span>
+                    </label>
+                </div>
+
+                <div style="padding: 14px 16px;">
+                    <button class="btn-red-pill" onclick="simulateReconnection()">
+                        ⚡ Simulate Reconnect & Sync
+                    </button>
+                </div>
+            </div>
+
+            <!-- ================================================================
+                 TAB 5 ALT: MORE (CONNECTIVITY-V3C: SYNCED STATE) (SCREENSHOT 8)
+                 ================================================================ -->
+            <div class="driver-screen" id="scr-connectivity-v3c">
+                
+                <div class="driver-top-user-bar">
+                    <div class="user-chip-name">
+                        <span>☰ 👋 Sunil • VEH045</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+                    <span class="pill-online-green">ONLINE</span>
+                </div>
+
+                <div class="banner-green-bar">
+                    <span>Synced • 4 records uploaded • 06:58</span>
+                    <span>🔄</span>
+                </div>
+
+                <!-- GREEN ACCEPTED BOX -->
+                <div style="margin: 12px 16px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 12px;">
+                    <div style="font-size: 12px; font-weight: 800; color: #065f46; display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <span>✓ 4 records accepted • 1 conflict</span>
+                        <span style="background: #a7f3d0; color: #065f46; font-size: 9px; padding: 2px 6px; border-radius: 4px;">RECONCILED</span>
+                    </div>
+                    <div style="font-size: 10px; color: #047857; line-height: 1.3;">
+                        Stop #S7124 was automatically re-sequenced by dispatcher. Your local changes have been preserved and synced correctly. No action needed.
+                    </div>
+                </div>
+
+                <div style="padding: 4px 16px 4px; font-size: 11px; font-weight: 800; color: #64748b; display: flex; justify-content: space-between;">
+                    <span>SYNCED ACTIVITY</span>
+                    <span style="color: #059669;">All caught up</span>
+                </div>
+
+                <div class="queue-rows-container">
+                    <div class="queue-item-card">
+                        <div class="queue-item-left">
+                            <div class="icon-square-box" style="color: #059669;">📄</div>
+                            <div>
+                                <div style="font-size: 12px; font-weight: 800;">Delivery #D9382</div>
+                                <div style="font-size: 10px; color: #64748b;">Uploaded successfully • 06:58</div>
+                            </div>
+                        </div>
+                        <span class="pill-tag-synced">SYNCED ✓</span>
+                    </div>
+
+                    <div class="queue-item-card">
+                        <div class="queue-item-left">
+                            <div class="icon-square-box" style="color: #059669;">📍</div>
+                            <div>
+                                <div style="font-size: 12px; font-weight: 800;">Stop #S7124 updated</div>
+                                <div style="font-size: 10px; color: #64748b;">Departed warehouse • 06:58</div>
+                            </div>
+                        </div>
+                        <span class="pill-tag-synced">SYNCED ✓</span>
+                    </div>
+
+                    <div class="queue-item-card">
+                        <div class="queue-item-left">
+                            <div class="icon-square-box" style="color: #059669;">📝</div>
+                            <div>
+                                <div style="font-size: 12px; font-weight: 800;">Delivery #D9383</div>
+                                <div style="font-size: 10px; color: #64748b;">Uploaded successfully • 06:58</div>
+                            </div>
+                        </div>
+                        <span class="pill-tag-synced">SYNCED ✓</span>
+                    </div>
+
+                    <div class="queue-item-card">
+                        <div class="queue-item-left">
+                            <div class="icon-square-box" style="color: #059669;">✓</div>
+                            <div>
+                                <div style="font-size: 12px; font-weight: 800;">Stop #S7125 completed</div>
+                                <div style="font-size: 10px; color: #64748b;">Arrived at hub • 06:58</div>
+                            </div>
+                        </div>
+                        <span class="pill-tag-synced">SYNCED ✓</span>
+                    </div>
+                </div>
+
+                <div class="wifi-switch-row">
+                    <span>Upload on Wi-Fi only</span>
+                    <label class="ios-switch">
+                        <input type="checkbox" checked>
+                        <span class="ios-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- ================================================================
+                 TAB: NOTIFICATION SCREEN (notification-driver)
+                 ================================================================ -->
+            <div class="driver-screen" id="scr-notification-driver">
+                
+                <!-- TOP HEADER -->
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border-color); background: #FAF9F6;">
+                    <button onclick="jumpToScreen('driver-home')" style="background: none; border: none; font-size: 20px; color: var(--text-dark); cursor: pointer; display: flex; align-items: center; padding: 2px 6px;">
+                        ←
+                    </button>
+                    <h2 style="font-size: 16px; font-weight: 800; color: var(--text-dark); margin: 0;">Notification</h2>
+                    <button onclick="alert('Constitution Principle: Completed proof of delivery remains bound to outlet regardless of sequence changes.')" style="background: none; border: none; font-size: 18px; color: var(--text-dark); cursor: pointer; display: flex; align-items: center; padding: 2px 6px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </button>
+                </div>
+
+                <!-- TOP SYNC RIBBON -->
+                <div style="background-color: #eaf8ee; color: #15803d; font-size: 11px; font-weight: 700; padding: 10px 16px; display: flex; align-items: center; gap: 8px;">
+                    <span style="display: flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid #15803d; font-size: 10px; font-weight: 900;">✓</span>
+                    <span>synced ✓ · 4 records uploaded - 06:58</span>
+                </div>
+
+                <!-- QUEUED PILLS -->
+                <div style="padding: 14px 16px 6px;">
+                    <div style="font-size: 12px; font-weight: 800; color: var(--text-dark); margin-bottom: 8px;">Queued</div>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <span style="background: #dcfce7; color: #166534; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 9999px;">synced ✓</span>
+                        <span style="background: #dcfce7; color: #166534; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 9999px;">synced ✓</span>
+                        <span style="background: #dcfce7; color: #166534; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 9999px;">synced ✓</span>
+                        <span style="background: var(--bg-card); color: #64748b; border: 1px solid #e2e8f0; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 9999px;">1 conflict</span>
+                    </div>
+                </div>
+
+                <!-- MAIN CARD (4 records accepted) -->
+                <div style="margin: 10px 16px 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; box-shadow: var(--shadow-card);">
+                    
+                    <!-- TITLE -->
+                    <div style="display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 900; color: var(--text-dark); padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; margin-bottom: 12px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                        <span>4 records accepted ✓</span>
+                    </div>
+
+                    <!-- 1 CONFLICT - RESOLVED -->
+                    <div style="margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #f1f5f9;">
+                        <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: var(--text-dark); margin-bottom: 4px;">
+                            <span style="color: #ef4444; font-size: 15px;">⚠️</span>
+                            <span>1 conflict — resolved:</span>
+                        </div>
+                        <div style="font-size: 11px; color: #475569; line-height: 1.45; padding-left: 21px;">
+                            Dispatch re-sequenced stop order while you were offline. Pending stops re-ordered. Completed PODs are bound to outlets, not sequence — your records stand.
+                        </div>
+                    </div>
+
+                    <!-- CONSTITUTION PRINCIPLE -->
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #166534; margin-bottom: 4px;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2.5"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+                            <span>Constitution principle</span>
+                        </div>
+                        <div style="font-size: 11px; color: #475569; line-height: 1.45; padding-left: 21px; margin-bottom: 6px;">
+                            Completed PODs are bound to outlets, not sequence — your records stand.
+                        </div>
+                        <div style="font-size: 10px; color: #64748b; font-style: italic; line-height: 1.4; padding-left: 21px;">
+                            "Justice requires that completed proof remains attached to its source, not to shifting order."
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ALL CLEAR CARD -->
+                <div style="margin: 0 16px 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px; box-shadow: var(--shadow-card);">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="flex-shrink: 0; margin-top: 1px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <div>
+                        <div style="font-size: 12px; font-weight: 800; color: var(--text-dark);">All clear. Your local records match the server.</div>
+                        <div style="font-size: 11px; color: #64748b; margin-top: 2px;">No further action required.</div>
+                    </div>
+                </div>
+
+                <!-- VIEW RECORDS BUTTON -->
+                <div style="padding: 0 16px 16px;">
+                    <button onclick="jumpToScreen('connectivity-v3c')" style="width: 100%; padding: 14px; background: #23783b; color: #ffffff; font-size: 14px; font-weight: 800; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 4px 10px rgba(35, 120, 59, 0.25); display: flex; align-items: center; justify-content: center;">
+                        View Records
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- BOTTOM NAVIGATION BAR WITH 5 EXACT TABS -->
+        <nav class="phone-tab-bar">
+            <button class="nav-tab-action active" id="tab-btn-home" onclick="jumpToScreen('driver-overview')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Home
+            </button>
+            <button class="nav-tab-action" id="tab-btn-deliv" onclick="jumpToScreen('driver-home')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/></svg>
+                Deliveries
+            </button>
+            <button class="nav-tab-action" id="tab-btn-routes" onclick="jumpToScreen('stop-list')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z"/></svg>
+                Routes
+            </button>
+            <button class="nav-tab-action" id="tab-btn-activity" onclick="jumpToScreen('stop-detail')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                Activity
+            </button>
+            <button class="nav-tab-action" id="tab-btn-more" onclick="jumpToScreen('connectivity-v3b')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                More
+            </button>
+        </nav>
+
+    </div>
+
+    <script>
+        // --- AUTH LOGIC ---
+        function checkDriverAuth() {
+            const authStr = sessionStorage.getItem('delivery_auth_user');
+            if (authStr) {
+                try {
+                    const user = JSON.parse(authStr);
+                    if (user.username === 'driver' || user.role === 'driver') {
+                        document.getElementById('auth-lock-screen').style.display = 'none';
+                        return;
+                    }
+                } catch(e) {}
+            }
+            document.getElementById('auth-lock-screen').style.display = 'flex';
+        }
+
+        function handleDriverAuth(e) {
+            e.preventDefault();
+            const user = document.getElementById('driver-user').value.trim();
+            const pass = document.getElementById('driver-pass').value.trim();
+
+            if (user === 'driver' && pass === 'drive123') {
+                sessionStorage.setItem('delivery_auth_user', JSON.stringify({
+                    username: 'driver',
+                    role: 'driver',
+                    name: 'Sunil (VEH045)',
+                    loginTime: new Date().toISOString()
+                }));
+                document.getElementById('auth-lock-screen').style.display = 'none';
+                initCanvas();
+            } else {
+                alert('Invalid driver credentials. Use driver / drive123');
+            }
+        }
+
+        function quickFillDriverAuth() {
+            document.getElementById('driver-user').value = 'driver';
+            document.getElementById('driver-pass').value = 'drive123';
+            handleDriverAuth({ preventDefault: () => {} });
+        }
+
+        // --- SCREEN NAVIGATION & EXACT TAB MATCHING ---
+        function jumpToScreen(screenId) {
+            document.querySelectorAll('.driver-screen').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tab-action').forEach(el => el.classList.remove('active'));
+
+            const target = document.getElementById('scr-' + screenId);
+            if (target) target.classList.add('active');
+
+            const dropdown = document.getElementById('screen-dropdown');
+            if (dropdown) dropdown.value = screenId;
+
+            // EXACT TAB HIGHLIGHT MATCHING:
+            if (screenId === 'driver-overview') {
+                document.getElementById('tab-btn-home').classList.add('active');
+            } else if (screenId === 'driver-home') {
+                document.getElementById('tab-btn-deliv').classList.add('active');
+            } else if (screenId === 'stop-list') {
+                document.getElementById('tab-btn-routes').classList.add('active');
+            } else if (screenId === 'stop-detail') {
+                document.getElementById('tab-btn-activity').classList.add('active');
+            } else if (screenId === 'screen-10-defer') {
+                document.getElementById('tab-btn-deliv').classList.add('active');
+            } else if (screenId === 'notification-driver') {
+                document.getElementById('tab-btn-more').classList.add('active');
+            } else if (screenId.includes('connectivity')) {
+                document.getElementById('tab-btn-more').classList.add('active');
+            }
+
+            if (screenId === 'stop-detail') {
+                setTimeout(resizeCanvas, 50);
+            }
+        }
+
+        // --- SIGNATURE CANVAS ---
+        let canvas, ctx;
+        let isDrawing = false;
+
+        function initCanvas() {
+            canvas = document.getElementById('pod-canvas');
+            if (!canvas) return;
+            ctx = canvas.getContext('2d');
+            resizeCanvas();
+
+            canvas.addEventListener('mousedown', startD);
+            canvas.addEventListener('mousemove', drawD);
+            window.addEventListener('mouseup', stopD);
+
+            canvas.addEventListener('touchstart', handleTouchS, { passive: false });
+            canvas.addEventListener('touchmove', handleTouchM, { passive: false });
+            window.addEventListener('touchend', stopD);
+        }
+
+        function resizeCanvas() {
+            if (!canvas) return;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+        }
+
+        function startD(e) {
+            isDrawing = true;
+            document.getElementById('pod-label').style.display = 'none';
+            ctx.beginPath();
+            const rect = canvas.getBoundingClientRect();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        function drawD(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+        }
+
+        function handleTouchS(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            isDrawing = true;
+            document.getElementById('pod-label').style.display = 'none';
+            ctx.beginPath();
+            ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        }
+
+        function handleTouchM(e) {
+            e.preventDefault();
+            if (!isDrawing) return;
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+            ctx.stroke();
+        }
+
+        function stopD() {
+            isDrawing = false;
+        }
+
+        // --- ACTIONS ---
+        function handleArrivalNextOrder() {
+            // When arrival is clicked, show next order details deferral screen
+            jumpToScreen('screen-10-defer');
+        }
+
+        function cancelDeferralAndContinueOrder() {
+            // Driver chooses NOT to defer: cancels deferral and continues with earlier cleared form for this new order (OUT074)
+            const titleEl = document.getElementById('stop-detail-outlet-title');
+            const subEl = document.getElementById('stop-detail-outlet-sub');
+            const recInput = document.getElementById('recipient-name-input');
+            const callBtn = document.getElementById('stop-detail-call-btn');
+
+            if (titleEl) titleEl.textContent = 'OUT074';
+            if (subEl) subEl.textContent = 'Oakwood Supercenter, Bay 04 (ORD-2241 · 420 kg chilled)';
+            if (callBtn) {
+                callBtn.textContent = '📞 Tap to call - Store Manager, 077 442 9918';
+                callBtn.onclick = () => alert('Calling Store Manager at 077 442 9918...');
+            }
+            if (recInput) recInput.value = '';
+
+            // Clear signature canvas
+            if (canvas && ctx) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const podLabel = document.getElementById('pod-label');
+                if (podLabel) podLabel.style.display = 'block';
+            }
+
+            alert('✓ Deferral Cancelled.\nProceeding to service new order: ORD-2241 (OUT074) with fresh POD signature form.');
+            jumpToScreen('stop-detail');
+        }
+
+        function finishStopDelivery() {
+            handleArrivalNextOrder();
+        }
+
+        function executeDeferral() {
+            const reasonSelect = document.getElementById('defer-reason-code');
+            const reasonText = reasonSelect ? reasonSelect.options[reasonSelect.selectedIndex].text : 'Reefer Capacity';
+            const note = document.getElementById('defer-override-note').value;
+
+            alert(`✓ Deferral Recorded for ORD-2241 (OUT074)!\n• Reason: ${reasonText}\n• Rescheduled: Tomorrow 06:30\n• Store Manager & Central Dispatch notified via queued sync.`);
+            jumpToScreen('stop-list');
+        }
+
+        function simulateReconnection() {
+            alert('Syncing with telematics hub...');
+            setTimeout(() => {
+                jumpToScreen('connectivity-v3c');
+            }, 500);
+        }
+
+        // --- CLOCK ---
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('phone-clock').textContent = timeStr;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            checkDriverAuth();
+            initCanvas();
+            setInterval(updateClock, 1000);
+            updateClock();
+        });
+    </script>
+</body>
+</html>

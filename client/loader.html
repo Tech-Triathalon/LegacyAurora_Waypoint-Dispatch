@@ -1,0 +1,2334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loader Dock Operations | Waypoint Logistics</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-canvas: #eef2f6;
+            --bg-card: #ffffff;
+            --bg-card-subtle: #fcfbf7;
+            --bg-card-dim: #f8fafc;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --text-light: #94a3b8;
+            --border-color: #e5e7eb;
+            --border-subtle: #f1f5f9;
+            --border-card: #e2e8f0;
+
+            --primary-black: #000000;
+            --header-black: #0a0a0a;
+            --red-flag: #e11d48;
+            --red-btn: #dc2626;
+            --red-bg: #fff1f2;
+            --red-border: #fecdd3;
+            --red-pill-border: #fda4af;
+            --red-pill-text: #e11d48;
+
+            --green-badge: #10b981;
+            --green-badge-bg: #ecfdf5;
+            --green-badge-border: #a7f3d0;
+            --green-text: #059669;
+            --green-btn: #15803d;
+
+            --amber-bg: #fef3c7;
+            --amber-border: #fde68a;
+            --amber-text: #b45309;
+            --amber-pill: #f59e0b;
+
+            --radius-xs: 4px;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 18px;
+            --radius-pill: 9999px;
+
+            --shadow-card: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-modal: 0 20px 40px -15px rgba(0,0,0,0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 24px 20px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* --- TOP SCREEN SELECTOR TABS (FOR EASY NAVIGATION) --- */
+        .top-screen-nav-bar {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .screen-nav-pill-group {
+            display: inline-flex;
+            background: #ffffff;
+            padding: 4px;
+            border-radius: var(--radius-pill);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+            border: 1px solid var(--border-color);
+        }
+
+        .screen-nav-btn {
+            background: transparent;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--radius-pill);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .screen-nav-btn:hover {
+            color: var(--text-dark);
+        }
+
+        .screen-nav-btn.active {
+            background: var(--header-black);
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        .top-user-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .glove-toggle-btn {
+            background: #0f172a;
+            color: #ffffff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: var(--radius-pill);
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .glove-toggle-btn.active {
+            background: #f59e0b;
+            color: #0f172a;
+        }
+
+        .btn-logout {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            color: var(--text-dark);
+            padding: 6px 12px;
+            border-radius: var(--radius-pill);
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        /* --- MAIN APP CONTAINER --- */
+        .loader-viewport-container {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen-container {
+            display: none;
+            width: 100%;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .screen-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==========================================================================
+           SCREEN 1: LOAD SHEET DETAIL (MATCHING SCREENSHOT 1)
+           ========================================================================== */
+        .s1-card {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-color);
+        }
+
+        .s1-header-black {
+            background: var(--header-black);
+            color: #ffffff;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .s1-header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .s1-icon-box {
+            width: 34px;
+            height: 34px;
+            background: transparent;
+            border: 1.5px solid rgba(255,255,255,0.4);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .s1-title-main {
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        .s1-title-sub {
+            font-size: 11px;
+            color: #94a3b8;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .s1-header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pill-trip-flags {
+            background: #ffe4e6;
+            color: #e11d48;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: var(--radius-pill);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .pill-glove-mode {
+            background: #27272a;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: var(--radius-pill);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            border: 1px solid #3f3f46;
+        }
+
+        .s1-body {
+            padding: 20px 24px 24px;
+            background: #f8fafc;
+        }
+
+        /* 4 METRIC CARDS */
+        .s1-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .s1-metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .s1-metric-box {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .s1-metric-label {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #64748b;
+        }
+
+        .s1-metric-val {
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--text-dark);
+            letter-spacing: -0.02em;
+        }
+
+        .s1-metric-sub {
+            font-size: 11px;
+            color: var(--green-text);
+            font-weight: 600;
+        }
+
+        /* SECTION HEADER */
+        .s1-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .s1-section-title {
+            font-size: 13px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            color: #0f172a;
+        }
+
+        .s1-section-meta {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        /* ITEM ROWS */
+        .s1-item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .s1-item-row {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.15s ease;
+        }
+
+        .s1-item-row.flagged {
+            border: 1.5px solid var(--red-pill-border);
+            background: #fff5f5;
+        }
+
+        .s1-item-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .s1-check-box {
+            width: 28px;
+            height: 28px;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--green-text);
+            background: #ffffff;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .s1-check-box.warning-icon {
+            border-color: var(--red-pill-border);
+            color: #e11d48;
+            background: #fff1f2;
+        }
+
+        .s1-item-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .s1-item-sub {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .s1-item-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .s1-qty-bold {
+            font-size: 15px;
+            font-weight: 900;
+            color: #0f172a;
+            white-space: nowrap;
+        }
+
+        .pill-flagged-discrepancy {
+            border: 1.5px solid #f87171;
+            color: #dc2626;
+            background: #fff1f2;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: var(--radius-pill);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        /* BOTTOM STICKY BAR */
+        .s1-footer-bar {
+            background: var(--header-black);
+            color: #ffffff;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .s1-back-btn {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .s1-footer-status {
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            color: #ffffff;
+        }
+
+        .s1-btn-review {
+            background: #15803d;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .s1-btn-review:hover {
+            background: #16a34a;
+        }
+
+        /* ==========================================================================
+           SCREEN 2: BAY 2 LOADING PLAN (MATCHING SCREENSHOT 2)
+           ========================================================================== */
+        .s2-card {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-color);
+        }
+
+        .s2-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .s2-icon-box {
+            width: 32px;
+            height: 32px;
+            background: var(--header-black);
+            color: #ffffff;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .s2-title-main {
+            font-size: 15px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #0f172a;
+        }
+
+        .s2-title-sub {
+            font-size: 11px;
+            color: #64748b;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+        }
+
+        .s2-sub-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .s2-chilled-label {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #0f172a;
+        }
+
+        .s2-updated-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--green-text);
+        }
+
+        .s2-grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 24px;
+        }
+
+        @media (max-width: 860px) {
+            .s2-grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* LEFT 3 COMPARTMENTS */
+        .s2-compartments-col {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .s2-comp-box {
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            padding: 14px;
+            background: #ffffff;
+        }
+
+        .s2-comp-title {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #64748b;
+            letter-spacing: 0.04em;
+            margin-bottom: 10px;
+        }
+
+        .s2-comp-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .s2-comp-row {
+            background: var(--bg-card-subtle);
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .s2-row-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .s2-check-square {
+            width: 24px;
+            height: 24px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+            background: #ffffff;
+            cursor: pointer;
+        }
+
+        .s2-row-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .s2-row-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .s2-stack-label {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .s2-cases-bold {
+            font-size: 13px;
+            font-weight: 900;
+            color: #0f172a;
+            width: 70px;
+            text-align: right;
+        }
+
+        /* RIGHT PLAN CONTROLS */
+        .s2-controls-col {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .s2-controls-header {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .s2-btn-shortage {
+            background: var(--red-btn);
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            transition: all 0.15s ease;
+        }
+
+        .s2-btn-shortage:hover {
+            background: #b91c1c;
+        }
+
+        .s2-diff-box {
+            background: var(--bg-card-subtle);
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            padding: 14px;
+        }
+
+        .s2-diff-title {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #64748b;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+
+        .s2-diff-line {
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #0f172a;
+        }
+
+        .s2-diff-line.green {
+            color: var(--green-text);
+        }
+
+        .s2-notes-box {
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            padding: 14px;
+            background: #ffffff;
+            min-height: 120px;
+        }
+
+        .s2-notes-title {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #64748b;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+
+        .s2-notes-content {
+            font-size: 12px;
+            color: #334155;
+            line-height: 1.5;
+        }
+
+        /* ==========================================================================
+           SCREEN 3: LOAD-SHEET - REVERSE ORDER & PLAN DIFF (MATCHING SCREENSHOT 3)
+           ========================================================================== */
+        .s3-layout-card {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: 200px 1fr 280px;
+            min-height: 600px;
+            overflow: hidden;
+        }
+
+        @media (max-width: 960px) {
+            .s3-layout-card {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* S3 COL 1: LEFT SIDEBAR */
+        .s3-col-left {
+            border-right: 1px solid var(--border-color);
+            padding: 20px 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: #ffffff;
+        }
+
+        .s3-logo-title {
+            font-size: 14px;
+            font-weight: 900;
+            color: #0f172a;
+            text-transform: uppercase;
+        }
+
+        .s3-logo-sub {
+            font-size: 10px;
+            font-weight: 700;
+            color: #64748b;
+            margin-top: 2px;
+            margin-bottom: 24px;
+        }
+
+        .s3-nav-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            list-style: none;
+        }
+
+        .s3-nav-btn {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            border: none;
+            background: transparent;
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-align: left;
+            transition: all 0.15s ease;
+        }
+
+        .s3-nav-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .s3-nav-btn.active {
+            background: #f5eedc;
+            color: #0f172a;
+            font-weight: 800;
+        }
+
+        .s3-btn-emergency {
+            background: var(--header-black);
+            color: #ffffff;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 12px;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* S3 COL 2: CENTER WORKSPACE */
+        .s3-col-center {
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+            background: #ffffff;
+        }
+
+        .s3-alert-banner {
+            background: #fcd34d;
+            color: #78350f;
+            padding: 10px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .s3-center-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .s3-main-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .s3-title-text {
+            font-size: 14px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #0f172a;
+        }
+
+        .s3-title-subtext {
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+        }
+
+        .s3-btn-revalidate-all {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 800;
+            color: #0f172a;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .s3-group-card {
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .s3-group-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .s3-group-name {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #0f172a;
+        }
+
+        .s3-group-sub {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .pill-checked-green {
+            border: 1.5px solid #10b981;
+            color: #10b981;
+            background: #ffffff;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: var(--radius-pill);
+        }
+
+        .s3-group-item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .s3-item-val-text {
+            font-size: 12px;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pill-revalidate-amber {
+            border: 1.5px solid #f59e0b;
+            color: #d97706;
+            background: #ffffff;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: var(--radius-pill);
+            cursor: pointer;
+        }
+
+        /* S3 COL 3: RIGHT DIFF SIDEBAR */
+        .s3-col-right {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: #ffffff;
+        }
+
+        .s3-diff-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        .s3-diff-sub {
+            font-size: 10px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-top: 2px;
+            margin-bottom: 20px;
+        }
+
+        .s3-diff-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .s3-diff-entry {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .s3-diff-entry-title {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .s3-diff-entry-title.amber { color: #d97706; }
+        .s3-diff-entry-title.black { color: #0f172a; }
+        .s3-diff-entry-title.green { color: #059669; }
+
+        .s3-diff-entry-desc {
+            font-size: 11px;
+            color: #64748b;
+            padding-left: 14px;
+        }
+
+        .s3-diff-entry-desc.green-bold {
+            color: #059669;
+            font-weight: 800;
+        }
+
+        .s3-diff-bottom-box {
+            background: var(--bg-card-subtle);
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-sm);
+            padding: 8px 10px;
+            font-size: 10px;
+            color: #64748b;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .s3-btn-ack {
+            background: var(--header-black);
+            color: #ffffff;
+            border: none;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* ==========================================================================
+           SCREEN 4: LOADER HANDOFF (MATCHING SCREENSHOT 5)
+           ========================================================================== */
+        .s4-card {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-color);
+        }
+
+        .s4-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .s4-icon-box {
+            width: 32px;
+            height: 32px;
+            background: var(--header-black);
+            color: #ffffff;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .s4-title-main {
+            font-size: 15px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #0f172a;
+        }
+
+        .s4-title-sub {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .s4-grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 860px) {
+            .s4-grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .s4-panel-box {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .s4-panel-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .s4-panel-title {
+            font-size: 13px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #0f172a;
+        }
+
+        .s4-panel-time {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .s4-checklist-items {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .s4-check-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .s4-check-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .s4-check-sub {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .pill-s4-checked {
+            border: 1.5px solid #10b981;
+            color: #10b981;
+            background: #ffffff;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: var(--radius-pill);
+        }
+
+        .pill-s4-flagged {
+            border: 1.5px solid #f59e0b;
+            color: #d97706;
+            background: #ffffff;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: var(--radius-pill);
+        }
+
+        .s4-alert-amber {
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .s4-btn-confirm {
+            background: var(--header-black);
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 900;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* S4 RIGHT PANEL */
+        .s4-confirmed-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 0;
+            gap: 12px;
+        }
+
+        .s4-big-check-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #10b981;
+        }
+
+        .s4-confirm-title {
+            font-size: 18px;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        .s4-confirm-sub {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .s4-anti-pattern-box {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            text-align: left;
+            margin-top: auto;
+        }
+
+        .s4-anti-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: #b45309;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .s4-anti-desc {
+            font-size: 11px;
+            color: #92400e;
+            line-height: 1.4;
+        }
+
+        .s4-footer-caption {
+            font-size: 10px;
+            color: #94a3b8;
+            text-align: center;
+            margin-top: 14px;
+        }
+
+        /* ==========================================================================
+           MODAL: FLAG SHORTAGE (MATCHING SCREENSHOT 4)
+           ========================================================================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 480px;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-modal);
+            overflow: hidden;
+            animation: modalScale 0.2s ease;
+        }
+
+        @keyframes modalScale {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header-section {
+            padding: 24px 24px 16px;
+        }
+
+        .modal-title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        .pill-dock-assigned {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #b45309;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: var(--radius-pill);
+            text-transform: uppercase;
+        }
+
+        .modal-subtext {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .modal-body-section {
+            padding: 0 24px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .modal-field-label {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #475569;
+            letter-spacing: 0.04em;
+        }
+
+        .modal-select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            outline: none;
+            background: #ffffff;
+        }
+
+        .modal-stepper-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stepper-label-sub {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .stepper-controls {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .btn-step-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f172a;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stepper-number {
+            font-size: 18px;
+            font-weight: 900;
+            color: #0f172a;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .reason-pills-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .reason-pill-btn {
+            padding: 10px 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            background: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            color: #334155;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s ease;
+        }
+
+        .reason-pill-btn.active {
+            background: #fffbeb;
+            border-color: #f59e0b;
+            color: #92400e;
+            font-weight: 800;
+        }
+
+        .proof-box {
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            padding: 14px;
+            background: #fdfbf7;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+        }
+
+        .proof-camera-icon {
+            width: 40px;
+            height: 40px;
+            background: #e2e8f0;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+        }
+
+        .proof-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .proof-desc {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .modal-actions-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .btn-modal-cancel {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            background: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            color: #475569;
+            cursor: pointer;
+        }
+
+        .btn-modal-submit {
+            flex: 1.5;
+            padding: 12px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: #0f172a;
+            font-size: 13px;
+            font-weight: 800;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        /* --- AUTH LOCK SCREEN --- */
+        #auth-lock-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 420px;
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- AUTH LOCK OVERLAY -->
+    <div id="auth-lock-screen">
+        <div class="auth-card">
+            <div style="font-size: 12px; font-weight: 800; color: #b45309; text-transform: uppercase; margin-bottom: 8px;">
+                🔒 Loader Authentication Required
+            </div>
+            <h2 style="font-size: 20px; font-weight: 900; margin-bottom: 8px;">Dock Operations Portal</h2>
+            <p style="font-size: 12px; color: #64748b; margin-bottom: 20px;">Please login with your loader credentials to access dock manifests.</p>
+            
+            <form onsubmit="handleAuth(event)">
+                <input type="text" id="auth-user" placeholder="Username (loader)" required style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                <input type="password" id="auth-pass" placeholder="Password (load123)" required style="width: 100%; padding: 12px; margin-bottom: 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                <button type="submit" style="width: 100%; padding: 12px; background: #0f172a; color: #ffffff; border: none; border-radius: 8px; font-weight: 800; cursor: pointer;">Unlock Loader Console</button>
+            </form>
+
+            <button type="button" onclick="quickFillAuth()" style="margin-top: 12px; background: none; border: 1px dashed #cbd5e1; padding: 8px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; color: #475569; width: 100%; cursor: pointer;">
+                ⚡ Auto-fill Demo (loader / load123)
+            </button>
+            <div style="margin-top: 14px;">
+                <a href="index.html" style="font-size: 11px; color: #64748b; text-decoration: none; font-weight: 600;">← Return to Main Login</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOP NAVIGATION FOR SWITCHING THE 4 LOADER SCREENS -->
+    <header class="top-screen-nav-bar">
+        <div class="screen-nav-pill-group">
+            <button class="screen-nav-btn active" id="btn-scr-1" onclick="showScreen(1)">
+                1. Load Sheet Detail
+            </button>
+            <button class="screen-nav-btn" id="btn-scr-2" onclick="showScreen(2)">
+                2. Bay 2 Loading Plan
+            </button>
+            <button class="screen-nav-btn" id="btn-scr-3" onclick="showScreen(3)">
+                3. Reverse Order Sheet
+            </button>
+            <button class="screen-nav-btn" id="btn-scr-4" onclick="showScreen(4)">
+                4. Loader Handoff
+            </button>
+        </div>
+
+        <div class="top-user-status">
+            <button class="glove-toggle-btn" id="glove-btn" onclick="toggleGloveMode()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                <span id="glove-text">Glove-Mode On</span>
+            </button>
+            <a href="index.html" class="btn-logout" onclick="sessionStorage.removeItem('delivery_auth_user')">Logout</a>
+        </div>
+    </header>
+
+    <!-- MAIN VIEWPORT CONTAINER -->
+    <main class="loader-viewport-container">
+
+        <!-- ====================================================================
+             SCREEN 1: LOAD SHEET DETAIL (MATCHING SCREENSHOT 1 EXACTLY)
+             ==================================================================== -->
+        <div class="screen-container active" id="screen-1">
+            <div class="s1-card">
+                
+                <!-- TOP BLACK HEADER -->
+                <div class="s1-header-black">
+                    <div class="s1-header-left">
+                        <div class="s1-icon-box">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <div>
+                            <div class="s1-title-main">LOAD SHEET DETAIL</div>
+                            <div class="s1-title-sub">TRIP #8849 • ROUTE-WEST</div>
+                        </div>
+                    </div>
+
+                    <div class="s1-header-right">
+                        <span class="pill-trip-flags">TRIP HAS FLAGS</span>
+                        <div class="pill-glove-mode" onclick="toggleGloveMode()">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                            Glove-Mode On
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BODY METRICS + ITEMS -->
+                <div class="s1-body">
+                    
+                    <!-- 4 METRIC CARDS ROW -->
+                    <div class="s1-metrics-grid">
+                        <div class="s1-metric-box">
+                            <span class="s1-metric-label">TOTAL WEIGHT</span>
+                            <span class="s1-metric-val">12,450 kg</span>
+                            <span class="s1-metric-sub">Max cap 15k</span>
+                        </div>
+                        <div class="s1-metric-box">
+                            <span class="s1-metric-label">VOLUME</span>
+                            <span class="s1-metric-val">48.2 m³</span>
+                            <span class="s1-metric-sub">84% utilized</span>
+                        </div>
+                        <div class="s1-metric-box">
+                            <span class="s1-metric-label">PALLETS</span>
+                            <span class="s1-metric-val">22 Pallets</span>
+                            <span class="s1-metric-sub">AFT: 12 • FWD: 10</span>
+                        </div>
+                        <div class="s1-metric-box">
+                            <span class="s1-metric-label">DELIVERY STOPS</span>
+                            <span class="s1-metric-val">5 Stops</span>
+                            <span class="s1-metric-sub">Reverse loaded</span>
+                        </div>
+                    </div>
+
+                    <!-- STOP 01 HEADER -->
+                    <div class="s1-section-header">
+                        <div class="s1-section-title">STOP 01: VIBRANT FOODS MARKET</div>
+                        <div class="s1-section-meta">Dock Bay 4 • ETA 10:15</div>
+                    </div>
+
+                    <!-- 3 ITEM ROWS (INCLUDING RED FLAGGED DISCREPANCY ROW) -->
+                    <div class="s1-item-list">
+                        <!-- ROW 1 -->
+                        <div class="s1-item-row" id="s1-row-1">
+                            <div class="s1-item-left">
+                                <div class="s1-check-box" onclick="toggleS1Check(1)">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                                </div>
+                                <div>
+                                    <div class="s1-item-name">Premium Dairy Whole Milk</div>
+                                    <div class="s1-item-sub">A1 • Chilled • Keep at 4°C</div>
+                                </div>
+                            </div>
+                            <div class="s1-item-right">
+                                <span class="s1-qty-bold">45 Cases</span>
+                            </div>
+                        </div>
+
+                        <!-- ROW 2: FLAGGED DISCREPANCY -->
+                        <div class="s1-item-row flagged" id="s1-row-2">
+                            <div class="s1-item-left">
+                                <div class="s1-check-box warning-icon" onclick="openShortageModal()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                </div>
+                                <div>
+                                    <div class="s1-item-name">Organic Grade A Eggs (Carton)</div>
+                                    <div class="s1-item-sub">A2 • Fragile • Base stow</div>
+                                </div>
+                            </div>
+                            <div class="s1-item-right">
+                                <span class="s1-qty-bold">12 Cases</span>
+                                <span class="pill-flagged-discrepancy" onclick="openShortageModal()" style="cursor: pointer;">FLAGGED DISCREPANCY</span>
+                            </div>
+                        </div>
+
+                        <!-- ROW 3 -->
+                        <div class="s1-item-row" id="s1-row-3">
+                            <div class="s1-item-left">
+                                <div class="s1-check-box" onclick="toggleS1Check(3)">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                                </div>
+                                <div>
+                                    <div class="s1-item-name">Fresh Bakery Sourdough Loaves</div>
+                                    <div class="s1-item-sub">A3 • Ambient • Load last</div>
+                                </div>
+                            </div>
+                            <div class="s1-item-right">
+                                <span class="s1-qty-bold">30 Trays</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- STICKY FOOTER BAR -->
+                <div class="s1-footer-bar">
+                    <button class="s1-back-btn" onclick="alert('Returning to Trips list...')">
+                        ← Back to Trips
+                    </button>
+                    <div class="s1-footer-status">
+                        2/3 STOPS COMPLETED &nbsp;|&nbsp; 1 FLAG UNRESOLVED
+                    </div>
+                    <button class="s1-btn-review" onclick="showScreen(2)">
+                        Needs Review
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ====================================================================
+             SCREEN 2: BAY 2 LOADING PLAN (MATCHING SCREENSHOT 2 EXACTLY)
+             ==================================================================== -->
+        <div class="screen-container" id="screen-2">
+            <div class="s2-card">
+                
+                <!-- HEADER -->
+                <div class="s2-header">
+                    <div class="s2-icon-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <div>
+                        <div class="s2-title-main">BAY 2 LOADING PLAN</div>
+                        <div class="s2-title-sub">VEHICLE: VOLVO 16T • DRIVER: MARCUS V.</div>
+                    </div>
+                </div>
+
+                <!-- SUB HEADER BAR -->
+                <div class="s2-sub-bar">
+                    <div class="s2-chilled-label">CHILLED LOAD ONLY (4°C)</div>
+                    <div class="s2-updated-label">Plan Updated: 02:15</div>
+                </div>
+
+                <!-- 2-COLUMN GRID (LEFT COMPARTMENTS + RIGHT CONTROLS) -->
+                <div class="s2-grid-2col">
+                    
+                    <!-- LEFT COLUMN -->
+                    <div class="s2-compartments-col">
+                        
+                        <!-- COMPARTMENT 1: LOADS FIRST (BAKERY) -->
+                        <div class="s2-comp-box">
+                            <div class="s2-comp-title">LOADS FIRST (BAKERY)</div>
+                            <div class="s2-comp-items">
+                                <div class="s2-comp-row">
+                                    <div class="s2-row-left">
+                                        <div class="s2-check-square">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                        </div>
+                                        <span class="s2-row-name">Sourdough</span>
+                                    </div>
+                                    <div class="s2-row-right">
+                                        <span class="s2-stack-label">Stack 1</span>
+                                        <span class="s2-cases-bold">12 Cases</span>
+                                    </div>
+                                </div>
+
+                                <div class="s2-comp-row">
+                                    <div class="s2-row-left">
+                                        <div class="s2-check-square">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                        </div>
+                                        <span class="s2-row-name">Whole Wheat Loaves</span>
+                                    </div>
+                                    <div class="s2-row-right">
+                                        <span class="s2-stack-label">Stack 2</span>
+                                        <span class="s2-cases-bold">24 Cases</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- COMPARTMENT 2: MID LOAD (PRODUCE & EGGS) -->
+                        <div class="s2-comp-box">
+                            <div class="s2-comp-title">MID LOAD (PRODUCE & EGGS)</div>
+                            <div class="s2-comp-items">
+                                <div class="s2-comp-row">
+                                    <div class="s2-row-left">
+                                        <div class="s2-check-square">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                        </div>
+                                        <span class="s2-row-name">Carton Eggs</span>
+                                    </div>
+                                    <div class="s2-row-right">
+                                        <span class="s2-stack-label">Stack 1</span>
+                                        <span class="s2-cases-bold">12 Cases</span>
+                                    </div>
+                                </div>
+
+                                <div class="s2-comp-row">
+                                    <div class="s2-row-left">
+                                        <div class="s2-check-square">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                        </div>
+                                        <span class="s2-row-name">Apples Case</span>
+                                    </div>
+                                    <div class="s2-row-right">
+                                        <span class="s2-stack-label">Stack 2</span>
+                                        <span class="s2-cases-bold">24 Cases</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- COMPARTMENT 3: TAILBOARD (DAIRY & MEAT) -->
+                        <div class="s2-comp-box">
+                            <div class="s2-comp-title">TAILBOARD (DAIRY & MEAT)</div>
+                            <div class="s2-comp-items">
+                                <div class="s2-comp-row">
+                                    <div class="s2-row-left">
+                                        <div class="s2-check-square">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                        </div>
+                                        <span class="s2-row-name">Organic Milk</span>
+                                    </div>
+                                    <div class="s2-row-right">
+                                        <span class="s2-stack-label">Stack 1</span>
+                                        <span class="s2-cases-bold">12 Cases</span>
+                                    </div>
+                                </div>
+
+                                <div class="s2-comp-row">
+                                    <div class="s2-row-left">
+                                        <div class="s2-check-square">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                        </div>
+                                        <span class="s2-row-name">Cheddar Block</span>
+                                    </div>
+                                    <div class="s2-row-right">
+                                        <span class="s2-stack-label">Stack 2</span>
+                                        <span class="s2-cases-bold">24 Cases</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- RIGHT COLUMN: PLAN CONTROLS -->
+                    <div class="s2-controls-col">
+                        <div class="s2-controls-header">Plan Controls</div>
+                        <button class="s2-btn-shortage" onclick="openShortageModal()">Flag Shortage</button>
+
+                        <div class="s2-diff-box">
+                            <div class="s2-diff-title">PLAN DIFFERENCE</div>
+                            <div class="s2-diff-line">- 2 Cases Sourdough</div>
+                            <div class="s2-diff-line green">+ 4 Cases Whole Milk</div>
+                        </div>
+
+                        <div class="s2-notes-box">
+                            <div class="s2-notes-title">DOCK NOTES</div>
+                            <div class="s2-notes-content">
+                                Load heavy dairy items near the tailboard for easier store handoff.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ====================================================================
+             SCREEN 3: LOAD-SHEET - REVERSE ORDER & PLAN DIFF (MATCHING SCREENSHOT 3)
+             ==================================================================== -->
+        <div class="screen-container" id="screen-3">
+            <div class="s3-layout-card">
+                
+                <!-- COLUMN 1: LEFT SIDEBAR -->
+                <div class="s3-col-left">
+                    <div>
+                        <div class="s3-logo-title">LOAD-SHEET</div>
+                        <div class="s3-logo-sub">LOADER • GLOVE-MODE</div>
+
+                        <ul class="s3-nav-list">
+                            <li>
+                                <button class="s3-nav-btn">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                                    Overview
+                                </button>
+                            </li>
+                            <li>
+                                <button class="s3-nav-btn active">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                                    Load-Sheet
+                                </button>
+                            </li>
+                            <li>
+                                <button class="s3-nav-btn">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h3"/><path d="M20 7V4h-3"/><path d="M4 17v3h3"/><path d="M20 17v3h-3"/><line x1="4" y1="12" x2="20" y2="12"/></svg>
+                                    Scan & Match
+                                </button>
+                            </li>
+                            <li>
+                                <button class="s3-nav-btn">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>
+                                    Weight & Balance
+                                </button>
+                            </li>
+                            <li>
+                                <button class="s3-nav-btn">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Final Check
+                                </button>
+                            </li>
+                            <li>
+                                <button class="s3-nav-btn">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                                    Summary
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <button class="s3-btn-emergency" onclick="alert('EMERGENCY HOLD ACTIVATED: Loading Bay halted and supervisor notified.')">
+                        EMERGENCY HOLD
+                    </button>
+                </div>
+
+                <!-- COLUMN 2: CENTER WORKSPACE -->
+                <div class="s3-col-center">
+                    
+                    <!-- ALERT BANNER -->
+                    <div class="s3-alert-banner">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        Plan updated 02:15 — re-validate sequence
+                    </div>
+
+                    <div class="s3-center-body">
+                        
+                        <div class="s3-main-header-row">
+                            <div>
+                                <div class="s3-title-text">LOAD-SHEET • REVERSE ORDER</div>
+                                <div class="s3-title-subtext">GROUPS 4 → 1</div>
+                            </div>
+                            <button class="s3-btn-revalidate-all" onclick="revalidateAllGroups()">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+                                RE-VALIDATE ALL
+                            </button>
+                        </div>
+
+                        <!-- GROUP 4 -->
+                        <div class="s3-group-card">
+                            <div class="s3-group-top-row">
+                                <div>
+                                    <div class="s3-group-name">GROUP 4 - AFT LOWER</div>
+                                    <div class="s3-group-sub">Containment - AFT</div>
+                                </div>
+                                <span class="pill-checked-green">CHECKED</span>
+                            </div>
+                            <div class="s3-group-item-row">
+                                <span class="s3-item-val-text">✓ A4 - AFT LOWER 4 - 342 kg</span>
+                                <button class="pill-revalidate-amber" onclick="revalidateGroup(4)">RE-VALIDATE</button>
+                            </div>
+                        </div>
+
+                        <!-- GROUP 3 -->
+                        <div class="s3-group-card">
+                            <div class="s3-group-top-row">
+                                <div>
+                                    <div class="s3-group-name">GROUP 3 - AFT UPPER</div>
+                                    <div class="s3-group-sub">Containment - AFT</div>
+                                </div>
+                                <span class="pill-checked-green">CHECKED</span>
+                            </div>
+                            <div class="s3-group-item-row">
+                                <span class="s3-item-val-text">✓ A3 - AFT LOWER 4 - 342 kg</span>
+                                <button class="pill-revalidate-amber" onclick="revalidateGroup(3)">RE-VALIDATE</button>
+                            </div>
+                        </div>
+
+                        <!-- GROUP 2 -->
+                        <div class="s3-group-card">
+                            <div class="s3-group-top-row">
+                                <div>
+                                    <div class="s3-group-name">GROUP 2 - FWD LOWER</div>
+                                    <div class="s3-group-sub">Containment - FWD</div>
+                                </div>
+                                <span class="pill-checked-green">CHECKED</span>
+                            </div>
+                            <div class="s3-group-item-row">
+                                <span class="s3-item-val-text">✓ A4 - AFT LOWER 4 - 342 kg</span>
+                                <button class="pill-revalidate-amber" onclick="revalidateGroup(2)">RE-VALIDATE</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- COLUMN 3: RIGHT PLAN DIFF -->
+                <div class="s3-col-right">
+                    <div>
+                        <div class="s3-diff-header">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+                            PLAN DIFF
+                        </div>
+                        <div class="s3-diff-sub">CHANGES DETECTED AT 02:15</div>
+
+                        <div class="s3-diff-items-list">
+                            <div class="s3-diff-entry">
+                                <div class="s3-diff-entry-title amber">● SEQUENCE SHIFT</div>
+                                <div class="s3-diff-entry-desc">AFT LOWER rows moved down by 1</div>
+                            </div>
+
+                            <div class="s3-diff-entry">
+                                <div class="s3-diff-entry-title black">● WEIGHT ADJUSTMENT</div>
+                                <div class="s3-diff-entry-desc">FWD UPPER total +7 kg</div>
+                                <div class="s3-diff-entry-desc green-bold">➔ FWD UPPER • NEW TOTAL 450 kg</div>
+                            </div>
+
+                            <div class="s3-diff-entry">
+                                <div class="s3-diff-entry-title green">● TEMP MATCH CONFIRMED</div>
+                                <div class="s3-diff-entry-desc">All group temps within tolerance</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="s3-diff-bottom-box">
+                            Re-validate affected rows to clear amber indicators.
+                        </div>
+                        <button class="s3-btn-ack" onclick="acknowledgeDiff()">
+                            ACKNOWLEDGE DIFF
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ====================================================================
+             SCREEN 4: LOADER HANDOFF (MATCHING SCREENSHOT 5 EXACTLY)
+             ==================================================================== -->
+        <div class="screen-container" id="screen-4">
+            <div class="s4-card">
+                
+                <!-- HEADER -->
+                <div class="s4-header">
+                    <div class="s4-icon-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <div>
+                        <div class="s4-title-main">LOADER HANDOFF</div>
+                        <div class="s4-title-sub">FINAL OPERATIONS STAGE</div>
+                    </div>
+                </div>
+
+                <!-- 2-COLUMN GRID -->
+                <div class="s4-grid-2col">
+                    
+                    <!-- LEFT PANEL: LOAD CHECKLIST -->
+                    <div class="s4-panel-box">
+                        <div>
+                            <div class="s4-panel-header-row">
+                                <span class="s4-panel-title">LOAD CHECKLIST</span>
+                                <span class="s4-panel-time">TIME: 03:44</span>
+                            </div>
+
+                            <div class="s4-checklist-items">
+                                <div class="s4-check-row">
+                                    <div>
+                                        <div class="s4-check-name">All items loaded</div>
+                                        <div class="s4-check-sub">24 / 24 pieces</div>
+                                    </div>
+                                    <span class="pill-s4-checked">CHECKED</span>
+                                </div>
+
+                                <div class="s4-check-row">
+                                    <div>
+                                        <div class="s4-check-name">Pallets secured</div>
+                                        <div class="s4-check-sub">12 / 12 pallets</div>
+                                    </div>
+                                    <span class="pill-s4-checked">CHECKED</span>
+                                </div>
+
+                                <div class="s4-check-row">
+                                    <div>
+                                        <div class="s4-check-name">Load balanced</div>
+                                        <div class="s4-check-sub">Within axle limits</div>
+                                    </div>
+                                    <span class="pill-s4-checked">CHECKED</span>
+                                </div>
+
+                                <div class="s4-check-row">
+                                    <div>
+                                        <div class="s4-check-name">Hazardous items flagged</div>
+                                        <div class="s4-check-sub">2 flagged items</div>
+                                    </div>
+                                    <span class="pill-s4-flagged">FLAGGED</span>
+                                </div>
+
+                                <div class="s4-check-row">
+                                    <div>
+                                        <div class="s4-check-name">Temperature check</div>
+                                        <div class="s4-check-sub">Within chilled range</div>
+                                    </div>
+                                    <span class="pill-s4-checked">CHECKED</span>
+                                </div>
+
+                                <div class="s4-check-row">
+                                    <div>
+                                        <div class="s4-check-name">Seal / tamper check</div>
+                                        <div class="s4-check-sub">Intact</div>
+                                    </div>
+                                    <span class="pill-s4-checked">CHECKED</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="s4-alert-amber">
+                                ⚠️ 2 items flagged — noted for receiver
+                            </div>
+                            <button class="s4-btn-confirm" onclick="confirmHandoffAction()">
+                                Confirm load & handoff
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT PANEL: HANDOFF STATUS -->
+                    <div class="s4-panel-box">
+                        <div>
+                            <div class="s4-panel-header-row">
+                                <span class="s4-panel-title">HANDOFF STATUS</span>
+                                <span class="pill-s4-checked">COMPLETED</span>
+                            </div>
+
+                            <div class="s4-confirmed-center">
+                                <div class="s4-big-check-circle">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                </div>
+                                <div class="s4-confirm-title">Handoff Confirmed</div>
+                                <div class="s4-confirm-sub">Journal updated successfully • 03:44</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="s4-anti-pattern-box">
+                                <div class="s4-anti-title">⚠️ ANTI-PATTERN WARNING</div>
+                                <div class="s4-anti-desc">
+                                    No confirmation = no "departed" status. Do not auto-advance without loader confirmation.
+                                </div>
+                            </div>
+
+                            <div class="s4-footer-caption">
+                                Clear status • Mirrored to driver • Journal trail secured.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ====================================================================
+         MODAL: FLAG SHORTAGE (MATCHING SCREENSHOT 4 EXACTLY)
+         ==================================================================== -->
+    <div class="modal-overlay" id="shortage-modal" onclick="closeModalOnBg(event)">
+        <div class="modal-card">
+            
+            <div class="modal-header-section">
+                <div class="modal-title-row">
+                    <span class="modal-title">Flag Shortage</span>
+                    <span class="pill-dock-assigned">DOCK ASSIGNED</span>
+                </div>
+                <div class="modal-subtext">Reporting discrepancy for Trip #8849</div>
+            </div>
+
+            <div class="modal-body-section">
+                
+                <!-- SELECT ITEM & STOP -->
+                <div class="modal-field-group">
+                    <label class="modal-field-label">SELECT ITEM & STOP</label>
+                    <select class="modal-select" id="shortage-select">
+                        <option>Stop 02 • Organic Whole Milk (Case of 12)</option>
+                        <option>Stop 01 • Organic Grade A Eggs (Carton)</option>
+                        <option>Stop 03 • Fresh Sourdough Loaves</option>
+                    </select>
+                </div>
+
+                <!-- SHORTAGE QUANTITY STEPPER -->
+                <div class="modal-stepper-row">
+                    <div>
+                        <label class="modal-field-label">SHORTAGE QUANTITY</label>
+                        <div class="stepper-label-sub">Cases missing from expected 24</div>
+                    </div>
+                    <div class="stepper-controls">
+                        <button type="button" class="btn-step-circle" onclick="changeQty(-1)">-</button>
+                        <span class="stepper-number" id="shortage-qty">4</span>
+                        <button type="button" class="btn-step-circle" onclick="changeQty(1)">+</button>
+                    </div>
+                </div>
+
+                <!-- DISCREPANCY REASON PILLS -->
+                <div class="modal-field-group">
+                    <label class="modal-field-label">DISCREPANCY REASON</label>
+                    <div class="reason-pills-row">
+                        <button type="button" class="reason-pill-btn active" id="reason-missing" onclick="selectReason('Missing at Dock')">Missing at Dock</button>
+                        <button type="button" class="reason-pill-btn" id="reason-damaged" onclick="selectReason('Damaged')">Damaged</button>
+                        <button type="button" class="reason-pill-btn" id="reason-sub" onclick="selectReason('Substituted')">Substituted</button>
+                    </div>
+                </div>
+
+                <!-- CAPTURE PROOF -->
+                <div class="proof-box" onclick="alert('Proof capture camera triggered. Attached frame saved to audit log.')">
+                    <div class="proof-camera-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    </div>
+                    <div>
+                        <div class="proof-title">Capture Proof</div>
+                        <div class="proof-desc">Required for damaged or substituted items</div>
+                    </div>
+                </div>
+
+                <!-- MODAL BUTTONS -->
+                <div class="modal-actions-row">
+                    <button type="button" class="btn-modal-cancel" onclick="closeShortageModal()">Cancel</button>
+                    <button type="button" class="btn-modal-submit" onclick="submitShortage()">Flag & Notify Dispatcher</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- AUTH CHECK ---
+        function checkAuth() {
+            const authStr = sessionStorage.getItem('delivery_auth_user');
+            if (authStr) {
+                try {
+                    const user = JSON.parse(authStr);
+                    if (user.username === 'loader' || user.role === 'loader') {
+                        document.getElementById('auth-lock-screen').style.display = 'none';
+                        return;
+                    }
+                } catch(e) {}
+            }
+            document.getElementById('auth-lock-screen').style.display = 'flex';
+        }
+
+        function handleAuth(e) {
+            e.preventDefault();
+            const user = document.getElementById('auth-user').value.trim();
+            const pass = document.getElementById('auth-pass').value.trim();
+            if (user === 'loader' && pass === 'load123') {
+                sessionStorage.setItem('delivery_auth_user', JSON.stringify({
+                    username: 'loader',
+                    role: 'loader',
+                    name: 'G. Sloan (Loader)',
+                    loginTime: new Date().toISOString()
+                }));
+                document.getElementById('auth-lock-screen').style.display = 'none';
+            } else {
+                alert('Invalid credentials. Use loader / load123');
+            }
+        }
+
+        function quickFillAuth() {
+            document.getElementById('auth-user').value = 'loader';
+            document.getElementById('auth-pass').value = 'load123';
+            handleAuth({ preventDefault: () => {} });
+        }
+
+        // --- SCREEN NAVIGATION ---
+        function showScreen(screenNum) {
+            document.querySelectorAll('.screen-container').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.screen-nav-btn').forEach(el => el.classList.remove('active'));
+
+            const target = document.getElementById('screen-' + screenNum);
+            const btn = document.getElementById('btn-scr-' + screenNum);
+            if (target) target.classList.add('active');
+            if (btn) btn.classList.add('active');
+        }
+
+        // --- GLOVE MODE TOGGLE ---
+        let gloveMode = true;
+        function toggleGloveMode() {
+            gloveMode = !gloveMode;
+            const btn = document.getElementById('glove-btn');
+            const txt = document.getElementById('glove-text');
+            if (gloveMode) {
+                btn.classList.add('active');
+                txt.textContent = 'Glove-Mode On';
+            } else {
+                btn.classList.remove('active');
+                txt.textContent = 'Glove-Mode Off';
+            }
+        }
+
+        // --- S1 CHECKLIST INTERACTION ---
+        function toggleS1Check(rowId) {
+            const row = document.getElementById('s1-row-' + rowId);
+            if (row) {
+                row.classList.toggle('flagged');
+            }
+        }
+
+        // --- SHORTAGE MODAL INTERACTION ---
+        let shortageQty = 4;
+        let selectedReason = 'Missing at Dock';
+
+        function openShortageModal() {
+            document.getElementById('shortage-modal').classList.add('active');
+        }
+
+        function closeShortageModal() {
+            document.getElementById('shortage-modal').classList.remove('active');
+        }
+
+        function closeModalOnBg(e) {
+            if (e.target.id === 'shortage-modal') {
+                closeShortageModal();
+            }
+        }
+
+        function changeQty(delta) {
+            shortageQty = Math.max(1, shortageQty + delta);
+            document.getElementById('shortage-qty').textContent = shortageQty;
+        }
+
+        function selectReason(reason) {
+            selectedReason = reason;
+            document.querySelectorAll('.reason-pill-btn').forEach(b => b.classList.remove('active'));
+            if (reason === 'Missing at Dock') document.getElementById('reason-missing').classList.add('active');
+            if (reason === 'Damaged') document.getElementById('reason-damaged').classList.add('active');
+            if (reason === 'Substituted') document.getElementById('reason-sub').classList.add('active');
+        }
+
+        function submitShortage() {
+            const item = document.getElementById('shortage-select').value;
+            alert(`Discrepancy flagged: ${shortageQty} cases (${selectedReason}) for ${item}. Dispatcher desk notified.`);
+            closeShortageModal();
+        }
+
+        // --- S3 REVALIDATE INTERACTIONS ---
+        function revalidateGroup(grpNum) {
+            alert(`Group ${grpNum} sequence re-validated. Temperature and position within spec.`);
+        }
+
+        function revalidateAllGroups() {
+            alert('All groups (2, 3, 4) re-validated against latest dispatch route update.');
+        }
+
+        function acknowledgeDiff() {
+            alert('Diff acknowledged. Load-sheet synchronized with bay staging.');
+            showScreen(4);
+        }
+
+        function confirmHandoffAction() {
+            alert('✓ Load handoff confirmed. Journal entry recorded. Status mirrored to driver.');
+        }
+
+        // --- INIT ---
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+        });
+    </script>
+</body>
+</html>

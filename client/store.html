@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Store Manager Portal | Waypoint Fresh - Oakwood Store #12</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-canvas: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-subtle: #f1f5f9;
+            --bg-danger-soft: #fff1f2;
+            --border-danger-soft: #fecdd3;
+            --text-danger: #e11d48;
+            --danger-pill-bg: #ffe4e6;
+            --danger-btn: #dc2626;
+            --danger-btn-hover: #b91c1c;
+
+            --bg-yellow-soft: #fffbeb;
+            --border-yellow-soft: #fde68a;
+            --text-yellow-dark: #92400e;
+            --yellow-accent: #f59e0b;
+
+            --bg-green-soft: #ecfdf5;
+            --border-green-soft: #a7f3d0;
+            --text-green-dark: #065f46;
+            --green-accent: #10b981;
+
+            --primary-dark: #0f172a;
+            --header-dark: #1e293b;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --text-light: #94a3b8;
+            --border-color: #e2e8f0;
+            --border-light: #f1f5f9;
+
+            --radius-xs: 4px;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 22px;
+            --radius-pill: 9999px;
+
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-card: 0 2px 8px -2px rgba(15,23,42,0.06), 0 1px 4px -1px rgba(15,23,42,0.04);
+            --shadow-modal: 0 20px 40px -15px rgba(15,23,42,0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- AUTH LOCK SCREEN --- */
+        #auth-lock-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.96);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 420px;
+            border-radius: var(--radius-xl);
+            padding: 36px 28px;
+            text-align: center;
+            box-shadow: var(--shadow-modal);
+            animation: fadeInScale 0.25s ease;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .auth-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ecfdf5;
+            color: #065f46;
+            padding: 5px 12px;
+            border-radius: var(--radius-pill);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 12px;
+        }
+
+        /* --- TOP GLOBAL DESKTOP & MOBILE APP HEADER --- */
+        .store-app-header {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-brand-group {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .btn-menu-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+        }
+
+        .store-title-text {
+            font-size: 16px;
+            font-weight: 800;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .store-sub-text {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .header-right-tools {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .live-status-pill {
+            background: #ecfdf5;
+            color: #065f46;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: var(--radius-pill);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            border: 1px solid #a7f3d0;
+        }
+
+        .live-status-pill::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #10b981;
+            border-radius: 50%;
+        }
+
+        .btn-bell-notify {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .bell-badge-dot {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+            border: 1.5px solid #ffffff;
+        }
+
+        /* --- DESKTOP NAVIGATION TABS BAR --- */
+        .desktop-nav-tabs-bar {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 24px;
+            display: flex;
+            gap: 28px;
+        }
+
+        @media (max-width: 768px) {
+            .desktop-nav-tabs-bar {
+                display: none;
+            }
+        }
+
+        .desktop-nav-tab-btn {
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            padding: 12px 4px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s ease;
+        }
+
+        .desktop-nav-tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .desktop-nav-tab-btn.active {
+            color: var(--danger-btn);
+            border-bottom-color: var(--danger-btn);
+        }
+
+        .desktop-nav-tab-btn.active-green {
+            color: #059669;
+            border-bottom-color: #059669;
+        }
+
+        /* --- MAIN WORKSPACE CONTAINER --- */
+        .store-main-viewport {
+            flex: 1;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 20px 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .store-main-viewport {
+                padding: 14px 14px 90px;
+                gap: 14px;
+            }
+        }
+
+        /* SCREEN CARDS & VIEWS */
+        .store-screen-view {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .store-screen-view.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==========================================================================
+           SCREEN 1: STORE MANAGER ALERT / DEFERRED OVERVIEW (MATCHING SCREENSHOT 1)
+           ========================================================================== */
+        .alert-card-danger {
+            background: #ffffff;
+            border: 1.5px solid var(--border-danger-soft);
+            border-radius: var(--radius-xl);
+            padding: 22px 20px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+        }
+
+        .alert-card-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .pill-pinned {
+            color: var(--text-danger);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .danger-alert-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1.5px solid var(--border-danger-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-danger);
+            font-weight: 900;
+            font-size: 14px;
+        }
+
+        .alert-order-title {
+            font-size: 22px;
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+
+        .alert-order-title span {
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .pill-reefer-capacity {
+            background: var(--danger-pill-bg);
+            color: var(--text-danger);
+            padding: 4px 10px;
+            border-radius: var(--radius-xs);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+
+        .alert-meta-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .alert-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #334155;
+            font-weight: 600;
+        }
+
+        .alert-meta-item svg {
+            color: #64748b;
+            flex-shrink: 0;
+        }
+
+        /* PRIORITY FLAGGED BAR */
+        .priority-flagged-box {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .priority-red-dot {
+            width: 22px;
+            height: 22px;
+            background: #ef4444;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .priority-text {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .priority-text span {
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        /* BIG RED ACKNOWLEDGE BUTTON */
+        .btn-big-acknowledge {
+            background: #dc2626;
+            color: #ffffff;
+            border: none;
+            padding: 16px;
+            border-radius: var(--radius-pill);
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            transition: background-color 0.15s ease;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+        }
+
+        .btn-big-acknowledge:hover {
+            background: #b91c1c;
+        }
+
+        /* ==========================================================================
+           SCREEN 2: ORDER DETAILS & LIVE TIMELINE (MATCHING SCREENSHOT 2)
+           ========================================================================== */
+        .screen-top-subbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .order-action-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 18px 20px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .order-action-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .order-code-title {
+            font-size: 18px;
+            font-weight: 900;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .order-received-time {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .btn-dark-place-order {
+            background: #0f172a;
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* ETA CARD */
+        .eta-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 18px 20px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .eta-left-group {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .eta-clock-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #ecfdf5;
+            color: #059669;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .eta-expected-title {
+            font-size: 18px;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        .eta-window-sub {
+            font-size: 12px;
+            color: #059669;
+            font-weight: 700;
+        }
+
+        .eta-progress-dots {
+            width: 60px;
+            height: 2px;
+            border-top: 2px dotted #10b981;
+            position: relative;
+        }
+
+        .eta-progress-dots::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -4px;
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+        }
+
+        /* TIMELINE CARD */
+        .timeline-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .timeline-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 16px;
+        }
+
+        .timeline-steps-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            position: relative;
+        }
+
+        .timeline-step-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .timeline-step-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .tl-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            z-index: 2;
+        }
+
+        .tl-dot.green { background: #10b981; }
+        .tl-dot.grey { background: #cbd5e1; }
+        .tl-dot.empty { border: 2px solid #cbd5e1; background: #ffffff; }
+
+        .tl-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .tl-time {
+            font-size: 12px;
+            color: #64748b;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .tl-time-struck {
+            font-size: 10px;
+            color: #94a3b8;
+            text-decoration: line-through;
+        }
+
+        /* DOCK NOTE CARD */
+        .dock-note-banner {
+            background: #fffbeb;
+            border: 1.5px solid #fde68a;
+            border-radius: var(--radius-lg);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .dock-note-banner:hover {
+            border-color: #f59e0b;
+        }
+
+        .dock-note-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dock-note-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #92400e;
+        }
+
+        .dock-note-desc {
+            font-size: 12px;
+            color: #b45309;
+        }
+
+        /* DELIVERY HISTORY SECTION */
+        .history-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .history-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .history-view-all {
+            font-size: 12px;
+            font-weight: 700;
+            color: #2563eb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .history-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .history-item-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .hist-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hist-ord-id {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .pill-status-green {
+            background: #ecfdf5;
+            color: #065f46;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: var(--radius-xs);
+            border: 1px solid #a7f3d0;
+        }
+
+        .pill-status-yellow {
+            background: #fffbeb;
+            color: #92400e;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: var(--radius-xs);
+            border: 1px solid #fde68a;
+        }
+
+        .hist-right {
+            text-align: right;
+        }
+
+        .hist-time-main {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .hist-time-sub {
+            font-size: 10px;
+            color: #64748b;
+        }
+
+        /* ==========================================================================
+           SCREEN 3: RECEIPT CONFIRM & DISCREPANCY CLAIMS (MATCHING SCREENSHOT 3)
+           ========================================================================== */
+        .receipt-header-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .btn-back-link {
+            color: #2563eb;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .receipt-main-title {
+            font-size: 22px;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        .receipt-sub-desc {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
+
+        .carrier-delivered-banner {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .carrier-box-thumb {
+            width: 50px;
+            height: 28px;
+            background: #f1f5f9;
+            border-radius: var(--radius-xs);
+        }
+
+        .delivered-status-right {
+            text-align: right;
+        }
+
+        .delivered-green-text {
+            font-size: 12px;
+            font-weight: 800;
+            color: #059669;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            justify-content: flex-end;
+        }
+
+        .delivered-green-text::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #10b981;
+            border-radius: 50%;
+        }
+
+        .delivered-window-check {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .btn-all-good-confirm {
+            background: #0f172a;
+            color: #ffffff;
+            border: none;
+            padding: 16px;
+            border-radius: var(--radius-pill);
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* PROBLEM REPORTING EXPANDED ACCORDION */
+        .problem-accordion-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .problem-accordion-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .problem-accordion-header span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #e11d48;
+        }
+
+        .discrepancy-question-title {
+            font-size: 12px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .discrepancy-pills-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .disc-pill-btn {
+            padding: 10px 8px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: #ffffff;
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .disc-pill-btn.active {
+            border-color: #f87171;
+            color: #dc2626;
+            background: #fff5f5;
+            font-weight: 800;
+        }
+
+        .qty-stepper-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .qty-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .stepper-btns-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-qty-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stepper-val-num {
+            font-size: 15px;
+            font-weight: 900;
+            color: #0f172a;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        .add-photo-btn-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        .reported-yellow-alert {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .reported-yellow-alert strong {
+            font-size: 13px;
+            font-weight: 800;
+            color: #92400e;
+        }
+
+        .reported-yellow-alert span {
+            font-size: 11px;
+            color: #b45309;
+        }
+
+        .confirmed-green-alert {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .confirmed-green-alert strong {
+            font-size: 13px;
+            font-weight: 800;
+            color: #065f46;
+            display: block;
+        }
+
+        .confirmed-green-alert span {
+            font-size: 11px;
+            color: #047857;
+        }
+
+        .ledger-updated-link-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            cursor: pointer;
+        }
+
+        /* --- MOBILE BOTTOM NAVIGATION BAR (MATCHING SCREENSHOT BOTTOM NAV) --- */
+        .mobile-store-bottom-bar {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100vw;
+            background: #ffffff;
+            border-top: 1px solid var(--border-color);
+            padding: 8px 16px 16px;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 100;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-store-bottom-bar {
+                display: flex;
+            }
+        }
+
+        .mob-nav-item-btn {
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        .mob-nav-item-btn.active {
+            color: #e11d48;
+        }
+
+        .mob-nav-item-btn.active-green {
+            color: #10b981;
+        }
+
+        .wdi-branding-footer {
+            font-size: 9px;
+            font-weight: 800;
+            color: #94a3b8;
+            letter-spacing: 0.08em;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* TOAST NOTIFIER */
+        .store-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: var(--radius-pill);
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: var(--shadow-modal);
+            z-index: 99999;
+            display: none;
+            animation: slideUp 0.25s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- AUTH LOCK OVERLAY -->
+    <div id="auth-lock-screen">
+        <div class="auth-card">
+            <div class="auth-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Manager Authentication
+            </div>
+            <h2 style="font-size: 20px; font-weight: 900; color: #0f172a; margin-bottom: 6px;">Store Manager Portal</h2>
+            <p style="font-size: 12px; color: #64748b; margin-bottom: 20px;">Access restricted to authorized Store Managers (Oakwood Store #12).</p>
+
+            <form onsubmit="handleStoreAuth(event)">
+                <input type="text" id="store-user" placeholder="Username (manager)" required style="width: 100%; padding: 12px 14px; margin-bottom: 10px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 13px;">
+                <input type="password" id="store-pass" placeholder="Password (manage123)" required style="width: 100%; padding: 12px 14px; margin-bottom: 16px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 13px;">
+                <button type="submit" style="width: 100%; padding: 14px; background: #0f172a; color: #ffffff; border: none; border-radius: 10px; font-size: 14px; font-weight: 800; cursor: pointer;">
+                    Unlock Store Console
+                </button>
+            </form>
+
+            <button type="button" onclick="quickFillStoreAuth()" style="margin-top: 14px; background: none; border: 1px dashed #94a3b8; padding: 8px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; color: #475569; width: 100%; cursor: pointer;">
+                ⚡ Auto-fill Demo Credentials (manager / manage123)
+            </button>
+
+            <div style="margin-top: 16px;">
+                <a href="index.html" style="font-size: 11px; color: #64748b; text-decoration: none; font-weight: 600;">← Return to Main Login</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- APP HEADER -->
+    <header class="store-app-header">
+        <div class="header-brand-group">
+            <button class="btn-menu-icon" onclick="toggleSidebarMenu()">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <div>
+                <div class="store-title-text">
+                    Store Manager
+                </div>
+                <div class="store-sub-text">Oakwood Store • #12</div>
+            </div>
+        </div>
+
+        <div class="header-right-tools">
+            <div class="live-status-pill">Live</div>
+            <button class="btn-bell-notify" onclick="showToast('No new urgent dispatch notices.')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <div class="bell-badge-dot"></div>
+            </button>
+            <a href="index.html" onclick="sessionStorage.removeItem('delivery_auth_user')" style="font-size: 12px; color: #64748b; text-decoration: none; font-weight: 700; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-color);">Logout</a>
+        </div>
+    </header>
+
+    <!-- DESKTOP WORKSPACE NAV TABS -->
+    <nav class="desktop-nav-tabs-bar">
+        <button class="desktop-nav-tab-btn active" id="d-tab-1" onclick="switchStoreTab(1)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Overview & Pinned Alerts
+        </button>
+        <button class="desktop-nav-tab-btn" id="d-tab-2" onclick="switchStoreTab(2)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            Orders & Live Tracking
+        </button>
+        <button class="desktop-nav-tab-btn" id="d-tab-3" onclick="switchStoreTab(3)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            Receipt Confirm & Claims
+        </button>
+    </nav>
+
+    <!-- MAIN VIEWPORT CONTAINER -->
+    <main class="store-main-viewport">
+
+        <!-- ====================================================================
+             SCREEN 1: STORE MANAGER ALERT / DEFERRED OVERVIEW (MATCHING SCREENSHOT 1)
+             ==================================================================== -->
+        <section class="store-screen-view active" id="store-screen-1">
+            
+            <!-- BIG PINNED ALERT CARD -->
+            <div class="alert-card-danger">
+                <div class="alert-card-top-row">
+                    <span class="pill-pinned">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+                        PINNED • CANNOT DISMISS
+                    </span>
+                    <div class="danger-alert-icon">!</div>
+                </div>
+
+                <div class="alert-order-title">
+                    ORD-2230 <span>• deferred</span>
+                </div>
+
+                <span class="pill-reefer-capacity">REEFER CAPACITY SHORT</span>
+
+                <div class="alert-meta-list">
+                    <div class="alert-meta-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        next run: tomorrow • promised 06:30
+                    </div>
+                    <div class="alert-meta-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                        expected impact: ~4h staff time • chilled shelf gap
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRIORITY FLAGGED BOX -->
+            <div class="priority-flagged-box">
+                <div class="priority-red-dot"></div>
+                <div class="priority-text">
+                    you were skipped yesterday — <span>this order is priority-flagged</span>
+                </div>
+            </div>
+
+            <!-- ACKNOWLEDGE BUTTON -->
+            <button class="btn-big-acknowledge" onclick="acknowledgeDeferral()">
+                Acknowledge
+            </button>
+
+            <div class="wdi-branding-footer">
+                ⭕ WDI SYSTEM
+            </div>
+        </section>
+
+        <!-- ====================================================================
+             SCREEN 2: ORDER DETAILS & LIVE TIMELINE (MATCHING SCREENSHOT 2)
+             ==================================================================== -->
+        <section class="store-screen-view" id="store-screen-2">
+            
+            <div class="screen-top-subbar">
+                <span>Waypoint Fresh • Galle • Tuesday • Operating</span>
+                <span style="color: #059669; font-weight: 700;">🏠 Store Manager</span>
+            </div>
+
+            <!-- ORDER PLACE / DETAILS CARD -->
+            <div class="order-action-card">
+                <div class="order-action-header-row">
+                    <div class="order-code-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        ORD-2290
+                    </div>
+                    <div class="order-received-time">received 14:32 ∨</div>
+                </div>
+                <div style="font-size: 12px; color: #64748b;">promised window 06:30–07:30</div>
+
+                <button class="btn-dark-place-order" onclick="showToast('Re-order placed. Staging request sent to distribution depot.')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                    Place Order
+                </button>
+            </div>
+
+            <!-- ETA EXPECTED CARD -->
+            <div class="eta-card">
+                <div class="eta-left-group">
+                    <div class="eta-clock-circle">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                    </div>
+                    <div>
+                        <div class="eta-expected-title">expected 06:55</div>
+                        <div class="eta-window-sub">● on plan • window 06:30–07:30</div>
+                    </div>
+                </div>
+
+                <div class="eta-progress-dots"></div>
+            </div>
+
+            <!-- LIVE TIMELINE CARD -->
+            <div class="timeline-card">
+                <div class="timeline-title">Live Timeline</div>
+
+                <div class="timeline-steps-list">
+                    <div class="timeline-step-row">
+                        <div class="timeline-step-left">
+                            <div class="tl-dot green"></div>
+                            <span class="tl-label">placed</span>
+                        </div>
+                        <span class="tl-time">14:32</span>
+                    </div>
+
+                    <div class="timeline-step-row">
+                        <div class="timeline-step-left">
+                            <div class="tl-dot grey"></div>
+                            <span class="tl-label">scheduled</span>
+                        </div>
+                        <span class="tl-time">14:33</span>
+                    </div>
+
+                    <div class="timeline-step-row">
+                        <div class="timeline-step-left">
+                            <div class="tl-dot green"></div>
+                            <span class="tl-label">loaded</span>
+                        </div>
+                        <div class="tl-time">
+                            03:44<br>
+                            <span class="tl-time-struck">03:40</span>
+                        </div>
+                    </div>
+
+                    <div class="timeline-step-row">
+                        <div class="timeline-step-left">
+                            <div class="tl-dot empty"></div>
+                            <span class="tl-label">in transit</span>
+                        </div>
+                        <span class="tl-time">--</span>
+                    </div>
+
+                    <div class="timeline-step-row">
+                        <div class="timeline-step-left">
+                            <div class="tl-dot empty"></div>
+                            <span class="tl-label">delivered</span>
+                        </div>
+                        <span class="tl-time">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DOCK NOTE BANNER -->
+            <div class="dock-note-banner" onclick="switchStoreTab(3)">
+                <div class="dock-note-left">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <div>
+                        <div class="dock-note-title">note from the dock</div>
+                        <div class="dock-note-desc">2 egg crates missing, claim at receipt</div>
+                    </div>
+                </div>
+                <div style="color: #b45309; font-weight: 800; font-size: 16px;">›</div>
+            </div>
+
+            <!-- DELIVERY HISTORY -->
+            <div>
+                <div class="history-section-header">
+                    <div class="history-title">Delivery History</div>
+                    <a class="history-view-all" onclick="showToast('Showing all recent deliveries.')">View all ></a>
+                </div>
+
+                <div class="history-items-list" style="margin-top: 10px;">
+                    <div class="history-item-card">
+                        <div class="hist-left">
+                            <span class="hist-ord-id">ORD-2289</span>
+                            <span class="pill-status-green">delivered</span>
+                        </div>
+                        <div class="hist-right">
+                            <div class="hist-time-main">06:12</div>
+                            <div class="hist-time-sub">window 06:30–07:30</div>
+                        </div>
+                    </div>
+
+                    <div class="history-item-card">
+                        <div class="hist-left">
+                            <span class="hist-ord-id">ORD-2288</span>
+                            <span class="pill-status-green">delivered</span>
+                        </div>
+                        <div class="hist-right">
+                            <div class="hist-time-main">yesterday</div>
+                            <div class="hist-time-sub">window 06:30–07:30</div>
+                        </div>
+                    </div>
+
+                    <div class="history-item-card">
+                        <div class="hist-left">
+                            <span class="hist-ord-id">ORD-2287</span>
+                            <span class="pill-status-yellow">late</span>
+                        </div>
+                        <div class="hist-right">
+                            <div class="hist-time-main">Tue 21 May</div>
+                            <div class="hist-time-sub">window 06:30–07:30 • arrived 07:41</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ====================================================================
+             SCREEN 3: RECEIPT CONFIRM & DISCREPANCY CLAIMS (MATCHING SCREENSHOT 3)
+             ==================================================================== -->
+        <section class="store-screen-view" id="store-screen-3">
+            
+            <div class="receipt-header-nav">
+                <button class="btn-back-link" onclick="switchStoreTab(2)">
+                    ‹ Back
+                </button>
+                <span style="font-size: 11px; color: #94a3b8; font-family: monospace;">S2 3</span>
+            </div>
+
+            <div>
+                <h2 class="receipt-main-title">Receipt Confirm</h2>
+                <div class="receipt-sub-desc">Confirm delivery • Resolve issues • Close receipt</div>
+            </div>
+
+            <!-- CARRIER DELIVERED STATUS -->
+            <div class="carrier-delivered-banner">
+                <div class="carrier-box-thumb"></div>
+                <div class="delivered-status-right">
+                    <div class="delivered-green-text">Delivered</div>
+                    <div class="delivered-window-check">07:02 • in window ✓</div>
+                </div>
+            </div>
+
+            <!-- ALL GOOD CONFIRM BUTTON -->
+            <button class="btn-all-good-confirm" onclick="confirmAllGood()">
+                All good — confirm ☑
+            </button>
+
+            <!-- REPORT A PROBLEM ACCORDION -->
+            <div class="problem-accordion-card">
+                <div class="problem-accordion-header">
+                    <span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        Report a problem
+                    </span>
+                    <span style="color: #64748b;">^</span>
+                </div>
+
+                <div class="discrepancy-question-title">What's the discrepancy?</div>
+
+                <!-- 3 DISCREPANCY PILLS -->
+                <div class="discrepancy-pills-row">
+                    <button type="button" class="disc-pill-btn active" id="disc-btn-missing" onclick="selectDiscrepancy('missing')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                        Missing items
+                    </button>
+                    <button type="button" class="disc-pill-btn" id="disc-btn-damaged" onclick="selectDiscrepancy('damaged')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                        Damaged
+                    </button>
+                    <button type="button" class="disc-pill-btn" id="disc-btn-wrong" onclick="selectDiscrepancy('wrong')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        Wrong items
+                    </button>
+                </div>
+
+                <!-- QTY STEPPER -->
+                <div class="qty-stepper-row">
+                    <span class="qty-label">Qty (if known)</span>
+                    <div class="stepper-btns-box">
+                        <button type="button" class="btn-qty-circle" onclick="changeQtyDelta(-1)">-</button>
+                        <span class="stepper-val-num" id="claim-qty">2</span>
+                        <button type="button" class="btn-qty-circle" onclick="changeQtyDelta(1)">+</button>
+                    </div>
+                </div>
+
+                <!-- ADD PHOTO BUTTON -->
+                <div class="add-photo-btn-box" onclick="alert('Camera module ready. Frame captured and appended.')">
+                    <span>Add photo (optional)</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                </div>
+
+                <!-- YELLOW REPORTED BOX -->
+                <div class="reported-yellow-alert">
+                    <strong>Missing • 2 egg crates</strong>
+                    <span>Reported at 09:41</span>
+                </div>
+
+                <!-- GREEN CONFIRMED NOTICE -->
+                <div class="confirmed-green-alert">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="16 12 12 8 8 12"/><polyline points="12 16 12 8"/></svg>
+                    <div>
+                        <strong>Confirmed against dock notice</strong>
+                        <span>03:41 • refund/claim initiated</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- LEDGER UPDATED LINK CARD -->
+            <div class="ledger-updated-link-card" onclick="showToast('Ledger entry synced with central dispatch.')">
+                <span>Ledger updated, Missing • 2 egg crates</span>
+                <span style="font-size: 16px; color: #64748b;">›</span>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- MOBILE BOTTOM APP BAR (MATCHING SCREENSHOT 1 NAVIGATION) -->
+    <nav class="mobile-store-bottom-bar">
+        <button class="mob-nav-item-btn active" id="m-nav-1" onclick="switchStoreTab(1)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Overview
+        </button>
+        <button class="mob-nav-item-btn" id="m-nav-2" onclick="switchStoreTab(2)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            Orders
+        </button>
+        <button class="mob-nav-item-btn" id="m-nav-3" onclick="switchStoreTab(3)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Receipt
+        </button>
+        <button class="mob-nav-item-btn" onclick="showToast('Insights: 98.4% on-time window adherence.')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+            Insights
+        </button>
+    </nav>
+
+    <!-- TOAST NOTIFIER -->
+    <div class="store-toast" id="store-toast">Action completed successfully</div>
+
+    <script>
+        // --- AUTH CHECK ---
+        function checkStoreAuth() {
+            const authStr = sessionStorage.getItem('delivery_auth_user');
+            if (authStr) {
+                try {
+                    const user = JSON.parse(authStr);
+                    if (user.username === 'manager' || user.role === 'manager' || user.role === 'store') {
+                        document.getElementById('auth-lock-screen').style.display = 'none';
+                        return;
+                    }
+                } catch(e) {}
+            }
+            document.getElementById('auth-lock-screen').style.display = 'flex';
+        }
+
+        function handleStoreAuth(e) {
+            e.preventDefault();
+            const user = document.getElementById('store-user').value.trim();
+            const pass = document.getElementById('store-pass').value.trim();
+
+            if (user === 'manager' && pass === 'manage123') {
+                sessionStorage.setItem('delivery_auth_user', JSON.stringify({
+                    username: 'manager',
+                    role: 'manager',
+                    name: 'Store Manager Vance',
+                    loginTime: new Date().toISOString()
+                }));
+                document.getElementById('auth-lock-screen').style.display = 'none';
+                showToast('Welcome, Store Manager Vance');
+            } else {
+                alert('Invalid Store Manager credentials. Use manager / manage123');
+            }
+        }
+
+        function quickFillStoreAuth() {
+            document.getElementById('store-user').value = 'manager';
+            document.getElementById('store-pass').value = 'manage123';
+            handleStoreAuth({ preventDefault: () => {} });
+        }
+
+        // --- SCREEN TAB SWITCHING ---
+        function switchStoreTab(tabNum) {
+            document.querySelectorAll('.store-screen-view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.desktop-nav-tab-btn').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.mob-nav-item-btn').forEach(el => el.classList.remove('active'));
+
+            const target = document.getElementById('store-screen-' + tabNum);
+            const dTab = document.getElementById('d-tab-' + tabNum);
+            const mTab = document.getElementById('m-nav-' + tabNum);
+
+            if (target) target.classList.add('active');
+            if (dTab) dTab.classList.add('active');
+            if (mTab) mTab.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // --- ACKNOWLEDGE ACTION ---
+        function acknowledgeDeferral() {
+            showToast('✓ Deferral notice acknowledged. Rescheduled for tomorrow 06:30.');
+            setTimeout(() => {
+                switchStoreTab(2);
+            }, 800);
+        }
+
+        // --- DISCREPANCY SELECTION ---
+        let currentDisc = 'missing';
+        function selectDiscrepancy(type) {
+            currentDisc = type;
+            document.querySelectorAll('.disc-pill-btn').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById('disc-btn-' + type);
+            if (btn) btn.classList.add('active');
+        }
+
+        // --- QTY STEPPER ---
+        let claimQty = 2;
+        function changeQtyDelta(delta) {
+            claimQty = Math.max(1, claimQty + delta);
+            document.getElementById('claim-qty').textContent = claimQty;
+        }
+
+        function confirmAllGood() {
+            showToast('✓ Goods receipt confirmed. Sign-off recorded in ledger.');
+        }
+
+        function toggleSidebarMenu() {
+            showToast('Oakwood Store #12 • Logged in as Store Manager');
+        }
+
+        // --- TOAST HELPER ---
+        function showToast(msg) {
+            const toast = document.getElementById('store-toast');
+            toast.textContent = msg;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // --- INIT ---
+        window.addEventListener('DOMContentLoaded', () => {
+            checkStoreAuth();
+        });
+    </script>
+</body>
+</html>

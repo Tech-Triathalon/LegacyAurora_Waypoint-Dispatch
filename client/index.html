@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In Portal</title>
+    <style>
+        /* Base styles and reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Container setup */
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        /* Title styling */
+        h1 {
+            text-align: center;
+            color: #111111;
+            font-size: 28px;
+            margin-bottom: 40px;
+            margin-top: 20px;
+        }
+
+        /* Form and Input styling */
+        .input-group {
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px;
+            background-color: #f4f4f4;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #333333;
+            outline: none;
+            transition: background-color 0.2s;
+        }
+
+        input:focus {
+            background-color: #ebebeb;
+        }
+
+        input::placeholder {
+            color: #a0a0a0;
+        }
+
+        /* Password input specific styling */
+        .password-group {
+            display: flex;
+            align-items: center;
+            background-color: #f4f4f4;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .password-group input {
+            background-color: transparent;
+            padding-right: 70px; /* Space for the Show button */
+        }
+
+        .password-group input:focus {
+            background-color: transparent;
+        }
+
+        .toggle-btn {
+            position: absolute;
+            right: 16px;
+            background: none;
+            border: none;
+            font-weight: bold;
+            color: #111111;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* Login Button styling */
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background-color: #F59E0B;
+            color: #111111;
+            border: none;
+            border-radius: 50px; /* Pill shape */
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            margin-bottom: 24px;
+            transition: background-color 0.2s;
+        }
+
+        .login-btn:hover {
+            background-color: #f3a51e;
+        }
+
+        /* Forgot Password Link */
+        .forgot-password {
+            display: block;
+            text-align: center;
+            color: #111111;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        /* Error Message styling */
+        .error-message {
+            color: #d93025;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 10px;
+            display: none; /* Hidden by default */
+        }
+
+        /* Demo Quick Auto-Fill Section */
+        .demo-roles-container {
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px dashed #e2e8f0;
+            text-align: center;
+        }
+
+        .demo-roles-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .demo-roles-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .demo-role-btn {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .demo-role-btn:hover {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .demo-role-btn:active {
+            transform: scale(0.98);
+        }
+
+        .role-badge-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .role-badge-sub {
+            font-size: 10px;
+            color: #64748b;
+            font-family: monospace;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 24px;
+            }
+            input, .login-btn {
+                padding: 14px;
+                font-size: 14px;
+            }
+            .password-group input {
+                padding-right: 60px;
+            }
+            .demo-roles-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="login-container">
+        <h1>Log In</h1>
+        
+        <form id="login-form">
+            <div class="input-group">
+                <input type="text" id="username" placeholder="User Name" required autocomplete="username">
+            </div>
+            
+            <div class="input-group password-group">
+                <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
+                <button type="button" id="toggle-password" class="toggle-btn">Show</button>
+            </div>
+
+            <div id="error-message" class="error-message"></div>
+
+            <button type="submit" class="login-btn">Log In</button>
+        </form>
+
+        <a href="#" class="forgot-password" onclick="alert('Demo reset instructions sent to registered system administrator.')">Forgot your password?</a>
+
+        <!-- Quick Auto-Fill Demo Shortcuts -->
+        <div class="demo-roles-container">
+            <div class="demo-roles-title">
+                ⚡ Quick Auto-Fill Demo Roles
+            </div>
+            <div class="demo-roles-grid">
+                <button type="button" class="demo-role-btn" onclick="quickFill('dispatcher')">
+                    <span class="role-badge-name">🛰️ Dispatcher</span>
+                    <span class="role-badge-sub">dispatcher / dispatch123</span>
+                </button>
+                <button type="button" class="demo-role-btn" onclick="quickFill('driver')">
+                    <span class="role-badge-name">🚚 Route Driver</span>
+                    <span class="role-badge-sub">driver / drive123</span>
+                </button>
+                <button type="button" class="demo-role-btn" onclick="quickFill('loader')">
+                    <span class="role-badge-name">📦 Dock Loader</span>
+                    <span class="role-badge-sub">loader / load123</span>
+                </button>
+                <button type="button" class="demo-role-btn" onclick="quickFill('manager')">
+                    <span class="role-badge-name">🏪 Store Manager</span>
+                    <span class="role-badge-sub">manager / manage123</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- Demo Credentials Database ---
+        const validCredentials = [
+            { username: 'dispatcher', password: 'dispatch123', target: 'dispatcher.html', name: 'A. Patel' },
+            { username: 'driver', password: 'drive123', target: 'driver.html', name: 'Marcus K. (Driver)' },
+            { username: 'loader', password: 'load123', target: 'loader.html', name: 'G. Sloan (Loader)' },
+            { username: 'manager', password: 'manage123', target: 'store.html', name: 'Store Manager Vance' }
+        ];
+
+        // --- DOM Elements ---
+        const loginForm = document.getElementById('login-form');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const toggleBtn = document.getElementById('toggle-password');
+        const errorMessage = document.getElementById('error-message');
+
+        // --- Quick Auto-Fill Helper ---
+        function quickFill(roleKey) {
+            const found = validCredentials.find(c => c.username === roleKey);
+            if (found) {
+                usernameInput.value = found.username;
+                passwordInput.value = found.password;
+                errorMessage.style.display = 'none';
+                
+                // Add a subtle highlight flash effect
+                usernameInput.style.backgroundColor = '#fef08a';
+                passwordInput.style.backgroundColor = '#fef08a';
+                setTimeout(() => {
+                    usernameInput.style.backgroundColor = '#f4f4f4';
+                    passwordInput.style.backgroundColor = 'transparent';
+                }, 300);
+            }
+        }
+
+        // --- Toggle Password Visibility ---
+        toggleBtn.addEventListener('click', () => {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = 'Hide';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = 'Show';
+            }
+        });
+
+        // --- Handle Form Submission ---
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const user = usernameInput.value.trim();
+            const pass = passwordInput.value.trim();
+
+            // Authenticate against the real API (JWT in httpOnly cookie).
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: user, password: pass })
+            }).then(async (res) => {
+                if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Invalid username or password.');
+                return res.json();
+            }).then((session) => {
+                // Keep the same sessionStorage shape the role pages already check.
+                sessionStorage.setItem('delivery_auth_user', JSON.stringify({
+                    username: session.username,
+                    role: session.username,
+                    name: session.name,
+                    loginTime: new Date().toISOString()
+                }));
+                errorMessage.style.display = 'none';
+                const match = validCredentials.find(cred => cred.username === session.username);
+                window.location.href = (match && match.target) || 'index.html';
+            }).catch((err) => {
+                errorMessage.textContent = err.message || 'Invalid username or password.';
+                errorMessage.style.display = 'block';
+            });
+        });
+    </script>
+
+</body>
+</html>
