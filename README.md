@@ -31,6 +31,29 @@ First boot automatically migrates the schema and seeds **one deterministic, deli
 5. Open **manager / manage123** → the outlet timeline shows live events, a **pinned deferral notice**, and the receipt flow. Report missing eggs → the receipt **auto-matches the loader's dock flag**.
 6. Back as dispatcher: **Deferral Ledger** shows reason codes, promise dates and kept/broken tracking. Toggle **telemetry outage** on a vehicle → staleness state persists and shows on the fleet board.
 
+## Offline & PWA (all four roles)
+
+The whole system is an installable **Progressive Web App** that keeps working with zero connectivity and syncs when the connection returns:
+
+| Layer | What it does |
+|---|---|
+| `client/manifest.webmanifest` | Installable app (standalone display, role shortcuts, generated icon set) |
+| `client/sw.js` | Precaches the app shell (pages + JS + icons); network-first GET `/api/*` with **cached last-known snapshots** when offline; Background Sync hook |
+| `client/offline.js` | `WaypointOffline`: mutation queue (localStorage) + snapshot reads. Every queued write carries a `clientRef` idempotency key |
+| `client/pwa.js` | Shared bootstrap: SW registration, live connection pill ("Live / Offline · N queued / Syncing…"), install prompt, sync toasts |
+| `client/outbox.js` | Driver event outbox (per-event `eventId` dedupe, unchanged contract) |
+| `server/src/idempotency.js` | Server replays the first response per `clientRef` for 24h — a sync that died mid-flight can never double-apply |
+
+**Offline behavior per role:**
+
+- **Dispatcher** — console renders from cached snapshots; order deferrals queue and replay; plan allocate/commit requires connectivity (by design — it mutates the whole fleet).
+- **Driver** — full offline POD capture via the outbox (unchanged), plus GPS events; replay is deduped by `eventId` server-side.
+- **Loader** — manifests render from cache; shortage flags queue (with reason/qty) and replay with photo-less bodies when captured offline.
+- **Store Manager** — orders, goods receipts and claims queue offline and replay; the timeline renders from the last-known snapshot.
+- **Hub** — System Status panel: DB latency (from `/api/health`), service-worker state, offline queue depth with **Sync now**, and one-click **Install app**.
+
+Reconnect triggers replay three ways: the browser `online` event, the Background Sync API (`waypoint-sync` tag), and a 30s interval sweep. Sessions survive offline restarts via a localStorage session mirror — the auth guard falls back to it instead of bouncing to login.
+
 ## Architecture
 
 ```
@@ -47,7 +70,8 @@ Browser (5 vanilla pages, untouched Day-5 design)
 
 ## Deployment
 
-- **Production:** Vercel (static client + Express serverless fn) + **Supabase** Postgres. Set `DATABASE_URL` and `JWT_SECRET` in the Vercel project env. Use Supabase's **connection pooler** string (port 6543) for serverless functions — note it must be a *transaction-mode* URL, so the codebase avoids session-pinned interactive transactions by design.
+- **Production:** Vercel (static client + Express serverless fn) or any persistent Node host + **Supabase** Postgres. Set `DATABASE_URL` and `JWT_SECRET` in the platform env (or `server/.env` locally — auto-loaded, no dotenv dependency). With Supabase's **connection pooler** (port 6543, transaction mode) the codebase avoids session-pinned interactive transactions by design; the direct string (5432) works for persistent containers.
+- **Security:** every `/api/*` endpoint now requires the JWT cookie, with role gates (dispatcher: plan/commit/defer/telemetry · driver: events batch · loader: flags · manager: orders/receipt). Sliding-window rate limits on login and sync endpoints; strict security headers; Zod-style input validation on all mutating routes; singleton PrismaClient (one pool per process).
 - **Keep-alive:** an uptime monitor pings `/api/health` every 5 minutes so the demo link never sleeps.
 - **CI:** every push runs unit tests, then boots the full `docker compose` stack and smoke-tests the judge walkthrough end-to-end (login ×4 roles, allocate → commit, offline-sync replay → `duplicate`, deferral ledger).
 

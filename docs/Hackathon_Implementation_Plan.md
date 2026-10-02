@@ -1,5 +1,5 @@
 # Waypoint Delivery System — Hackathon Technical Implementation Plan
-**Team: [TeamName] · Deadline: Sunday, October 4, 2026, 23:59 Sri Lanka time**
+**Team: [Legacy Aurora] · Deadline: Sunday, October 4, 2026, 23:59 Sri Lanka time**
 **Starting asset:** Working static prototype (index / dispatcher / driver / loader / store, self-contained HTML+CSS+JS, sessionStorage auth, deployed on GitHub Pages)
 
 ---
