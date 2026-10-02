@@ -20,9 +20,9 @@ jobs:
         run: npx prisma generate
         env:
           DATABASE_URL: postgresql://x:x@localhost:5432/x
-      - name: Unit tests (validator + engine determinism)
+      - name: Run test suites (all 57 unit & integration tests)
         working-directory: server
-        run: node --test ../tests/allocation.test.js
+        run: npm test
 
   compose:
     runs-on: ubuntu-latest
