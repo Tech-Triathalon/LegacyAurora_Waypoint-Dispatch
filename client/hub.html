@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>WaypointDispatch · System Hub</title>
+    <meta name="description" content="Offline-first unified dispatch hub — dispatcher, driver, loader and store manager portals with offline sync.">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#0d0e10">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Waypoint">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        :root {
+            --bg: #0d0e10;
+            --bg-card: #17181b;
+            --bg-subtle: #1e2024;
+            --border: #2a2d33;
+            --text-main: #f2f3f5;
+            --text-muted: #8b8f98;
+            --accent: #f59e0b;
+            --ok: #34d399;
+            --warn: #fbbf24;
+            --bad: #f87171;
+        }
+        body { background: var(--bg); color: var(--text-main); min-height: 100vh; padding: 28px 20px 60px; }
+        .wrap { max-width: 1080px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; flex-wrap: wrap; gap: 12px; }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-mark { width: 42px; height: 42px; border-radius: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .brand h1 { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; }
+        .brand p { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .user-chip { display: flex; align-items: center; gap: 10px; background: var(--bg-card); border: 1px solid var(--border); padding: 8px 14px; border-radius: 999px; }
+        .avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: #121212; font-weight: 800; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+        .user-chip small { color: var(--text-muted); font-size: 11px; display: block; }
+        .user-chip strong { font-size: 13px; }
+        .btn-ghost { background: none; border: 1px solid var(--border); color: var(--text-muted); border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .btn-ghost:hover { color: var(--text-main); border-color: var(--accent); }
+
+        .health-strip { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+        .health-pill { display: flex; align-items: center; gap: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 999px; padding: 8px 14px; font-size: 12px; font-weight: 600; color: var(--text-muted); }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bad); }
+        .dot.ok { background: var(--ok); box-shadow: 0 0 8px rgba(52,211,153,.7); }
+        .dot.warn { background: var(--warn); }
+
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 30px; }
+        .kpi { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+        .kpi .num { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+        .kpi .lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-top: 4px; }
+        .kpi.accent .num { color: var(--accent); }
+        .kpi.ok .num { color: var(--ok); }
+        .kpi.bad .num { color: var(--bad); }
+
+        h2.section { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin: 0 0 14px; }
+        .portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+        .portal-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 10px; text-decoration: none; color: var(--text-main); transition: transform .15s, border-color .15s; position: relative; }
+        .portal-card:hover { transform: translateY(-3px); border-color: var(--accent); }
+        .portal-card.locked { opacity: 0.45; pointer-events: none; }
+        .portal-card .ico { width: 44px; height: 44px; border-radius: 12px; background: var(--bg-subtle); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+        .portal-card h3 { font-size: 16px; font-weight: 800; }
+        .portal-card p { font-size: 12px; color: var(--text-muted); line-height: 1.55; flex: 1; }
+        .portal-card .open-btn { align-self: flex-start; background: var(--accent); color: #121212; font-size: 12px; font-weight: 800; border: none; border-radius: 8px; padding: 8px 16px; cursor: pointer; }
+        .portal-card .role-tag { position: absolute; top: 16px; right: 16px; font-size: 9px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-muted); padding: 4px 8px; border-radius: 999px; }
+        .portal-card.mine { border-color: rgba(245,158,11,.45); }
+        .live-note { margin-top: 26px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+        .live-note strong { color: var(--text-main); }
+        #hub-toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--bg-subtle); border: 1px solid var(--accent); color: var(--text-main); padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; transition: transform .25s; z-index: 50; max-width: 90vw; }
+        #hub-toast.show { transform: translateX(-50%) translateY(0); }
+        .auth-lock { position: fixed; inset: 0; background: var(--bg); display: none; align-items: center; justify-content: center; z-index: 100; flex-direction: column; gap: 14px; }
+        .auth-lock .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 30px; width: min(360px, 92vw); }
+        .auth-lock h2 { font-size: 18px; margin-bottom: 6px; }
+        .auth-lock p { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+        .auth-lock input { width: 100%; padding: 12px; background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-size: 14px; margin-bottom: 10px; outline: none; }
+        .auth-lock button { width: 100%; padding: 12px; background: var(--accent); color: #121212; border: none; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; }
+        .auth-lock .err { color: var(--bad); font-size: 12px; display: none; margin-bottom: 8px; }
+        .quick-row { display: flex; gap: 8px; margin-top: 4px; }
+        .quick-row button { flex: 1; padding: 8px; background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; }
+        .quick-row button:hover { color: var(--accent); border-color: var(--accent); }
+
+        /* PWA system status panel */
+        .sys-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 30px; }
+        .sys-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+        .sys-card .ttl { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+        .sys-card .val { font-size: 15px; font-weight: 800; }
+        .sys-card .sub { font-size: 11px; color: var(--text-muted); }
+        .sys-card button { align-self: flex-start; background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-main); border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 700; cursor: pointer; }
+        .sys-card button:hover { border-color: var(--accent); color: var(--accent); }
+        .sys-card button.primary { background: var(--accent); border-color: var(--accent); color: #121212; }
+        .sys-card button.primary:hover { color: #121212; filter: brightness(1.08); }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <div class="brand">
+                <div class="brand-mark">🛰️</div>
+                <div>
+                    <h1>WaypointDispatch · System Hub</h1>
+                    <p>LegacyAurora unified delivery operations — all portals, one home</p>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div class="user-chip">
+                    <div class="avatar" id="hub-avatar">?</div>
+                    <div><strong id="hub-user-name">…</strong><small id="hub-user-role">checking session</small></div>
+                </div>
+                <button class="btn-ghost" onclick="WaypointAuth.logout()">Log out</button>
+            </div>
+        </header>
+
+        <div class="health-strip">
+            <div class="health-pill"><span class="dot" id="dot-api"></span> API <span id="api-status">…</span></div>
+            <div class="health-pill"><span class="dot" id="dot-stream"></span> Live stream <span id="stream-status">connecting</span></div>
+            <div class="health-pill">🕒 <span id="hub-clock">--:--:--</span></div>
+            <div class="health-pill">📦 <span id="hub-date">—</span></div>
+        </div>
+
+        <h2 class="section">System status · PWA</h2>
+        <div class="sys-grid">
+            <div class="sys-card">
+                <div class="ttl">🗄️ Database</div>
+                <div class="val" id="sys-db">—</div>
+                <div class="sub" id="sys-db-sub">checking</div>
+            </div>
+            <div class="sys-card">
+                <div class="ttl">⚙️ App shell (PWA)</div>
+                <div class="val" id="sys-sw">—</div>
+                <div class="sub" id="sys-sw-sub">service worker</div>
+            </div>
+            <div class="sys-card">
+                <div class="ttl">📤 Offline queue</div>
+                <div class="val" id="sys-queue">0</div>
+                <div class="sub" id="sys-queue-sub">pending mutations</div>
+                <button id="btn-sync-now" onclick="forceSync()">Sync now</button>
+            </div>
+            <div class="sys-card">
+                <div class="ttl">⬇️ Install</div>
+                <div class="val" id="sys-install">—</div>
+                <div class="sub">works fully offline once installed</div>
+                <button class="primary" id="btn-install" style="display:none" onclick="installApp()">Install app</button>
+            </div>
+        </div>
+
+        <div class="kpi-grid" id="kpi-grid">
+            <div class="kpi accent"><div class="num" id="hk-queued">—</div><div class="lbl">Queued orders</div></div>
+            <div class="kpi"><div class="num" id="hk-allocated">—</div><div class="lbl">Allocated</div></div>
+            <div class="kpi bad"><div class="num" id="hk-deferred">—</div><div class="lbl">Deferred</div></div>
+            <div class="kpi ok"><div class="num" id="hk-delivered">—</div><div class="lbl">Delivered today</div></div>
+            <div class="kpi accent"><div class="num" id="hk-trips">—</div><div class="lbl">Committed trips</div></div>
+            <div class="kpi bad"><div class="num" id="hk-flags">—</div><div class="lbl">Open shortages</div></div>
+        </div>
+
+        <h2 class="section">Portals</h2>
+        <div class="portal-grid" id="portal-grid"></div>
+
+        <div class="live-note">
+            <strong>Offline-first, all four roles.</strong> Every portal is an installable PWA: pages and app code are
+            precached, API reads fall back to last-known snapshots when the network drops, and writes (orders, allocations,
+            load events, shortage flags, receipts, PODs) queue locally with idempotency keys and replay automatically when
+            the connection returns — deduped server-side, never double-applied. Live event stream
+            (<code style="color:var(--accent)">/api/stream</code>) keeps every role current while online.
+        </div>
+    </div>
+
+    <div class="auth-lock" id="auth-lock-screen">
+        <div class="card">
+            <h2>Sign in to the Hub</h2>
+            <p>Your session cookie is missing or expired. Log in with your operator account.</p>
+            <div class="err" id="hub-auth-error"></div>
+            <form id="hub-auth-form">
+                <input id="hub-user" placeholder="Username" autocomplete="username">
+                <input id="hub-pass" type="password" placeholder="Password" autocomplete="current-password">
+                <button type="submit">Sign in</button>
+            </form>
+            <div class="quick-row">
+                <button onclick="fill('dispatcher','dispatch123')">Dispatcher</button>
+                <button onclick="fill('driver','drive123')">Driver</button>
+                <button onclick="fill('loader','load123')">Loader</button>
+                <button onclick="fill('manager','manage123')">Manager</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="hub-toast"></div>
+
+    <script src="waypoint.js"></script>
+    <script src="offline.js"></script>
+    <script src="pwa.js"></script>
+    <script>
+        const { esc } = WaypointUtil;
+        const PORTALS = [
+            { id: 'dispatcher', icon: '🛰️', title: 'Dispatcher Console', desc: 'Order queue, capacity verdict, greedy allocation, fleet board, live runs, exceptions, analytics.', href: 'dispatcher.html' },
+            { id: 'driver', icon: '🚚', title: 'Driver Companion', desc: 'Committed route manifest, stop-by-stop POD capture, GPS event reporting, offline outbox.', href: 'driver.html' },
+            { id: 'loader', icon: '📦', title: 'Loader Tablet', desc: 'Committed load plan per vehicle, checklist flow, shortage flagging with photo evidence.', href: 'loader.html' },
+            { id: 'manager', icon: '🏪', title: 'Store Manager', desc: 'Place orders, live delivery timeline, goods receipt with automatic flag reconciliation.', href: 'store.html' },
+        ];
+        let myRole = null;
+
+        function toast(msg) {
+            const t = document.getElementById('hub-toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            clearTimeout(t._h);
+            t._h = setTimeout(() => t.classList.remove('show'), 4200);
+        }
+        window.fill = (u, p) => {
+            document.getElementById('hub-user').value = u;
+            document.getElementById('hub-pass').value = p;
+        };
+
+        function renderPortals() {
+            const grid = document.getElementById('portal-grid');
+            grid.innerHTML = PORTALS.map((p) => {
+                const mine = myRole === p.id || myRole === 'dispatcher';
+                return `<a class="portal-card ${mine ? 'mine' : 'locked'}" href="${p.href}">
+                    <span class="role-tag">${myRole === p.id ? 'your portal' : myRole === 'dispatcher' ? 'staff access' : 'restricted'}</span>
+                    <div class="ico">${p.icon}</div>
+                    <h3>${p.title}</h3>
+                    <p>${p.desc}</p>
+                    <button class="open-btn">Open portal →</button>
+                </a>`;
+            }).join('');
+        }
+
+        function setStream(ok) {
+            document.getElementById('dot-stream').className = `dot ${ok ? 'ok' : 'warn'}`;
+            document.getElementById('stream-status').textContent = ok ? 'connected' : 'polling fallback';
+        }
+
+        async function loadStatus() {
+            try {
+                const [summary, trips, flags, health] = await Promise.all([
+                    WaypointUtil.api('/api/analytics/summary'),
+                    WaypointUtil.api('/api/trips'),
+                    WaypointUtil.api('/api/flags'),
+                    WaypointUtil.api('/api/health').catch(() => null),
+                ]);
+                document.getElementById('hk-queued').textContent = String(summary.orders.queued);
+                document.getElementById('hk-allocated').textContent = String(summary.orders.allocated);
+                document.getElementById('hk-deferred').textContent = String(summary.orders.deferred);
+                document.getElementById('hk-delivered').textContent = String(summary.orders.delivered);
+                document.getElementById('hk-trips').textContent = String(summary.fleet.tripsCommitted);
+                document.getElementById('hk-flags').textContent = String(flags.flags.filter((f) => f.status === 'open').length);
+                const active = trips.trips.filter((t) => t.status === 'departed').length;
+                const dotApi = document.getElementById('dot-api');
+                const ok = !!health;
+                dotApi.className = `dot ${ok ? 'ok' : 'bad'}`;
+                document.getElementById('api-status').textContent = ok ? 'online' : 'unreachable';
+                // System status panel: DB health from /api/health
+                const dbEl = document.getElementById('sys-db');
+                const dbSub = document.getElementById('sys-db-sub');
+                if (health && health.db && health.db.ok) {
+                    dbEl.textContent = 'Healthy';
+                    dbEl.style.color = 'var(--ok)';
+                    dbSub.textContent = `${health.db.latencyMs} ms round-trip`;
+                } else if (health && health.db && !health.db.ok) {
+                    dbEl.textContent = 'Unreachable';
+                    dbEl.style.color = 'var(--bad)';
+                    dbSub.textContent = health.db.error || 'connection failed';
+                }
+                window._hubActiveTrips = active;
+            } catch (err) {
+                document.getElementById('api-status').textContent = 'degraded';
+            }
+        }
+
+        // ---- PWA system status + install + offline queue ----
+        async function refreshPwaPanel() {
+            const swEl = document.getElementById('sys-sw');
+            const swSub = document.getElementById('sys-sw-sub');
+            try {
+                const reg = await navigator.serviceWorker.getRegistration();
+                const active = reg && (reg.active || reg.installing || reg.waiting);
+                swEl.textContent = active ? 'Active' : 'Not installed';
+                swEl.style.color = active ? 'var(--ok)' : 'var(--warn)';
+                swSub.textContent = active ? 'offline shell cached · background sync armed' : 'open once online to cache';
+            } catch { swEl.textContent = 'Unsupported'; swEl.style.color = 'var(--warn)'; }
+            if (window.WaypointOffline) {
+                document.getElementById('sys-queue').textContent = String(WaypointOffline.count());
+            }
+            const installBtn = document.getElementById('btn-install');
+            const installVal = document.getElementById('sys-install');
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                installVal.textContent = 'Installed';
+                installVal.style.color = 'var(--ok)';
+                installBtn.style.display = 'none';
+            } else if (window.WaypointPwa && WaypointPwa.installable) {
+                installVal.textContent = 'Ready';
+                installBtn.style.display = 'inline-block';
+            } else {
+                installVal.textContent = 'Browser menu → Install';
+            }
+        }
+
+        async function installApp() {
+            const outcome = window.WaypointPwa ? await WaypointPwa.install() : 'unavailable';
+            if (outcome === 'accepted') toast('🛰️ Waypoint installed — launch it from your home screen');
+            refreshPwaPanel();
+        }
+
+        async function forceSync() {
+            if (!window.WaypointOffline) return;
+            const res = await WaypointOffline.flush();
+            const n = (res.results || []).length;
+            toast(n ? `↻ Replayed ${n} queued update${n > 1 ? 's' : ''}` : 'Nothing queued — already in sync');
+            refreshPwaPanel();
+        }
+
+        document.addEventListener('wp-installable', refreshPwaPanel);
+        if (window.WaypointOffline) WaypointOffline.onChange(() => refreshPwaPanel());
+
+        function tick() {
+            const now = new Date();
+            document.getElementById('hub-clock').textContent = now.toLocaleTimeString([], { hour12: false });
+            document.getElementById('hub-date').textContent = now.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+        }
+        setInterval(tick, 1000); tick();
+
+        async function unlock(user) {
+            myRole = user.role || user.username;
+            document.getElementById('auth-lock-screen').style.display = 'none';
+            const name = user.name || user.username || 'Operator';
+            document.getElementById('hub-user-name').textContent = name;
+            document.getElementById('hub-user-role').textContent = `${myRole} session · JWT verified`;
+            document.getElementById('hub-avatar').textContent = name.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase();
+            renderPortals();
+            await loadStatus();
+            startLive();
+            refreshPwaPanel();
+            setInterval(refreshPwaPanel, 15000);
+        }
+
+        function startLive() {
+            WaypointRealtime.start(['dispatcher'], { onState: (s) => setStream(s === 'live') });
+            WaypointRealtime.on('new-order', (o) => { toast(`🆕 New order ${o.outletId} (${o.units} units) in the dispatcher queue`); loadStatus(); });
+            WaypointRealtime.on('driver-event', (e) => { toast(`🚚 Driver event ${e.type}${e.orderId ? ' · ORD-' + e.orderId : ''}`); loadStatus(); });
+            WaypointRealtime.on('shortage-flagged', (f) => { toast(`🚩 Shortage flagged: ${f.qty} × ${f.itemDesc}`); loadStatus(); });
+            WaypointRealtime.on('receipt-confirmed', () => { toast('🧾 Goods receipt confirmed'); loadStatus(); });
+            WaypointRealtime.on('plan-committed', () => { toast('🗺️ Dispatcher committed a plan — driver & loader notified'); loadStatus(); });
+        }
+
+        WaypointAuth.guard(null, { lockElId: 'auth-lock-screen' }).then((u) => { if (u) unlock(u); });
+
+        document.getElementById('hub-auth-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errBox = document.getElementById('hub-auth-error');
+            try {
+                const session = await WaypointAuth.login(
+                    document.getElementById('hub-user').value.trim(),
+                    document.getElementById('hub-pass').value.trim(),
+                );
+                errBox.style.display = 'none';
+                unlock(session);
+            } catch (err) {
+                errBox.textContent = `Login failed: ${err.message}`;
+                errBox.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

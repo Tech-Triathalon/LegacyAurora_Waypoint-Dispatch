@@ -2,7 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#0d0e10">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Waypoint">
     <title>Log In Portal</title>
     <style>
         /* Base styles and reset */
@@ -312,6 +320,12 @@
             }
         });
 
+        // --- Offline fast-path: already signed in but no network → straight to the hub.
+        // The hub renders from cached snapshots and queues writes until reconnect.
+        if (!navigator.onLine && localStorage.getItem('delivery_auth_user')) {
+            window.location.replace('hub.html');
+        }
+
         // --- Handle Form Submission ---
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -329,15 +343,15 @@
                 return res.json();
             }).then((session) => {
                 // Keep the same sessionStorage shape the role pages already check.
-                sessionStorage.setItem('delivery_auth_user', JSON.stringify({
+                localStorage.setItem('delivery_auth_user', JSON.stringify({
                     username: session.username,
-                    role: session.username,
+                    role: session.role,
                     name: session.name,
                     loginTime: new Date().toISOString()
                 }));
                 errorMessage.style.display = 'none';
-                const match = validCredentials.find(cred => cred.username === session.username);
-                window.location.href = (match && match.target) || 'index.html';
+                // All roles land on the unified hub; it routes by role.
+                window.location.href = 'hub.html';
             }).catch((err) => {
                 errorMessage.textContent = err.message || 'Invalid username or password.';
                 errorMessage.style.display = 'block';

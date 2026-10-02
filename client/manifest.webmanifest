@@ -1,0 +1,47 @@
+{
+  "name": "WaypointDispatch — Delivery Command",
+  "short_name": "Waypoint",
+  "description": "Offline-first last-mile delivery dispatch: dispatcher, driver, loader and store manager in one installable app.",
+  "id": "/",
+  "start_url": "/hub.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0d0e10",
+  "theme_color": "#0d0e10",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dispatcher Console",
+      "short_name": "Dispatch",
+      "url": "/dispatcher.html",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Driver Companion",
+      "short_name": "Driver",
+      "url": "/driver.html",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Loader Dock",
+      "short_name": "Loader",
+      "url": "/loader.html",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Store Portal",
+      "short_name": "Store",
+      "url": "/store.html",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

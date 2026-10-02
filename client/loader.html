@@ -2,7 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#0d0e10">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Waypoint">
     <title>Loader Dock Operations | Waypoint Logistics</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1543,7 +1551,7 @@
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
                 <span id="glove-text">Glove-Mode On</span>
             </button>
-            <a href="index.html" class="btn-logout" onclick="sessionStorage.removeItem('delivery_auth_user')">Logout</a>
+            <a href="index.html" class="btn-logout" onclick="sessionStorage.removeItem('delivery_auth_user');localStorage.removeItem('delivery_auth_user')">Logout</a>
         </div>
     </header>
 
@@ -2137,7 +2145,7 @@
                     <span class="modal-title">Flag Shortage</span>
                     <span class="pill-dock-assigned">DOCK ASSIGNED</span>
                 </div>
-                <div class="modal-subtext">Reporting discrepancy for Trip #8849</div>
+                <div class="modal-subtext" id="shortage-trip-label">Reporting discrepancy</div>
             </div>
 
             <div class="modal-body-section">
@@ -2197,36 +2205,218 @@
         </div>
     </div>
 
+    <script src="outbox.js"></script>
+    <script src="waypoint.js"></script>
+    <script src="offline.js"></script>
+    <script src="pwa.js"></script>
     <script>
-        // --- AUTH CHECK ---
-        function checkAuth() {
-            const authStr = sessionStorage.getItem('delivery_auth_user');
-            if (authStr) {
-                try {
-                    const user = JSON.parse(authStr);
-                    if (user.username === 'loader' || user.role === 'loader') {
-                        document.getElementById('auth-lock-screen').style.display = 'none';
-                        return;
-                    }
-                } catch(e) {}
+        // --- LOADER APP STATE + REAL MANIFEST ---
+        const { orderRef, hhmm, esc } = WaypointUtil;
+        const state = { user: null, vehicleCode: null, manifest: null, flags: [], shortageQty: 4, selectedReason: 'Missing at Dock' };
+
+        function ldrToast(msg) {
+            let t = document.getElementById('ldr-toast');
+            if (!t) {
+                t = document.createElement('div');
+                t.id = 'ldr-toast';
+                t.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;font-size:12px;font-weight:700;padding:10px 16px;border-radius:9999px;z-index:9999;box-shadow:0 8px 20px rgba(0,0,0,.35);max-width:86vw;text-align:center;';
+                document.body.appendChild(t);
             }
-            document.getElementById('auth-lock-screen').style.display = 'flex';
+            t.textContent = msg;
+            t.style.display = 'block';
+            clearTimeout(t._h);
+            t._h = setTimeout(() => { t.style.display = 'none'; }, 3200);
         }
 
-        function handleAuth(e) {
+        function firstTrip() {
+            return (state.manifest && state.manifest.trips && state.manifest.trips[0]) || null;
+        }
+
+        async function loadManifest() {
+            try {
+                if (!state.vehicleCode) {
+                    const all = await WaypointUtil.api('/api/trips');
+                    const withPlan = (all.trips || []).find((t) => t.vehicleCode);
+                    state.vehicleCode = withPlan ? withPlan.vehicleCode : null;
+                }
+                if (!state.vehicleCode) { renderEmpty(); return; }
+                state.manifest = await WaypointUtil.api(`/api/trips/${state.vehicleCode}`);
+                await loadFlags();
+                renderLoadSheet();
+                renderBayPlan();
+            } catch (err) {
+                ldrToast(`Manifest unavailable: ${err.message}`);
+            }
+        }
+
+        async function loadFlags() {
+            try {
+                const res = await WaypointUtil.api('/api/flags');
+                state.flags = (res.flags || []).filter((f) => f.status === 'open');
+            } catch { state.flags = []; }
+        }
+
+        function openFlagsFor(orderId) {
+            return state.flags.filter((f) => f.orderId === orderId);
+        }
+
+        function renderEmpty() {
+            const list = document.querySelector('.s1-item-list');
+            if (list) list.innerHTML = '<div style="padding: 20px; text-align: center; color: #64748b; font-size: 12px;">No committed load plan yet.<br><span style="font-size: 11px;">The plan appears here the moment dispatch commits.</span></div>';
+        }
+
+        function renderLoadSheet() {
+            const trip = firstTrip();
+            if (!trip) { renderEmpty(); return; }
+            const sub = document.querySelector('.s1-title-sub');
+            if (sub) sub.textContent = `TRIP #${trip.id} • ${String(trip.depot || '').toUpperCase()} DEPOT • ${trip.vehicleCode || ''}`;
+            const mets = document.querySelectorAll('.s1-metric-val');
+            if (mets.length >= 4) {
+                mets[0].textContent = `${Math.round(trip.totalWeight).toLocaleString()} kg`;
+                mets[1].textContent = `${(Math.round(trip.totalVolume * 10) / 10).toFixed(1)} m³`;
+                const units = trip.stops.reduce((s, x) => s + (x.units || 0), 0);
+                mets[2].textContent = `${Math.max(1, Math.round(units / 45))} Pallets`;
+                mets[3].textContent = `${trip.stops.length} Stops`;
+            }
+            // Rebuild the stop sections from the real plan.
+            const body = document.querySelector('.s1-body');
+            if (!body) return;
+            const sections = trip.stops.map((s) => {
+                const flagged = openFlagsFor(s.orderId).length > 0;
+                return `
+                <div class="s1-section-header">
+                    <div class="s1-section-title">STOP ${String(s.seq).padStart(2, '0')}: ${esc(s.outletId || 'OUTLET')}</div>
+                    <div class="s1-section-meta">ETA ${esc(s.plannedArrival || '—')} • ${orderRef(s.orderId)}</div>
+                </div>
+                <div class="s1-item-list">
+                    <div class="s1-item-row${flagged ? ' flagged' : ''}" id="s1-row-${s.seq}">
+                        <div class="s1-item-left">
+                            <div class="s1-check-box${flagged ? ' warning-icon' : ''}" onclick="toggleS1Check(${s.seq})">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                            <div>
+                                <div class="s1-item-name">${orderRef(s.orderId)} • ${esc(s.trip ? '' : '')}${esc(s.outletId || '')}</div>
+                                <div class="s1-item-sub">Window ${esc(s.windowOpen || '—')}–${esc(s.windowClose || '—')} • ${esc((s.status || 'allocated').toUpperCase())}</div>
+                            </div>
+                        </div>
+                        <div class="s1-item-right">
+                            <span class="s1-qty-bold">${s.units || '—'} Units</span>
+                            ${flagged ? '<span class="pill-flagged-discrepancy" onclick="openShortageModal()" style="cursor: pointer;">FLAGGED</span>' : ''}
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+            // Keep the metrics grid, swap the stop sections.
+            const grid = body.querySelector('.s1-metrics-grid');
+            body.innerHTML = '';
+            if (grid) body.appendChild(grid);
+            body.insertAdjacentHTML('beforeend', sections);
+            const done = trip.stops.filter((s) => s.status === 'delivered').length;
+            const foot = document.querySelector('.s1-footer-status');
+            if (foot) foot.innerHTML = `${done}/${trip.stops.length} STOPS DELIVERED &nbsp;|&nbsp; ${state.flags.length} FLAG${state.flags.length === 1 ? '' : 'S'} OPEN`;
+        }
+
+        function renderBayPlan() {
+            const trip = firstTrip();
+            if (!trip) return;
+            const sub = document.querySelector('.s2-title-sub');
+            if (sub) sub.textContent = `VEHICLE: ${trip.vehicleCode || '—'} • ${String(trip.brand || '').toUpperCase()} RUN`;
+            const upd = document.querySelector('.s2-updated-label');
+            if (upd) upd.textContent = `Plan committed: ${trip.status || 'planned'}`;
+            const tl = document.getElementById('shortage-trip-label');
+            if (tl) tl.textContent = `Reporting discrepancy for Trip #${trip.id} (${trip.vehicleCode || ''})`;
+            // Populate the shortage select with real stops.
+            const sel = document.getElementById('shortage-select');
+            if (sel && trip.stops.length) {
+                sel.innerHTML = trip.stops.map((s) => `<option value="${s.orderId}">Stop ${String(s.seq).padStart(2, '0')} • ${orderRef(s.orderId)} • ${esc(s.outletId || '')}</option>`).join('');
+            }
+            // Fill the three bay compartments with the first stops (reverse-load: last stop nearest door).
+            const cols = document.querySelectorAll('.s2-comp-box');
+            const chunks = [trip.stops.slice(0, Math.ceil(trip.stops.length / 3)), trip.stops.slice(Math.ceil(trip.stops.length / 3), Math.ceil((2 * trip.stops.length) / 3)), trip.stops.slice(Math.ceil((2 * trip.stops.length) / 3))];
+            const titles = ['LOADS FIRST (TAIL)', 'MID LOAD', 'TAILBOARD (LAST STOPS)'];
+            cols.forEach((box, i) => {
+                const items = chunks[i] || [];
+                const list = box.querySelector('.s2-comp-items');
+                const titleEl = box.querySelector('.s2-comp-title');
+                if (titleEl) titleEl.textContent = titles[i];
+                if (list) {
+                    list.innerHTML = items.map((s, j) => `
+                        <div class="s2-comp-row">
+                            <div class="s2-row-left">
+                                <div class="s2-check-square"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+                                <span class="s2-row-name">${orderRef(s.orderId)} • ${esc(s.outletId || '')}</span>
+                            </div>
+                            <div class="s2-row-right">
+                                <span class="s2-stack-label">Stack ${j + 1}</span>
+                                <span class="s2-cases-bold">${s.units || '—'} Units</span>
+                            </div>
+                        </div>`).join('') || '<div style="font-size:11px;color:#94a3b8;padding:6px 0;">—</div>';
+                }
+            });
+        }
+
+        // --- SHORTAGE FLAG → REAL API ---
+        function openShortageModal() {
+            const trip = firstTrip();
+            const tl = document.getElementById('shortage-trip-label');
+            if (tl && trip) tl.textContent = `Reporting discrepancy for Trip #${trip.id} (${trip.vehicleCode || ''})`;
+            document.getElementById('shortage-modal').classList.add('active');
+        }
+
+        async function submitShortage() {
+            const sel = document.getElementById('shortage-select');
+            const orderId = sel ? Number(sel.value) : null;
+            const itemDesc = sel && sel.selectedOptions[0] ? sel.selectedOptions[0].textContent.trim() : ' unspecified item';
+            if (!orderId) { ldrToast('No stop selected'); return; }
+            const body = { orderId, itemDesc, qty: state.shortageQty, reason: state.selectedReason };
+            // Offline-first: shortage flags queue with a photo-less body when offline
+            // (photo capture needs the camera stack anyway) and replay on reconnect.
+            if (window.WaypointOffline && !WaypointOffline.isOnline()) {
+                WaypointOffline.mutate({ url: '/api/flags', body, label: `shortage ORD-${orderId}` });
+                ldrToast(`📦 Offline — flag queued (${WaypointOffline.count()} pending). Auto-syncs on reconnect.`);
+                closeShortageModal();
+                return;
+            }
+            try {
+                const res = await WaypointUtil.api('/api/flags', { method: 'POST', body });
+                ldrToast(`🚩 Flag #${res.flag.id} sent to dispatcher (${state.selectedReason})`);
+                closeShortageModal();
+                await loadFlags();
+                renderLoadSheet();
+            } catch (err) {
+                if (window.WaypointOffline && (err.status === undefined || err.status >= 500)) {
+                    WaypointOffline.mutate({ url: '/api/flags', body, label: `shortage ORD-${orderId}` });
+                    ldrToast(`⚠ Network trouble — flag queued (${WaypointOffline.count()} pending).`);
+                    closeShortageModal();
+                    return;
+                }
+                ldrToast(`Flag failed: ${err.message}`);
+            }
+        }
+
+        // --- AUTH CHECK (real JWT) ---
+        async function checkAuth() {
+            const user = await WaypointAuth.guard('loader', { lockElId: 'auth-lock-screen' });
+            if (!user) return;
+            state.user = user;
+            loadManifest();
+            startRealtime();
+        }
+
+        async function handleAuth(e) {
             e.preventDefault();
             const user = document.getElementById('auth-user').value.trim();
             const pass = document.getElementById('auth-pass').value.trim();
-            if (user === 'loader' && pass === 'load123') {
-                sessionStorage.setItem('delivery_auth_user', JSON.stringify({
-                    username: 'loader',
-                    role: 'loader',
-                    name: 'G. Sloan (Loader)',
-                    loginTime: new Date().toISOString()
-                }));
+            try {
+                const session = await WaypointAuth.login(user, pass);
+                if (session.role !== 'loader') {
+                    alert('This portal is for loader accounts.');
+                    return;
+                }
                 document.getElementById('auth-lock-screen').style.display = 'none';
-            } else {
-                alert('Invalid credentials. Use loader / load123');
+                await checkAuth();
+            } catch (err) {
+                alert(`Login failed: ${err.message}`);
             }
         }
 
@@ -2235,6 +2425,110 @@
             document.getElementById('auth-pass').value = 'load123';
             handleAuth({ preventDefault: () => {} });
         }
+
+        // --- REALTIME: plan commits + polling fallback ---
+        function startRealtime() {
+            WaypointRealtime.start(['loader']);
+            WaypointRealtime.on('plan-committed', () => {
+                ldrToast('📥 New load plan committed — refreshing manifest');
+                state.vehicleCode = null; // re-resolve: a different vehicle may now hold the plan
+                loadManifest();
+            });
+            WaypointRealtime.on('shortage-flagged', () => loadFlags());
+            WaypointRealtime.onPoll(loadManifest);
+        }
+
+        // --- SCREEN NAVIGATION ---
+        function showScreen(screenNum) {
+            document.querySelectorAll('.screen-container').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.screen-nav-btn').forEach(el => el.classList.remove('active'));
+
+            const target = document.getElementById('screen-' + screenNum);
+            const btn = document.getElementById('btn-scr-' + screenNum);
+            if (target) target.classList.add('active');
+            if (btn) btn.classList.add('active');
+        }
+
+        // --- GLOVE MODE TOGGLE ---
+        let gloveMode = true;
+        function toggleGloveMode() {
+            gloveMode = !gloveMode;
+            const btn = document.getElementById('glove-btn');
+            const txt = document.getElementById('glove-text');
+            if (gloveMode) {
+                btn.classList.add('active');
+                txt.textContent = 'Glove-Mode On';
+            } else {
+                btn.classList.remove('active');
+                txt.textContent = 'Glove-Mode Off';
+            }
+        }
+
+        // --- S1 CHECKLIST INTERACTION ---
+        function toggleS1Check(rowId) {
+            const row = document.getElementById('s1-row-' + rowId);
+            if (row) {
+                row.classList.toggle('flagged');
+            }
+        }
+
+        function closeShortageModal() {
+            document.getElementById('shortage-modal').classList.remove('active');
+        }
+
+        function closeModalOnBg(e) {
+            if (e.target.id === 'shortage-modal') {
+                closeShortageModal();
+            }
+        }
+
+        function changeQty(delta) {
+            state.shortageQty = Math.max(1, state.shortageQty + delta);
+            document.getElementById('shortage-qty').textContent = state.shortageQty;
+        }
+
+        function selectReason(reason) {
+            state.selectedReason = reason;
+            document.querySelectorAll('.reason-pill-btn').forEach(b => b.classList.remove('active'));
+            if (reason === 'Missing at Dock') document.getElementById('reason-missing').classList.add('active');
+            if (reason === 'Damaged') document.getElementById('reason-damaged').classList.add('active');
+            if (reason === 'Substituted') document.getElementById('reason-sub').classList.add('active');
+        }
+
+        // --- S3 REVALIDATE INTERACTIONS ---
+        function revalidateGroup(grpNum) {
+            ldrToast(`Group ${grpNum} sequence re-validated. Temperature and position within spec.`);
+        }
+
+        function revalidateAllGroups() {
+            ldrToast('All groups re-validated against latest dispatch route update.');
+        }
+
+        function acknowledgeDiff() {
+            ldrToast('Diff acknowledged. Load-sheet synchronized with bay staging.');
+            showScreen(4);
+        }
+
+        function confirmHandoffAction() {
+            // Record 'loaded' events for every stop of the active trip (offline-safe).
+            const trip = firstTrip();
+            if (trip && window.WaypointOutbox) {
+                trip.stops.forEach((s) => WaypointOutbox.enqueue({
+                    type: 'loaded',
+                    orderId: s.orderId,
+                    payload: { vehicleCode: state.vehicleCode, tripId: trip.id, seq: s.seq },
+                }));
+                ldrToast(`✓ Handoff confirmed · ${trip.stops.length} 'loaded' events queued. Status mirrored to driver.`);
+            } else {
+                ldrToast('✓ Load handoff confirmed. Journal entry recorded.');
+            }
+        }
+
+        // --- INIT ---
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+        });
+    </script>
 
         // --- SCREEN NAVIGATION ---
         function showScreen(screenNum) {

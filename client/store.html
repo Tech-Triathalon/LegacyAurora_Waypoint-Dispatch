@@ -2,7 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#0d0e10">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Waypoint">
     <title>Store Manager Portal | Waypoint Fresh - Oakwood Store #12</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1123,7 +1131,7 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                 <div class="bell-badge-dot"></div>
             </button>
-            <a href="index.html" onclick="sessionStorage.removeItem('delivery_auth_user')" style="font-size: 12px; color: #64748b; text-decoration: none; font-weight: 700; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-color);">Logout</a>
+            <a href="index.html" onclick="sessionStorage.removeItem('delivery_auth_user');localStorage.removeItem('delivery_auth_user')" style="font-size: 12px; color: #64748b; text-decoration: none; font-weight: 700; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-color);">Logout</a>
         </div>
     </header>
 
@@ -1210,15 +1218,15 @@
             <!-- ORDER PLACE / DETAILS CARD -->
             <div class="order-action-card">
                 <div class="order-action-header-row">
-                    <div class="order-code-title">
+                    <div class="order-code-title" id="st-order-code">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                         ORD-2290
                     </div>
-                    <div class="order-received-time">received 14:32 ∨</div>
+                    <div class="order-received-time" id="st-order-received">received 14:32 ∨</div>
                 </div>
-                <div style="font-size: 12px; color: #64748b;">promised window 06:30–07:30</div>
+                <div style="font-size: 12px; color: #64748b;" id="st-order-window">promised window 06:30–07:30</div>
 
-                <button class="btn-dark-place-order" onclick="showToast('Re-order placed. Staging request sent to distribution depot.')">
+                <button class="btn-dark-place-order" onclick="openPlaceOrderFlow()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
                     Place Order
                 </button>
@@ -1243,7 +1251,7 @@
             <div class="timeline-card">
                 <div class="timeline-title">Live Timeline</div>
 
-                <div class="timeline-steps-list">
+                <div class="timeline-steps-list" id="st-timeline">
                     <div class="timeline-step-row">
                         <div class="timeline-step-left">
                             <div class="tl-dot green"></div>
@@ -1295,7 +1303,7 @@
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                     <div>
                         <div class="dock-note-title">note from the dock</div>
-                        <div class="dock-note-desc">2 egg crates missing, claim at receipt</div>
+                        <div class="dock-note-desc" id="st-dock-note">2 egg crates missing, claim at receipt</div>
                     </div>
                 </div>
                 <div style="color: #b45309; font-weight: 800; font-size: 16px;">›</div>
@@ -1308,7 +1316,7 @@
                     <a class="history-view-all" onclick="showToast('Showing all recent deliveries.')">View all ></a>
                 </div>
 
-                <div class="history-items-list" style="margin-top: 10px;">
+                <div class="history-items-list" style="margin-top: 10px;" id="st-history">
                     <div class="history-item-card">
                         <div class="hist-left">
                             <span class="hist-ord-id">ORD-2289</span>
@@ -1363,6 +1371,11 @@
                 <div class="receipt-sub-desc">Confirm delivery • Resolve issues • Close receipt</div>
             </div>
 
+            <!-- TARGET ORDER PICKER (real orders for this outlet) -->
+            <select id="receipt-order-select" onchange="renderReceiptBanner()" style="width: 100%; padding: 10px 12px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 13px; font-weight: 700; color: #0f172a; background: #ffffff;">
+                <option>Loading orders…</option>
+            </select>
+
             <!-- CARRIER DELIVERED STATUS -->
             <div class="carrier-delivered-banner">
                 <div class="carrier-box-thumb"></div>
@@ -1415,14 +1428,19 @@
                     </div>
                 </div>
 
+                <!-- SUBMIT CLAIM -->
+                <button type="button" class="btn-all-good-confirm" style="background: #0f172a; margin-top: 10px;" onclick="submitClaim()">
+                    Submit discrepancy claim
+                </button>
+
                 <!-- ADD PHOTO BUTTON -->
-                <div class="add-photo-btn-box" onclick="alert('Camera module ready. Frame captured and appended.')">
+                <div class="add-photo-btn-box" onclick="stToast('Camera module ready. Frame captured and appended.')">
                     <span>Add photo (optional)</span>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                 </div>
 
                 <!-- YELLOW REPORTED BOX -->
-                <div class="reported-yellow-alert">
+                <div class="reported-yellow-alert" id="st-claim-summary">
                     <strong>Missing • 2 egg crates</strong>
                     <span>Reported at 09:41</span>
                 </div>
@@ -1471,38 +1489,270 @@
     <!-- TOAST NOTIFIER -->
     <div class="store-toast" id="store-toast">Action completed successfully</div>
 
+    <script src="waypoint.js"></script>
+    <script src="offline.js"></script>
+    <script src="pwa.js"></script>
     <script>
-        // --- AUTH CHECK ---
-        function checkStoreAuth() {
-            const authStr = sessionStorage.getItem('delivery_auth_user');
-            if (authStr) {
-                try {
-                    const user = JSON.parse(authStr);
-                    if (user.username === 'manager' || user.role === 'manager' || user.role === 'store') {
-                        document.getElementById('auth-lock-screen').style.display = 'none';
-                        return;
-                    }
-                } catch(e) {}
-            }
-            document.getElementById('auth-lock-screen').style.display = 'flex';
+        // --- STORE APP STATE + REAL TIMELINE ---
+        const { orderRef, hhmm, esc } = WaypointUtil;
+        const state = { user: null, timeline: null, claimQty: 2, claimType: 'missing', selectedOrderId: null };
+
+        function stToast(msg) {
+            // Uses the page's existing toast element.
+            const toast = document.getElementById('store-toast');
+            if (!toast) return;
+            toast.textContent = msg;
+            toast.style.display = 'block';
+            clearTimeout(toast._h);
+            toast._h = setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
 
-        function handleStoreAuth(e) {
+        async function loadTimeline() {
+            try {
+                const outletId = state.user && (state.user.outletId || 'OUT012');
+                state.timeline = await WaypointUtil.api(`/api/outlet/${encodeURIComponent(outletId)}/timeline`);
+                renderOverview();
+                renderTracking();
+                renderReceipt();
+            } catch (err) {
+                stToast(`Timeline unavailable: ${err.message}`);
+            }
+        }
+
+        function latestEvent(type, orderId) {
+            if (!state.timeline) return null;
+            const list = state.timeline.events.filter((e) => e.type === type && (orderId == null || e.orderId === orderId));
+            return list.length ? list[list.length - 1] : null;
+        }
+
+        function renderOverview() {
+            const t = state.timeline;
+            if (!t) return;
+            const deferral = (t.deferrals && t.deferrals[0]) || null;
+            if (deferral) {
+                const title = document.querySelector('.alert-order-title');
+                if (title) title.innerHTML = `${esc(deferral.orderRef)} <span>• deferred</span>`;
+                const pill = document.querySelector('.pill-reefer-capacity');
+                if (pill) pill.textContent = deferral.reason === 'REF' ? 'REEFER CAPACITY SHORT' : deferral.reason === 'CAP' ? 'CAPACITY SHORT' : 'WINDOW INFEASIBLE';
+                const metas = document.querySelectorAll('.alert-meta-item');
+                const promise = deferral.promiseDate ? new Date(deferral.promiseDate) : null;
+                if (metas[0]) {
+                    const promiseStr = promise && !Number.isNaN(promise.getTime())
+                        ? `next run: ${promise.toLocaleDateString([], { weekday: 'long' })} • promised` 
+                        : 'next run: pending • promised';
+                    // Replace only the trailing text node, keep the icon svg.
+                    metas[0].childNodes.forEach((n) => { if (n.nodeType === 3 && n.textContent.trim()) n.textContent = ` ${promiseStr}`; });
+                }
+            }
+            // Delivery history from real orders.
+            const hist = document.getElementById('st-history');
+            if (hist && t.orders) {
+                const delivered = t.orders.filter((o) => o.status === 'delivered').slice(-4).reverse();
+                const others = t.orders.filter((o) => o.status !== 'delivered').slice(0, 2);
+                const rows = [...delivered, ...others].map((o) => {
+                    const pod = latestEvent('pod', o.id);
+                    const time = pod ? hhmm(pod.at) : (o.status === 'delivered' ? 'earlier' : 'pending');
+                    const pill = o.status === 'delivered' ? 'pill-status-green' : o.status === 'deferred' ? 'pill-status-yellow' : 'pill-status-yellow';
+                    return `
+                    <div class="history-item-card">
+                        <div class="hist-left">
+                            <span class="hist-ord-id">${orderRef(o.id)}</span>
+                            <span class="${pill}">${esc(o.status)}</span>
+                        </div>
+                        <div class="hist-right">
+                            <div class="hist-time-main">${time}</div>
+                            <div class="hist-time-sub">window ${esc(o.windowOpen || '—')}–${esc(o.windowClose || '—')}</div>
+                        </div>
+                    </div>`;
+                });
+                if (rows.length) hist.innerHTML = rows.join('');
+            }
+        }
+
+        function activeOrder() {
+            if (!state.timeline || !state.timeline.orders) return null;
+            if (state.selectedOrderId) return state.timeline.orders.find((o) => o.id === state.selectedOrderId) || null;
+            return state.timeline.orders.find((o) => o.status !== 'delivered') || state.timeline.orders[state.timeline.orders.length - 1] || null;
+        }
+
+        function renderTracking() {
+            const t = state.timeline;
+            if (!t) return;
+            const o = activeOrder();
+            if (!o) return;
+            const code = document.getElementById('st-order-code');
+            if (code) code.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> ${orderRef(o.id)}`;
+            const win = document.getElementById('st-order-window');
+            if (win) win.textContent = `promised window ${o.windowOpen}–${o.windowClose} • status: ${o.status}`;
+            const rec = document.getElementById('st-order-received');
+            if (rec) rec.textContent = `status: ${o.status}`;
+
+            // Timeline rows: placed → scheduled → loaded → in transit → delivered.
+            const loaded = latestEvent('loaded', o.id);
+            const departed = latestEvent('departed', o.id);
+            const arrived = latestEvent('arrived', o.id);
+            const pod = latestEvent('pod', o.id);
+            const rows = [
+                { label: 'placed', dot: 'green', time: 'queued' },
+                { label: 'scheduled', dot: o.status === 'queued' ? 'grey' : 'green', time: o.status === 'queued' ? '--' : 'on plan' },
+                { label: 'loaded', dot: loaded ? 'green' : 'empty', time: loaded ? hhmm(loaded.at) : '--' },
+                { label: 'in transit', dot: departed ? 'green' : 'empty', time: departed ? hhmm(departed.at) : '--' },
+                { label: 'delivered', dot: pod ? 'green' : 'empty', time: pod ? hhmm(pod.at) : '--' },
+            ];
+            const tl = document.getElementById('st-timeline');
+            if (tl) {
+                tl.innerHTML = rows.map((r) => `
+                    <div class="timeline-step-row">
+                        <div class="timeline-step-left">
+                            <div class="tl-dot ${r.dot}"></div>
+                            <span class="tl-label">${r.label}</span>
+                        </div>
+                        <span class="tl-time">${r.time}</span>
+                    </div>`).join('');
+            }
+            // Dock note from open flags against this outlet's orders.
+            const note = document.getElementById('st-dock-note');
+            if (note && t.flags) {
+                const open = t.flags.filter((f) => f.status === 'open');
+                note.textContent = open.length ? `${open[0].qty} × ${open[0].itemDesc} — ${open[0].reason}` : 'No open dock flags for your outlet.';
+            } else if (note) {
+                note.textContent = 'No open dock flags for your outlet.';
+            }
+        }
+
+        function renderReceipt() {
+            const t = state.timeline;
+            if (!t) return;
+            const sel = document.getElementById('receipt-order-select');
+            if (sel) {
+                const prev = state.selectedOrderId;
+                sel.innerHTML = t.orders.map((o) => `<option value="${o.id}" ${o.id === (prev || (activeOrder() || {}).id) ? 'selected' : ''}>${orderRef(o.id)} • ${esc(o.status)} • window ${o.windowOpen}–${o.windowClose}</option>`).join('');
+                state.selectedOrderId = Number(sel.value) || null;
+            }
+            renderReceiptBanner();
+        }
+
+        function renderReceiptBanner() {
+            const sel = document.getElementById('receipt-order-select');
+            if (!sel || !state.timeline) return;
+            state.selectedOrderId = Number(sel.value) || null;
+            const o = state.timeline.orders.find((x) => x.id === state.selectedOrderId);
+            const banner = document.querySelector('.carrier-delivered-banner');
+            if (banner && o) {
+                const pod = latestEvent('pod', o.id);
+                banner.querySelector('.delivered-green-text').textContent = o.status === 'delivered' ? 'Delivered' : `Status: ${o.status}`;
+                banner.querySelector('.delivered-window-check').textContent = pod ? `${hhmm(pod.at)} • POD captured` : `window ${o.windowOpen}–${o.windowClose}`;
+            }
+            const reported = document.querySelector('.reported-yellow-alert');
+            if (reported) reported.innerHTML = `<strong>Report a discrepancy below</strong><span>receipt is recorded against ${orderRef(state.selectedOrderId)}</span>`;
+        }
+
+        // --- PLACE ORDER → POST /api/orders ---
+        let placeStep = 1;
+        function openPlaceOrderFlow() {
+            if (placeStep === 1) {
+                const units = prompt('Place order for your outlet\n\nUnits (cases):', '120');
+                if (units == null) return;
+                const temp = confirm('OK = CHILLED (reefer required) · Cancel = AMBIENT') ? 'chilled' : 'ambient';
+                const weight = prompt('Approx weight (kg):', String(Math.round(Number(units) * 0.5)));
+                if (weight == null) return;
+                placeOrder({ units: Number(units), tempRequirement: temp, weightKg: Number(weight) });
+            }
+        }
+
+        async function placeOrder(body) {
+            // Offline-first: queue when offline (or when the network fails), sync on reconnect.
+            if (window.WaypointOffline && !WaypointOffline.isOnline()) {
+                WaypointOffline.mutate({ url: '/api/orders', body, label: `order ${body.units} units` });
+                stToast(`📦 Offline — order queued (${WaypointOffline.count()} pending). Auto-syncs on reconnect.`);
+                return;
+            }
+            try {
+                const res = await WaypointUtil.api('/api/orders', { method: 'POST', body });
+                stToast(`✓ ${orderRef(res.order.id)} placed — dispatcher queue notified`);
+                await loadTimeline();
+            } catch (err) {
+                if (window.WaypointOffline && (err.status === undefined || err.status >= 500 || err.status === 0)) {
+                    WaypointOffline.mutate({ url: '/api/orders', body, label: `order ${body.units} units` });
+                    stToast(`⚠ Network trouble — order queued (${WaypointOffline.count()} pending). Auto-syncs on reconnect.`);
+                    return;
+                }
+                stToast(`Order failed: ${err.message}`);
+            }
+        }
+
+        // --- RECEIPT → POST /api/receipt (auto-matches dock flags) ---
+        async function confirmAllGood() {
+            if (!state.selectedOrderId) { stToast('Select an order first'); return; }
+            const body = { orderId: state.selectedOrderId, claim: 'confirmed', qtyDelta: 0, note: 'All good — confirmed by store manager' };
+            if (window.WaypointOffline && !WaypointOffline.isOnline()) {
+                WaypointOffline.mutate({ url: '/api/receipt', body, label: `receipt ORD-${state.selectedOrderId}` });
+                stToast(`📦 Offline — receipt queued (${WaypointOffline.count()} pending). Auto-syncs on reconnect.`);
+                return;
+            }
+            try {
+                const res = await WaypointUtil.api('/api/receipt', { method: 'POST', body });
+                stToast(res.matchedFlags > 0
+                    ? `✓ Receipt confirmed · ${res.matchedFlags} dock flag(s) auto-matched`
+                    : '✓ Goods receipt confirmed. Sign-off recorded in ledger.');
+                await loadTimeline();
+            } catch (err) {
+                if (window.WaypointOffline && (err.status === undefined || err.status >= 500)) {
+                    WaypointOffline.mutate({ url: '/api/receipt', body, label: `receipt ORD-${state.selectedOrderId}` });
+                    stToast(`⚠ Network trouble — receipt queued (${WaypointOffline.count()} pending).`);
+                    return;
+                }
+                stToast(`Receipt failed: ${err.message}`);
+            }
+        }
+
+        async function submitClaim() {
+            if (!state.selectedOrderId) { stToast('Select an order first'); return; }
+            const body = { orderId: state.selectedOrderId, claim: state.claimType, qtyDelta: -state.claimQty, note: `Store claim: ${state.claimType} × ${state.claimQty}` };
+            if (window.WaypointOffline && !WaypointOffline.isOnline()) {
+                WaypointOffline.mutate({ url: '/api/receipt', body, label: `claim ORD-${state.selectedOrderId}` });
+                stToast(`📦 Offline — claim queued (${WaypointOffline.count()} pending). Auto-syncs on reconnect.`);
+                return;
+            }
+            try {
+                const res = await WaypointUtil.api('/api/receipt', { method: 'POST', body });
+                stToast(`✓ Claim recorded (${state.claimType} × ${state.claimQty}) · ${res.matchedFlags} dock flag(s) matched`);
+                await loadTimeline();
+            } catch (err) {
+                if (window.WaypointOffline && (err.status === undefined || err.status >= 500)) {
+                    WaypointOffline.mutate({ url: '/api/receipt', body, label: `claim ORD-${state.selectedOrderId}` });
+                    stToast(`⚠ Network trouble — claim queued (${WaypointOffline.count()} pending).`);
+                    return;
+                }
+                stToast(`Claim failed: ${err.message}`);
+            }
+        }
+
+        // --- AUTH CHECK (real JWT via /api/auth/me) ---
+        async function checkStoreAuth() {
+            const user = await WaypointAuth.guard('manager', { lockElId: 'auth-lock-screen' });
+            if (!user) return;
+            state.user = user;
+            const sub = document.querySelector('.store-sub-text');
+            if (sub) sub.textContent = user.outletName ? `${user.outletName} • ${user.outletId}` : 'Waypoint Outlet';
+            loadTimeline();
+            startRealtime();
+        }
+
+        async function handleStoreAuth(e) {
             e.preventDefault();
             const user = document.getElementById('store-user').value.trim();
             const pass = document.getElementById('store-pass').value.trim();
-
-            if (user === 'manager' && pass === 'manage123') {
-                sessionStorage.setItem('delivery_auth_user', JSON.stringify({
-                    username: 'manager',
-                    role: 'manager',
-                    name: 'Store Manager Vance',
-                    loginTime: new Date().toISOString()
-                }));
+            try {
+                const session = await WaypointAuth.login(user, pass);
+                if (session.role !== 'manager') {
+                    alert('This portal is for store manager accounts.');
+                    return;
+                }
                 document.getElementById('auth-lock-screen').style.display = 'none';
-                showToast('Welcome, Store Manager Vance');
-            } else {
-                alert('Invalid Store Manager credentials. Use manager / manage123');
+                await checkStoreAuth();
+            } catch (err) {
+                alert(`Login failed: ${err.message}`);
             }
         }
 
@@ -1510,6 +1760,23 @@
             document.getElementById('store-user').value = 'manager';
             document.getElementById('store-pass').value = 'manage123';
             handleStoreAuth({ preventDefault: () => {} });
+        }
+
+        // --- REALTIME: driver progress, dock flags, receipt confirmations ---
+        function startRealtime() {
+            const channels = state.user && state.user.outletId ? [`store:${state.user.outletId}`] : [];
+            WaypointRealtime.start(channels);
+            WaypointRealtime.on('driver-event', (e) => {
+                const labels = { loaded: 'loaded at dock', departed: 'vehicle departed', arrived: 'driver arrived at your dock', pod: 'delivery confirmed', issue: 'driver reported an issue' };
+                stToast(`🚚 ${labels[e.type] || e.type}${e.orderId ? ` · ${orderRef(e.orderId)}` : ''}`);
+                loadTimeline();
+            });
+            WaypointRealtime.on('shortage-flagged', (f) => {
+                stToast(`🚩 Dock flag: ${f.qty} × ${f.itemDesc} (${f.reason})`);
+                loadTimeline();
+            });
+            WaypointRealtime.on('receipt-confirmed', () => loadTimeline());
+            WaypointRealtime.onPoll(loadTimeline);
         }
 
         // --- SCREEN TAB SWITCHING ---
@@ -1530,7 +1797,7 @@
 
         // --- ACKNOWLEDGE ACTION ---
         function acknowledgeDeferral() {
-            showToast('✓ Deferral notice acknowledged. Rescheduled for tomorrow 06:30.');
+            stToast('✓ Deferral notice acknowledged.');
             setTimeout(() => {
                 switchStoreTab(2);
             }, 800);
@@ -1540,34 +1807,31 @@
         let currentDisc = 'missing';
         function selectDiscrepancy(type) {
             currentDisc = type;
+            state.claimType = type;
             document.querySelectorAll('.disc-pill-btn').forEach(b => b.classList.remove('active'));
             const btn = document.getElementById('disc-btn-' + type);
             if (btn) btn.classList.add('active');
+            const summary = document.getElementById('st-claim-summary');
+            if (summary) summary.innerHTML = `<strong>${type} • ${state.claimQty}</strong><span>ready to submit against ${orderRef(state.selectedOrderId)}</span>`;
         }
 
         // --- QTY STEPPER ---
         let claimQty = 2;
         function changeQtyDelta(delta) {
             claimQty = Math.max(1, claimQty + delta);
+            state.claimQty = claimQty;
             document.getElementById('claim-qty').textContent = claimQty;
-        }
-
-        function confirmAllGood() {
-            showToast('✓ Goods receipt confirmed. Sign-off recorded in ledger.');
+            const summary = document.getElementById('st-claim-summary');
+            if (summary) summary.innerHTML = `<strong>${state.claimType} • ${claimQty}</strong><span>ready to submit against ${orderRef(state.selectedOrderId)}</span>`;
         }
 
         function toggleSidebarMenu() {
-            showToast('Oakwood Store #12 • Logged in as Store Manager');
+            stToast(`${state.user && state.user.outletName ? state.user.outletName : 'Store'} • Logged in as ${state.user ? state.user.name : 'Store Manager'}`);
         }
 
-        // --- TOAST HELPER ---
+        // --- TOAST HELPER (kept for any legacy onclicks) ---
         function showToast(msg) {
-            const toast = document.getElementById('store-toast');
-            toast.textContent = msg;
-            toast.style.display = 'block';
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 3000);
+            stToast(msg);
         }
 
         // --- INIT ---

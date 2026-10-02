@@ -2,7 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#0d0e10">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Waypoint">
     <title>Waypoint Dispatch | Logistics Command & Real-Time Operations</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3415,6 +3423,8 @@
                     </div>
 
                     <div style="padding: 20px; display: flex; flex-direction: column; gap: 14px;" id="exceptions-list-container">
+                        <!-- Real shortage flags stream in here from GET /api/flags + SSE -->
+                        <div id="live-flags-container" style="display: contents;"></div>
                         <div class="exception-card-desk" id="exc-desk-1" style="border: 1px solid var(--badge-danger-border); background: var(--badge-danger-bg); padding: 16px; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                             <div>
                                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
@@ -3532,35 +3542,35 @@
                 </div>
             </section>
 
-            <!-- SCREEN 10: ANALYTICS & KPIS -->
+            <!-- SCREEN 10: ANALYTICS & KPIS (live from GET /api/analytics/summary) -->
             <section id="screen-analytics" class="screen-view">
-                <div class="kpi-metrics-grid">
+                <div class="kpi-metrics-grid" id="analytics-kpi-grid">
                     <div class="kpi-card">
                         <div class="kpi-card-title">On-Time Delivery SLA</div>
-                        <div class="kpi-value">98.4%</div>
-                        <div class="kpi-trend positive">▲ +1.2% this week</div>
+                        <div class="kpi-value" id="kpi-ontime">98.4%</div>
+                        <div class="kpi-trend positive" id="kpi-ontime-sub">▲ live from delivery events</div>
                     </div>
                     <div class="kpi-card">
-                        <div class="kpi-card-title">Reefer Capacity Utilization</div>
-                        <div class="kpi-value">92.1%</div>
-                        <div class="kpi-trend positive">▲ Peak Efficiency</div>
+                        <div class="kpi-card-title">Delivered Orders</div>
+                        <div class="kpi-value" id="kpi-delivered">—</div>
+                        <div class="kpi-trend positive" id="kpi-delivered-sub">PODs recorded today</div>
                     </div>
                     <div class="kpi-card">
                         <div class="kpi-card-title">Deferral Rate</div>
-                        <div class="kpi-value">2.4%</div>
-                        <div class="kpi-trend negative" id="analytics-deferral-count">▼ 23 total this week</div>
+                        <div class="kpi-value" id="kpi-defer">2.4%</div>
+                        <div class="kpi-trend negative" id="kpi-defer-sub">▼ live from ledger</div>
                     </div>
                     <div class="kpi-card">
-                        <div class="kpi-card-title">Cost Per Deferral</div>
-                        <div class="kpi-value">$165</div>
-                        <div class="kpi-trend positive">▼ $12 savings</div>
+                        <div class="kpi-card-title">Fleet Effort Today</div>
+                        <div class="kpi-value" id="kpi-fleet">—</div>
+                        <div class="kpi-trend positive" id="kpi-fleet-sub">km · fuel (L) · trips</div>
                     </div>
                 </div>
 
                 <div class="content-card" style="padding: 20px;">
                     <h3 style="font-size: 15px; font-weight: 800; margin-bottom: 12px;">Network Performance Summary</h3>
-                    <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
-                        Central and Western hubs operating at 94% on-schedule dispatch rate. Chilled reefer demand peaked during morning delivery windows. Buffer vehicles successfully absorbed 88% of unplanned volume surges with zero store line stoppages.
+                    <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;" id="analytics-summary-text">
+                        Loading live metrics from the dispatch database…
                     </p>
                 </div>
             </section>
@@ -3694,7 +3704,200 @@
     <div id="toast-container"></div>
 
     <!-- APPLICATION JAVASCRIPT LOGIC -->
+    <script src="waypoint.js"></script>
+    <script src="offline.js"></script>
+    <script src="pwa.js"></script>
     <script>
+        // 0. REAL DATA LAYER — dispatcher boards live from the API + SSE
+        const { orderRef, hhmm, esc } = WaypointUtil;
+        const dps = { user: null, trips: [], flags: [], queue: null };
+
+        function dspChannel() { return ['dispatcher']; }
+
+        async function loadTripsBoard() {
+            try {
+                const res = await WaypointUtil.api('/api/trips');
+                dps.trips = res.trips || [];
+                renderLiveRuns();
+            } catch (err) {
+                console.error('[trips]', err.message);
+            }
+        }
+
+        function stopStateFor(trip, seq) {
+            const stop = trip.stops.find((s) => s.seq === seq);
+            if (!stop) return { cls: '', label: '' };
+            if (stop.status === 'delivered') return { cls: 'completed', label: `S${seq}✓` };
+            if (trip.status === 'departed') return { cls: 'current', label: `S${seq} current` };
+            return { cls: '', label: `S${seq}` };
+        }
+
+        function renderLiveRuns() {
+            const tbody = document.querySelector('#live-runs-table tbody');
+            if (!tbody) return;
+            if (dps.trips.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:18px;font-size:12px;">No committed plan yet — allocate and commit from the Fleet Board.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = dps.trips.map((t) => {
+                const total = t.stops.length;
+                const done = t.stops.filter((s) => s.status === 'delivered').length;
+                const stateCls = t.status === 'completed' ? 'completed' : t.status === 'departed' ? 'en-route' : 'waiting';
+                const stateTxt = t.status === 'completed' ? 'COMPLETED' : t.status === 'departed' ? 'EN ROUTE' : 'LOADED';
+                const pills = t.stops.map((s, i) => {
+                    const st = stopStateFor(t, s.seq);
+                    return `<span class="stop-pill ${st.cls}" onclick="openStopModal('${esc(t.vehicleCode)}', 'S${s.seq}', '${st.cls === 'completed' ? 'Completed' : st.cls === 'current' ? 'En Route' : 'Planned'}')">${st.label || `S${s.seq}`}</span>`;
+                }).join('');
+                return `
+                <tr data-status="${t.status === 'departed' ? 'active' : t.status === 'completed' ? 'completed' : 'planned'}" data-trip="T${t.tripNo}">
+                    <td>
+                        <div class="vehicle-cell">
+                            <span class="vehicle-id">${esc(t.vehicleCode)}</span>
+                            <span class="driver-name">${esc(t.brand)} · ${esc(t.district)}</span>
+                        </div>
+                    </td>
+                    <td><span class="trip-badge">T${t.tripNo}</span></td>
+                    <td>
+                        <div class="stop-timeline-track">${pills}</div>
+                    </td>
+                    <td>
+                        <div class="state-cell">
+                            <span class="status-pill ${stateCls}">${stateTxt}</span>
+                            <span class="state-subtext">${done}/${total} stops delivered</span>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        async function loadFlagsDesk() {
+            try {
+                const res = await WaypointUtil.api('/api/flags');
+                dps.flags = res.flags || [];
+                renderFlags();
+            } catch (err) {
+                console.error('[flags]', err.message);
+            }
+        }
+
+        function renderFlags() {
+            const wrap = document.getElementById('live-flags-container');
+            if (!wrap) return;
+            const open = dps.flags.filter((f) => f.status === 'open');
+            wrap.innerHTML = open.map((f) => `
+                <div class="exception-card-desk" id="flag-desk-${f.id}" style="border: 1px solid var(--badge-warning-border); background: var(--badge-warning-bg); padding: 16px; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                            <span class="severity-badge high">SHORTAGE</span>
+                            <span style="font-family: monospace; font-size: 12px; font-weight: 700;">${orderRef(f.orderId)} / ${esc(f.outletId || '')}</span>
+                        </div>
+                        <h3 style="font-size: 14px; font-weight: 800; color: var(--text-main);">${esc(f.qty)} × ${esc(f.itemDesc)} — ${esc(f.reason)}</h3>
+                        <p style="font-size: 12px; color: var(--text-muted);">Flagged by ${esc(f.createdBy || 'loader')} · status ${esc(f.status)}</p>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-outline-dark" onclick="showToast('Store receiver will confirm at receipt — flag auto-matches.')">📞 Contact Bay</button>
+                        <button class="btn-primary-yellow" onclick="showToast('Flag stays open until the store receipt auto-matches it.')">Await Receipt</button>
+                    </div>
+                </div>`).join('');
+            const badge = document.getElementById('exceptions-main-badge');
+            const side = document.getElementById('sidebar-exceptions-badge');
+            const feed = document.getElementById('exception-feed-count-badge');
+            const demoCards = document.querySelectorAll('.exception-card-desk:not([id^="flag-desk-"])').length;
+            const total = open.length + demoCards;
+            if (badge) badge.textContent = `${total} Active Incidents`;
+            if (side) side.textContent = String(total);
+            if (feed) feed.textContent = `${total} Active`;
+        }
+
+        async function loadQueue() {
+            try {
+                dps.queue = await WaypointUtil.api('/api/orders');
+                renderQueueVerdict();
+            } catch (err) {
+                console.error('[queue]', err.message);
+            }
+        }
+
+        function renderQueueVerdict() {
+            const q = dps.queue;
+            if (!q || !q.verdict) return;
+            const v = q.verdict;
+            const banner = document.getElementById('queue-capacity-banner');
+            if (banner) {
+                const danger = v.overloaded || v.reeferShortfall;
+                banner.className = `alert-banner ${danger ? 'danger' : ''}`;
+                const content = banner.querySelector('.alert-banner-content span:last-child');
+                if (content) {
+                    content.innerHTML = danger
+                        ? `<strong>CAPACITY VERDICT:</strong> Demand ${v.demandM3} m³ / Capacity ${v.capM3} m³ · Chilled ${v.chilledDemandM3} m³ / Reefer ${v.reeferCapM3} m³ → <strong>${v.reeferShortfall ? 'reefer shortfall' : 'overloaded'}</strong>`
+                        : `<strong>CAPACITY VERDICT:</strong> Demand ${v.demandM3} m³ / Capacity ${v.capM3} m³ → <strong>feasible</strong>`;
+                }
+            }
+            const freshAcc = document.querySelector('.accordion-section.open .accordion-count-badge');
+            const accs = document.querySelectorAll('.accordion-count-badge');
+            if (accs.length >= 2) {
+                const chilled = q.orders.filter((o) => o.tempRequirement === 'chilled').length;
+                const ambient = q.orders.length - chilled;
+                accs[0].textContent = String(ambient);
+                accs[1].textContent = String(chilled);
+            }
+        }
+
+        async function loadAnalytics() {
+            try {
+                const s = await WaypointUtil.api('/api/analytics/summary');
+                const onTime = document.getElementById('kpi-ontime');
+                if (onTime) onTime.textContent = s.delivery.onTimePct != null ? `${s.delivery.onTimePct}%` : '—';
+                const ots = document.getElementById('kpi-ontime-sub');
+                if (ots) ots.textContent = `${s.delivery.onTime}/${s.delivery.pods} PODs in window · ${s.delivery.late} late`;
+                const del = document.getElementById('kpi-delivered');
+                if (del) del.textContent = String(s.orders.delivered);
+                const ds = document.getElementById('kpi-delivered-sub');
+                if (ds) ds.textContent = `${s.orders.allocated} allocated · ${s.orders.queued} queued`;
+                const def = document.getElementById('kpi-defer');
+                if (def) def.textContent = s.orders.total ? `${Math.round((s.orders.deferred / s.orders.total) * 1000) / 10}%` : '0%';
+                const dfs = document.getElementById('kpi-defer-sub');
+                if (dfs) dfs.textContent = `${s.deferrals.ledgerEntries} ledger entries · ${s.deferrals.openPromises} open promises`;
+                const fl = document.getElementById('kpi-fleet');
+                if (fl) fl.textContent = s.fleet.tripsCommitted ? `${Math.round(s.fleet.totalDistanceKm)}` : '—';
+                const fs = document.getElementById('kpi-fleet-sub');
+                if (fs) fs.textContent = `km · ${Math.round(s.fleet.totalFuelL)} L fuel · ${s.fleet.tripsCommitted} trips committed`;
+                const txt = document.getElementById('analytics-summary-text');
+                if (txt) {
+                    txt.textContent = `Live for ${s.date}: ${s.orders.total} orders (${s.orders.delivered} delivered, ${s.orders.deferred} deferred) · ` +
+                        `${s.fleet.tripsCommitted} trips committed covering ${s.fleet.totalDistanceKm} km with ${s.fleet.totalFuelL} L fuel · ` +
+                        `${s.delivery.pods} PODs recorded, ${s.delivery.onTimePct != null ? s.delivery.onTimePct + '% within window' : 'no deliveries yet'} · ` +
+                        `${s.delivery.issues} driver issues filed.`;
+                }
+            } catch (err) {
+                console.error('[analytics]', err.message);
+            }
+        }
+
+        function startDispatcherRealtime() {
+            WaypointRealtime.start(dspChannel());
+            WaypointRealtime.on('new-order', (o) => {
+                showToast(`🆕 New order ${o.orderRef || orderRef(o.id)} from ${o.outletId} (${o.units} units) — queue updated`);
+                loadQueue();
+            });
+            WaypointRealtime.on('driver-event', (e) => {
+                const labels = { departed: '🚚 departed depot', arrived: '📍 arrived at stop', pod: '✅ POD captured', issue: '⚠️ driver issue', loaded: '📦 loaded' };
+                showToast(`${labels[e.type] || e.type}${e.orderId ? ' · ' + orderRef(e.orderId) : ''} — Live Runs updated`);
+                loadTripsBoard();
+            });
+            WaypointRealtime.on('trip-status', () => loadTripsBoard());
+            WaypointRealtime.on('vehicle-status', () => loadTripsBoard());
+            WaypointRealtime.on('shortage-flagged', (f) => {
+                showToast(`🚩 Shortage flagged: ${f.qty} × ${f.itemDesc} (${orderRef(f.orderId)})`);
+                loadFlagsDesk();
+            });
+            WaypointRealtime.on('receipt-confirmed', (r) => {
+                showToast(`🧾 Receipt confirmed for ${orderRef(r.orderId)} · ${r.matchedFlags} flag(s) matched`);
+                loadFlagsDesk();
+            });
+            WaypointRealtime.onPoll(() => { loadTripsBoard(); loadFlagsDesk(); });
+        }
+
         // 1. REAL TIME & DYNAMIC DATE ENGINE
         let currentVehicleInspect = null;
         let currentStopInspect = null;
@@ -3763,46 +3966,45 @@
         const authErrorBox = document.getElementById('auth-error-box');
         const quickFillBtn = document.getElementById('quick-fill-auth');
 
-        function checkAuthSession() {
-            const session = sessionStorage.getItem('delivery_auth_user');
-            if (session) {
-                try {
-                    const parsed = JSON.parse(session);
-                    if (parsed.username === 'dispatcher') {
-                        unlockApp(parsed.name || 'A. Patel');
-                        return;
-                    }
-                } catch(e) {}
-            }
-            authLockScreen.style.display = 'flex';
+        // --- AUTH (real JWT via /api/auth/me + /api/auth/login) ---
+        async function checkAuthSession() {
+            const user = await WaypointAuth.guard('dispatcher', { lockElId: 'auth-lock-screen' });
+            if (!user) return;
+            unlockApp(user);
         }
 
-        function unlockApp(name) {
+        function unlockApp(user) {
+            dps.user = user;
             authLockScreen.style.display = 'none';
+            const name = user.name || user.username || 'Dispatcher';
             document.getElementById('user-display-name').textContent = name;
             document.getElementById('user-avatar-initials').textContent = name.split(' ').map(n => n[0]).join('').substring(0, 2);
-            showToast(`Dispatcher ${name} Authenticated · Real-Time Systems Online`);
+            showToast(`Dispatcher ${name} Authenticated · Live Data Connected`);
             initLiveMapCanvas();
             renderLedgerTable();
+            loadQueue();
+            loadTripsBoard();
+            loadFlagsDesk();
+            loadAnalytics();
+            startDispatcherRealtime();
         }
 
-        authForm.addEventListener('submit', (e) => {
+        authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const user = authUserInput.value.trim();
             const pass = authPassInput.value.trim();
-
-            if (user === 'dispatcher' && pass === 'dispatch123') {
+            try {
+                const session = await WaypointAuth.login(user, pass);
+                if (session.role !== 'dispatcher') {
+                    authErrorBox.style.display = 'block';
+                    authErrorBox.textContent = 'Only dispatcher accounts may open this console.';
+                    return;
+                }
                 authErrorBox.style.display = 'none';
-                sessionStorage.setItem('delivery_auth_user', JSON.stringify({
-                    username: 'dispatcher',
-                    role: 'dispatcher',
-                    name: 'A. Patel',
-                    loginTime: new Date().toISOString()
-                }));
-                unlockApp('A. Patel');
-            } else {
+                unlockApp(session);
+            } catch (err) {
                 authErrorBox.style.display = 'block';
-                authErrorBox.textContent = 'Invalid credentials. Only certified Dispatcher account allowed.';
+                authErrorBox.textContent = `Login failed: ${err.message}`;
             }
         });
 
@@ -3814,6 +4016,7 @@
         function handleLogoutPrompt() {
             if (confirm('Do you wish to log out of the Dispatcher portal?')) {
                 sessionStorage.removeItem('delivery_auth_user');
+                localStorage.removeItem('delivery_auth_user');
                 window.location.href = 'index.html';
             }
         }
@@ -3874,6 +4077,11 @@
             if (screenId === 'map-view') {
                 setTimeout(drawRadarMap, 60);
             }
+            // Lazy-refresh boards with live data on entry.
+            if (screenId === 'live-runs') loadTripsBoard();
+            if (screenId === 'order-queue') loadQueue();
+            if (screenId === 'exceptions') loadFlagsDesk();
+            if (screenId === 'analytics') loadAnalytics();
         }
 
         // 4. CUTOFF & SILENCE TIMERS
@@ -4031,17 +4239,48 @@
             openModal('defer-order-modal');
         }
 
-        function submitDeferOrder() {
-            const orderRef = document.getElementById('defer-order-ref-badge').textContent;
+        async function submitDeferOrder() {
+            const orderRefBadge = document.getElementById('defer-order-ref-badge').textContent;
             const promiseTime = document.getElementById('defer-promise-input').value;
             const reasonRadio = document.querySelector('input[name="defer-reason"]:checked');
             const reasonVal = reasonRadio ? reasonRadio.value : 'Capacity constraint';
-            const reasonCode = reasonVal.includes('Reefer') ? 'REE' : (reasonVal.includes('Capacity') ? 'CAP' : 'INV');
+            const reasonCode = reasonVal.includes('Reefer') ? 'REF' : (reasonVal.includes('Capacity') ? 'CAP' : 'INV');
+
+            // Real deferral when the badge holds a live ORD id (ORD-1234); demo refs stay local.
+            const m = /^ORD-(\d+)$/.exec(orderRefBadge);
+            if (m) {
+                const deferBody = { reason: reasonCode, detail: reasonVal };
+                // Offline-first: queue the deferral and keep the console usable.
+                if (window.WaypointOffline && !WaypointOffline.isOnline()) {
+                    WaypointOffline.mutate({ url: `/api/orders/${m[1]}/defer`, body: deferBody, label: `defer ${orderRefBadge}` });
+                    showToast(`📦 Offline — deferral of ${orderRefBadge} queued (${WaypointOffline.count()} pending). Auto-syncs on reconnect.`);
+                    closeModal('defer-order-modal');
+                    return;
+                }
+                try {
+                    await WaypointUtil.api(`/api/orders/${m[1]}/defer`, {
+                        method: 'POST',
+                        body: deferBody,
+                    });
+                    showToast(`Order ${orderRefBadge} deferred (${reasonCode}) — ledger updated, store manager notified`);
+                    closeModal('defer-order-modal');
+                    loadQueue();
+                    return;
+                } catch (err) {
+                    if (window.WaypointOffline && (err.status === undefined || err.status >= 500)) {
+                        WaypointOffline.mutate({ url: `/api/orders/${m[1]}/defer`, body: deferBody, label: `defer ${orderRefBadge}` });
+                        showToast(`⚠ Network trouble — deferral queued (${WaypointOffline.count()} pending).`);
+                        closeModal('defer-order-modal');
+                        return;
+                    }
+                    showToast(`Defer failed: ${err.message} — recorded locally only`);
+                }
+            }
 
             const newEntry = {
                 id: deferralLedgerData.length + 1,
                 date: `${todayDateFormatted} ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`,
-                order: orderRef,
+                order: orderRefBadge,
                 outlet: 'OUT074',
                 reason: reasonCode,
                 dispatcher: 'A. Patel',
@@ -4054,18 +4293,18 @@
             renderLedgerTable();
             closeModal('defer-order-modal');
 
-            if (orderRef === 'OUT074') {
+            if (orderRefBadge === 'OUT074') {
                 const c = document.getElementById('defer-card-out074');
                 if (c) c.style.opacity = '0.5';
-            } else if (orderRef === 'OUT072') {
+            } else if (orderRefBadge === 'OUT072') {
                 const c = document.getElementById('defer-card-out072');
                 if (c) c.style.opacity = '0.5';
-            } else if (orderRef === 'OUT081') {
+            } else if (orderRefBadge === 'OUT081') {
                 const c = document.getElementById('defer-card-out081');
                 if (c) c.style.opacity = '0.5';
             }
 
-            showToast(`Order ${orderRef} deferred & added to Deferral Ledger. Next Promise: ${promiseTime}`);
+            showToast(`Order ${orderRefBadge} deferred & added to Deferral Ledger. Next Promise: ${promiseTime}`);
         }
 
         function openStopModal(vehicle, stop, status) {
@@ -4162,8 +4401,26 @@
             }, 700);
         }
 
-        function commitFleetPlan() {
-            showToast('🚀 Plan DP-20250522-0847 committed to active telematics network!');
+        async function commitFleetPlan() {
+            // Offline: allocation needs live data — queue the commit of the last proposal instead.
+            if (window.WaypointOffline && !WaypointOffline.isOnline()) {
+                showToast('⛔ Allocation needs a connection. Reconnect and retry — other actions keep working offline.');
+                return;
+            }
+            showToast('⚡ Running allocation engine (dry-run)…');
+            try {
+                const proposal = await WaypointUtil.api('/api/plan/allocate', { method: 'POST', body: {} });
+                const res = await WaypointUtil.api('/api/plan/commit', {
+                    method: 'POST',
+                    body: { plan: { trips: proposal.trips, deferred: proposal.deferred } },
+                });
+                showToast(`🚀 Plan committed: ${res.trips} trips · ${res.deferred} deferred — drivers & loaders notified`);
+                loadTripsBoard();
+                loadQueue();
+            } catch (err) {
+                const detail = err.data && err.data.violations ? ` — ${err.data.violations.slice(0, 2).join('; ')}` : '';
+                showToast(`Commit failed: ${err.message}${detail}`);
+            }
         }
 
         function triggerHotStandbyReallocation() {

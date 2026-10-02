@@ -2,7 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#0d0e10">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Waypoint">
     <title>Driver Delivery Console | Waypoint Logistics</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1143,7 +1151,7 @@
                 <!-- TOP OFFLINE BANNER -->
                 <div style="margin: 8px 16px 4px; background: #FAF9F6; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: #475569; font-weight: 600;" onclick="jumpToScreen('connectivity-v3b')" title="Tap to view offline buffer">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
-                    <span><strong>Offline</strong> · Working locally · 4 queued · last synced 06:18</span>
+                    <span id="drv-sync-banner"><strong>Offline</strong> · Working locally · 4 queued · last synced 06:18</span>
                 </div>
 
                 <!-- TOP HEADER -->
@@ -1178,22 +1186,22 @@
                         </span>
                     </div>
 
-                    <div style="font-size: 20px; font-weight: 900; color: var(--text-dark); margin: 6px 0 10px;">
+                    <div style="font-size: 20px; font-weight: 900; color: var(--text-dark); margin: 6px 0 10px;" id="drv-route-name">
                         Kandy Corridor
                     </div>
 
                     <!-- TIMELINE PROGRESS BAR -->
                     <div style="margin-bottom: 12px;">
-                        <div style="display: flex; align-items: center; gap: 4px; height: 6px; margin-bottom: 6px;">
+                        <div style="display: flex; align-items: center; gap: 4px; height: 6px; margin-bottom: 6px;" id="drv-progress-track">
                             <div style="height: 6px; width: 38%; background: #10b981; border-radius: 9999px;"></div>
                             <div style="height: 6px; width: 62%; background: #e2e8f0; border-radius: 9999px;"></div>
                         </div>
-                        <div style="font-size: 11px; color: #64748b; font-weight: 600;">
+                        <div style="font-size: 11px; color: #64748b; font-weight: 600;" id="drv-route-progress">
                             Stop <strong style="color: #2563eb;">2</strong> of 5
                         </div>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 10px; font-size: 11px; color: #475569; font-weight: 600; flex-wrap: wrap; margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px; font-size: 11px; color: #475569; font-weight: 600; flex-wrap: wrap; margin-bottom: 8px;" id="drv-route-meta">
                         <span>🚗 Tech Standard</span>
                         <span>•</span>
                         <span>⏱️ 118/270 min</span>
@@ -1371,7 +1379,7 @@
                         <span>👋 Sunil • VEH045</span>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
                     </div>
-                    <span class="pill-offline-beige" onclick="jumpToScreen('connectivity-v3b')">OFFLINE • 4 QUEUED</span>
+                    <span class="pill-offline-beige" id="drv-queued-pill" onclick="jumpToScreen('connectivity-v3b')">OFFLINE • 4 QUEUED</span>
                 </div>
 
                 <div class="banner-yellow-subtle" onclick="jumpToScreen('connectivity-v3b')">
@@ -1446,8 +1454,8 @@
                 </div>
 
                 <div class="dual-actions-bar">
-                    <button class="btn-issue-white" onclick="jumpToScreen('screen-10-defer')">ISSUE</button>
-                    <button class="btn-serviced-red" onclick="jumpToScreen('stop-detail')">MARK SERVICED</button>
+                    <button class="btn-issue-white" onclick="openIssueDrawer()">ISSUE</button>
+                    <button class="btn-serviced-red" onclick="driverArrive()">MARK ARRIVED</button>
                 </div>
             </div>
 
@@ -1526,8 +1534,8 @@
                 </div>
 
                 <div class="dual-actions-bar">
-                    <button class="btn-issue-white" onclick="handleArrivalNextOrder()">ISSUE</button>
-                    <button class="btn-serviced-red" onclick="handleArrivalNextOrder()">ARRIVED</button>
+                    <button class="btn-issue-white" onclick="openIssueDrawer()">ISSUE</button>
+                    <button class="btn-serviced-red" onclick="confirmPod()">CONFIRM POD ✓</button>
                 </div>
             </div>
 
@@ -1911,38 +1919,268 @@
 
     </div>
 
+    <script src="outbox.js"></script>
+    <script src="waypoint.js"></script>
+    <script src="offline.js"></script>
+    <script src="pwa.js"></script>
     <script>
-        // --- AUTH LOGIC ---
-        function checkDriverAuth() {
-            const authStr = sessionStorage.getItem('delivery_auth_user');
-            if (authStr) {
-                try {
-                    const user = JSON.parse(authStr);
-                    if (user.username === 'driver' || user.role === 'driver') {
-                        document.getElementById('auth-lock-screen').style.display = 'none';
-                        return;
-                    }
-                } catch(e) {}
-            }
-            document.getElementById('auth-lock-screen').style.display = 'flex';
+        // --- DRIVER APP STATE + REAL MANIFEST ---
+        const { orderRef, hhmm, esc } = WaypointUtil;
+        const state = { user: null, manifest: null, currentSeq: null, issueOrderId: null };
+
+        function driverChannel() {
+            return state.user && state.user.vehicleNumericId ? [`driver:${state.user.vehicleNumericId}`] : [];
         }
 
-        function handleDriverAuth(e) {
+        async function loadManifest() {
+            try {
+                state.manifest = await WaypointUtil.api('/api/trips/for-driver');
+                renderAll();
+            } catch (err) {
+                if (err.status !== 404) showToastBanner(`Manifest unavailable: ${err.message}`);
+            }
+        }
+
+        function allStops() {
+            if (!state.manifest || !state.manifest.trips) return [];
+            return state.manifest.trips.flatMap((t) => t.stops.map((s) => ({ ...s, trip: t })));
+        }
+
+        function currentStop() {
+            return allStops().find((s) => s.status && s.status !== 'delivered') || null;
+        }
+
+        function renderAll() {
+            renderOverview();
+            renderTripCards();
+            renderStopList();
+            renderStopDetail();
+        }
+
+        function renderOverview() {
+            const stops = allStops();
+            if (stops.length === 0) return;
+            const done = stops.filter((s) => s.status === 'delivered').length;
+            const cur = currentStop();
+            const trip = (cur && cur.trip) || state.manifest.trips[0];
+            const nameEl = document.getElementById('drv-route-name');
+            if (nameEl) nameEl.textContent = `${trip.brand} · ${trip.district}`;
+            const progEl = document.getElementById('drv-route-progress');
+            if (progEl) progEl.innerHTML = `Stop <strong style="color: #2563eb;">${Math.min(done + 1, stops.length)}</strong> of ${stops.length}`;
+            const track = document.getElementById('drv-progress-track');
+            if (track && track.children.length >= 2) {
+                const pct = Math.round((done / stops.length) * 100);
+                track.children[0].style.width = `${pct}%`;
+                track.children[1].style.width = `${100 - pct}%`;
+            }
+            const metaEl = document.getElementById('drv-route-meta');
+            if (metaEl) metaEl.textContent = `⏱️ ${Math.round(trip.estMinutes)} min est · 🛣️ ${Math.round(trip.distanceKm)} km · ${stops.length} stops`;
+        }
+
+        function renderTripCards() {
+            const trips = (state.manifest && state.manifest.trips) || [];
+            const t1 = trips[0];
+            const label = document.querySelector('.trip-orange-label');
+            if (label && t1) label.textContent = `TRIP ${t1.tripNo} OF ${trips.length}`;
+            const name = document.querySelector('.trip-name-title');
+            if (name && t1) name.textContent = `${t1.brand} corridor · ${t1.district}`;
+            const progText = document.querySelector('.stop-progress-text');
+            if (progText && t1) {
+                const done = t1.stops.filter((s) => s.status === 'delivered').length;
+                progText.textContent = `Stop progress: stop ${Math.min(done + 1, t1.stops.length)} of ${t1.stops.length}`;
+            }
+            const dots = document.querySelectorAll('.timeline-dots-track .dot-circle');
+            if (dots.length === 3 && t1) {
+                const done = t1.stops.filter((s) => s.status === 'delivered').length;
+                const cls = done === 0 ? ['pending', 'pending', 'pending'] : done === 1 ? ['done', 'current', 'pending'] : ['done', 'done', 'current'];
+                dots.forEach((d, i) => { d.className = `dot-circle ${cls[i]}`; });
+            }
+        }
+
+        function renderStopList() {
+            const wrap = document.querySelector('.stop-list-scroll');
+            if (!wrap) return;
+            const stops = allStops();
+            if (stops.length === 0) {
+                wrap.innerHTML = '<div style="padding: 24px 16px; text-align: center; color: #64748b; font-size: 12px;">No committed route yet.<br><span style="font-size: 11px;">Waiting for dispatcher plan…</span></div>';
+                return;
+            }
+            const cur = currentStop();
+            state.currentSeq = cur ? cur.seq : null;
+            wrap.innerHTML = stops.map((s) => {
+                if (cur && s.seq === cur.seq && s.trip.id === cur.trip.id) {
+                    return `
+                    <div class="stop-item-box active-blue-card" onclick="jumpToScreen('stop-detail')">
+                        <div class="stop-active-top-row">
+                            <span style="font-size: 14px; font-weight: 800; color: #1e3a8a;">${s.seq} • ${esc(s.outletId || 'Outlet')} (current)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <span class="pill-wait-blue">🕒 NEXT</span>
+                                <div style="font-size: 13px; font-weight: 900; color: #0f172a; margin-top: 4px;">${orderRef(s.orderId)} • ${esc(s.trip.brand)}</div>
+                                <div style="font-size: 11px; color: #2563eb;">window ${esc(s.windowOpen || '—')}–${esc(s.windowClose || '—')} • ETA ${esc(s.plannedArrival || '—')}</div>
+                                <div style="font-size: 10px; font-weight: 700; color: #1e40af; margin-top: 4px;">📦 Goods for delivery</div>
+                            </div>
+                        </div>
+                    </div>`;
+                }
+                const icon = s.status === 'delivered' ? ['✓', '#10b981'] : ['○', '#cbd5e1'];
+                const sub = s.status === 'delivered' ? 'Delivered ✓' : `Planned arrival ${esc(s.plannedArrival || '—')}`;
+                return `
+                    <div class="stop-item-box">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="color: ${icon[1]}; font-weight: 900;">${icon[0]}</div>
+                            <div>
+                                <div style="font-size: 13px; font-weight: 800;">${s.seq} • ${esc(s.outletId || 'Outlet')} · ${orderRef(s.orderId)}</div>
+                                <div style="font-size: 10px; color: #64748b;">${sub}</div>
+                            </div>
+                        </div>
+                        <span style="font-size: 11px; font-weight: 800; color: #94a3b8;">#${s.seq}</span>
+                    </div>`;
+            }).join('');
+        }
+
+        function renderStopDetail() {
+            const cur = currentStop();
+            if (!cur) return;
+            const titleEl = document.getElementById('stop-detail-outlet-title');
+            const subEl = document.getElementById('stop-detail-outlet-sub');
+            if (titleEl) titleEl.textContent = cur.outletId || orderRef(cur.orderId);
+            if (subEl) subEl.textContent = `${orderRef(cur.orderId)} · window ${cur.windowOpen || '—'}–${cur.windowClose || '—'} · ETA ${cur.plannedArrival || '—'}`;
+        }
+
+        // --- DRIVER ACTIONS → real events (offline-safe via outbox) ---
+        async function eventPayload(extra) {
+            const geo = await WaypointGeo.fix();
+            return Object.assign({
+                vehicleId: state.user ? state.user.vehicleNumericId : null,
+                vehicleCode: state.user ? state.user.vehicleCode : null,
+                lat: geo ? geo.lat : null,
+                lng: geo ? geo.lng : null,
+            }, extra || {});
+        }
+
+        function enqueue(type, orderId, payload) {
+            if (!window.WaypointOutbox) { showToastBanner('Sync engine unavailable'); return; }
+            WaypointOutbox.enqueue({ type, orderId, payload });
+            setSyncBanner(WaypointOutbox.count());
+            showToastBanner(`${type.toUpperCase()} queued${navigator.onLine ? ' · syncing…' : ' · saved offline'}`);
+        }
+
+        function setSyncBanner(n) {
+            const b = document.getElementById('drv-sync-banner');
+            if (b) b.innerHTML = n > 0
+                ? `<strong>${navigator.onLine ? 'Syncing' : 'Offline'}</strong> · ${n} event${n === 1 ? '' : 's'} queued`
+                : `<strong>Online</strong> · all events synced`;
+            const pill = document.getElementById('drv-queued-pill');
+            if (pill) pill.textContent = n > 0 ? `${navigator.onLine ? 'SYNCING' : 'OFFLINE'} • ${n} QUEUED` : 'ONLINE • SYNCED';
+        }
+
+        function driverArrive() {
+            const cur = currentStop();
+            if (!cur) { showToastBanner('No active stop'); return; }
+            enqueue('arrived', cur.orderId, { seq: cur.seq, outletId: cur.outletId });
+            jumpToScreen('stop-detail');
+        }
+
+        async function confirmPod() {
+            const cur = currentStop();
+            if (!cur) { showToastBanner('No active stop'); return; }
+            const recipientEl = document.getElementById('recipient-name-input');
+            const outcomeEl = document.getElementById('outcome-status-select');
+            let signature = null;
+            if (canvas) {
+                try { signature = canvas.toDataURL('image/png').slice(0, 40000); } catch {}
+            }
+            const payload = await eventPayload({
+                recipient: recipientEl ? recipientEl.value : '',
+                outcome: outcomeEl ? outcomeEl.value : 'delivered — full',
+                signature,
+                seq: cur.seq,
+                outletId: cur.outletId,
+            });
+            enqueue('pod', cur.orderId, payload);
+            setTimeout(loadManifest, 600);
+        }
+
+        function openIssueDrawer() {
+            const cur = currentStop();
+            state.issueOrderId = cur ? cur.orderId : null;
+            const head = document.querySelector('.defer-main-heading');
+            if (head && cur) head.textContent = `Report issue · ${orderRef(cur.orderId)} · ${cur.outletId || ''}`;
+            jumpToScreen('screen-10-defer');
+        }
+
+        function executeDeferral() {
+            const reasonSelect = document.getElementById('defer-reason-code');
+            const reasonText = reasonSelect ? reasonSelect.options[reasonSelect.selectedIndex].text : 'Reefer Capacity';
+            const noteEl = document.getElementById('defer-override-note');
+            const note = noteEl ? noteEl.value : '';
+            enqueue('issue', state.issueOrderId, { reason: reasonText, note, deferRequested: true });
+            jumpToScreen('stop-list');
+        }
+
+        // --- REALTIME: plan updates from dispatcher + polling fallback ---
+        function startRealtime() {
+            WaypointRealtime.start(driverChannel());
+            WaypointRealtime.on('plan-committed', () => {
+                showToastBanner('📥 New route plan received from dispatcher');
+                loadManifest();
+            });
+            WaypointRealtime.onPoll(loadManifest);
+        }
+
+        function showToastBanner(msg) {
+            let t = document.getElementById('drv-toast');
+            if (!t) {
+                t = document.createElement('div');
+                t.id = 'drv-toast';
+                t.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;font-size:12px;font-weight:700;padding:10px 16px;border-radius:9999px;z-index:9999;box-shadow:0 8px 20px rgba(0,0,0,.35);max-width:86vw;text-align:center;';
+                document.body.appendChild(t);
+            }
+            t.textContent = msg;
+            t.style.display = 'block';
+            clearTimeout(t._h);
+            t._h = setTimeout(() => { t.style.display = 'none'; }, 3200);
+        }
+
+        // --- AUTH (real JWT via /api/auth/me + /api/auth/login) ---
+        async function checkDriverAuth() {
+            const user = await WaypointAuth.guard('driver', { lockElId: 'auth-lock-screen' });
+            if (!user) return;
+            state.user = user;
+            applyUserProfile(user);
+            initCanvas();
+            setSyncBanner(window.WaypointOutbox ? WaypointOutbox.count() : 0);
+            loadManifest();
+            startRealtime();
+        }
+
+        function applyUserProfile(user) {
+            const chip = document.querySelector('.user-chip-name span');
+            if (chip) chip.textContent = `👋 ${user.name || 'Driver'} • ${user.vehicleCode || '—'}`;
+            document.querySelectorAll('div').forEach((d) => {
+                if (d.childElementCount === 0 && d.textContent.trim() === 'VEH045') d.textContent = user.vehicleCode || '—';
+                if (d.childElementCount === 0 && d.textContent.trim() === 'SP') d.textContent = (user.name || 'DR').split(/\s+/).map((p) => p[0]).join('').slice(0, 2).toUpperCase();
+            });
+            const nameDiv = Array.from(document.querySelectorAll('div')).find((d) => d.childElementCount === 0 && d.textContent.trim() === 'Sunil');
+            if (nameDiv) nameDiv.textContent = (user.name || 'Driver').split(/\s+/)[0];
+        }
+
+        async function handleDriverAuth(e) {
             e.preventDefault();
             const user = document.getElementById('driver-user').value.trim();
             const pass = document.getElementById('driver-pass').value.trim();
-
-            if (user === 'driver' && pass === 'drive123') {
-                sessionStorage.setItem('delivery_auth_user', JSON.stringify({
-                    username: 'driver',
-                    role: 'driver',
-                    name: 'Sunil (VEH045)',
-                    loginTime: new Date().toISOString()
-                }));
+            try {
+                const session = await WaypointAuth.login(user, pass);
+                if (session.role !== 'driver') {
+                    alert('This portal is for driver accounts.');
+                    return;
+                }
                 document.getElementById('auth-lock-screen').style.display = 'none';
-                initCanvas();
-            } else {
-                alert('Invalid driver credentials. Use driver / drive123');
+                await checkDriverAuth();
+            } catch (err) {
+                alert(`Login failed: ${err.message}`);
             }
         }
 
@@ -2052,56 +2290,37 @@
             isDrawing = false;
         }
 
-        // --- ACTIONS ---
+        // --- LEGACY ACTION ALIASES (kept for any remaining onclick hooks) ---
         function handleArrivalNextOrder() {
-            // When arrival is clicked, show next order details deferral screen
-            jumpToScreen('screen-10-defer');
+            openIssueDrawer();
         }
 
         function cancelDeferralAndContinueOrder() {
-            // Driver chooses NOT to defer: cancels deferral and continues with earlier cleared form for this new order (OUT074)
-            const titleEl = document.getElementById('stop-detail-outlet-title');
-            const subEl = document.getElementById('stop-detail-outlet-sub');
-            const recInput = document.getElementById('recipient-name-input');
-            const callBtn = document.getElementById('stop-detail-call-btn');
-
-            if (titleEl) titleEl.textContent = 'OUT074';
-            if (subEl) subEl.textContent = 'Oakwood Supercenter, Bay 04 (ORD-2241 · 420 kg chilled)';
-            if (callBtn) {
-                callBtn.textContent = '📞 Tap to call - Store Manager, 077 442 9918';
-                callBtn.onclick = () => alert('Calling Store Manager at 077 442 9918...');
-            }
-            if (recInput) recInput.value = '';
-
-            // Clear signature canvas
-            if (canvas && ctx) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                const podLabel = document.getElementById('pod-label');
-                if (podLabel) podLabel.style.display = 'block';
-            }
-
-            alert('✓ Deferral Cancelled.\nProceeding to service new order: ORD-2241 (OUT074) with fresh POD signature form.');
             jumpToScreen('stop-detail');
         }
 
         function finishStopDelivery() {
-            handleArrivalNextOrder();
-        }
-
-        function executeDeferral() {
-            const reasonSelect = document.getElementById('defer-reason-code');
-            const reasonText = reasonSelect ? reasonSelect.options[reasonSelect.selectedIndex].text : 'Reefer Capacity';
-            const note = document.getElementById('defer-override-note').value;
-
-            alert(`✓ Deferral Recorded for ORD-2241 (OUT074)!\n• Reason: ${reasonText}\n• Rescheduled: Tomorrow 06:30\n• Store Manager & Central Dispatch notified via queued sync.`);
-            jumpToScreen('stop-list');
+            confirmPod();
         }
 
         function simulateReconnection() {
-            alert('Syncing with telematics hub...');
+            if (window.WaypointOutbox) WaypointOutbox.flush();
+            showToastBanner('Syncing with telematics hub…');
             setTimeout(() => {
                 jumpToScreen('connectivity-v3c');
+                loadManifest();
             }, 500);
+        }
+
+        // --- OUTBOX WIRING (offline queue + sync drawer counters) ---
+        if (window.WaypointOutbox) {
+            WaypointOutbox.onChange((n) => setSyncBanner(n));
+            WaypointOutbox.onFlushed((results) => {
+                const accepted = results.filter((r) => r.status !== 'conflict').length;
+                const conflict = results.length - accepted;
+                showToastBanner(`☁️ Sync complete · ${accepted} accepted${conflict ? ` · ${conflict} conflict` : ''}`);
+                loadManifest();
+            });
         }
 
         // --- CLOCK ---
@@ -2113,7 +2332,6 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             checkDriverAuth();
-            initCanvas();
             setInterval(updateClock, 1000);
             updateClock();
         });
