@@ -38,11 +38,10 @@ jobs:
             sleep 2
           done
           echo "API did not become healthy"; docker compose logs app; exit 1
-      - name: Smoke: login all roles + allocate + commit + idempotent sync + ledger
+      - name: "Smoke: login all roles + allocate + commit + idempotent sync + ledger"
         run: |
           set -e
           B=http://localhost:8080
-          for u in dispatcher dispatch123 driver drive123 loader load123 manager manage123; do :; done
           login() { curl -sf -c /tmp/jar_$1 -X POST $B/api/auth/login -H 'Content-Type: application/json' -d "{\"username\":\"$1\",\"password\":\"$2\"}"; }
           login dispatcher dispatch123 > /dev/null
           login driver drive123 > /dev/null
