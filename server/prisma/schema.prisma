@@ -1,4 +1,4 @@
-// Waypoint Dispatch — Prisma schema (PostgreSQL 16)
+// prisma/schema.prisma — production query patterns (report Phase 5.1).
 generator client {
   provider = "prisma-client-js"
 }
@@ -62,7 +62,8 @@ model User {
   role         Role
   name         String
   vehicleId    Int? @unique // driver linked to vehicle
-  outletId     String? @unique // manager linked to outlet  createdAt    DateTime @default(now())
+  outletId     String? @unique // manager linked to outlet
+  createdAt    DateTime @default(now())
 
   vehicle Vehicle?  @relation(fields: [vehicleId], references: [id])
   outlet  Outlet?   @relation(fields: [outletId], references: [outletId])
@@ -126,6 +127,8 @@ model Order {
   flags         ShortageFlag[]
   deferrals     DeferralLedger[]
 
+  @@index([outletId, status])        // store-manager timeline
+  @@index([brand, district, status]) // allocation grouping
   @@index([orderDate, status])
 }
 
@@ -149,6 +152,8 @@ model Trip {
   stops   TripStop[]
 
   @@unique([vehicleId, tripNo])
+  @@index([status])            // live runs board
+  @@index([vehicleId, status]) // driver manifest
 }
 
 model TripStop {
@@ -180,6 +185,7 @@ model DeliveryEvent {
 
   @@index([orderId])
   @@index([serverTimestamp])
+  @@index([vehicleId, type]) // GPS position lookups
 }
 
 model ShortageFlag {
@@ -194,6 +200,8 @@ model ShortageFlag {
   createdAt DateTime   @default(now())
 
   order Order @relation(fields: [orderId], references: [id])
+
+  @@index([orderId, status]) // receipt auto-match lookup
 }
 
 model DeferralLedger {

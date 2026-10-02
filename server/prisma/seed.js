@@ -6,6 +6,8 @@ const bcrypt = require('bcryptjs');
 const { loadAll } = require('../src/data/datasets');
 const { allocate } = require('../src/allocation/engine');
 
+require('../src/env').loadEnv(); // plain `node prisma/seed.js` gets DATABASE_URL from server/.env
+
 const DEMO_DAY = '2026-06-25';
 
 // Small deterministic PRNG (mulberry32) so the seed is byte-identical on every machine.

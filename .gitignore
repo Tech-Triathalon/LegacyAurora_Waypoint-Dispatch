@@ -1,11 +1,9 @@
-# API/DB errors are non-fatal for the plan cache; keep heavy artifacts out of git
 node_modules/
-server/node_modules/
-server/.env
 .env
-uploads/
+server/.env
+server/.env.local
 *.log
-.DS_Store
+uploads/
 .pgdata/
-server/.pgdata/
-
+test-pgdata/
+.DS_Store
