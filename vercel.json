@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cd server && npm ci && DIRECT_URL=\"postgresql://placeholder\" npx prisma generate",
+  "buildCommand": "cd server && npm ci && npx prisma generate",
   "builds": [
     {
       "src": "api/index.js",

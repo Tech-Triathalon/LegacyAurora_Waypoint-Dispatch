@@ -7,12 +7,12 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  // directUrl is only needed when DATABASE_URL points to the pgBouncer pooler
-  // (Supabase port 6543). Set DIRECT_URL to the port-5432 connection string so
-  // `prisma migrate deploy` can bypass the pooler. Leave unset for local dev.
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // For running migrations locally against the Supabase session-mode pooler
+  // (port 5432), set DIRECT_URL in server/.env and uncomment the line below,
+  // then run: npx prisma migrate deploy
+  // directUrl = env("DIRECT_URL")
 }
 
 enum Role {
