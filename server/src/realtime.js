@@ -99,7 +99,21 @@ function createRealtimeBus(prisma) {
 
     // Comment heartbeat keeps proxies from closing the idle connection.
     const heartbeat = setInterval(() => sseWrite(res, ':hb\n\n'), 25000);
+
+    // Vercel serverless functions have a hard response-time limit (10 s Hobby,
+    // 25 s Pro). Close the SSE stream gracefully just before that limit so the
+    // browser's EventSource auto-reconnects instead of hitting a hard error.
+    // The `retry` header above tells the client to wait 3 s before reconnecting.
+    const SSE_TIMEOUT_MS = Number(process.env.SSE_TIMEOUT_MS) || 24000; // 24 s default
+    const timeout = setTimeout(() => {
+      sseWrite(res, `data: ${JSON.stringify({ type: 'reconnect', data: {}, channel: 'meta', ts: new Date().toISOString() })}\n\n`);
+      clearInterval(heartbeat);
+      clients.delete(id);
+      res.end();
+    }, SSE_TIMEOUT_MS);
+
     req.on('close', () => {
+      clearTimeout(timeout);
       clearInterval(heartbeat);
       clients.delete(id);
     });

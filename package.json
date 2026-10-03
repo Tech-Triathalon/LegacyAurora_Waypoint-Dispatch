@@ -1,0 +1,9 @@
+{
+  "name": "waypoint-dispatch",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Waypoint Dispatch — monorepo root used by Vercel build pipeline.",
+  "scripts": {
+    "vercel-build": "cd server && npm ci && npx prisma generate"
+  }
+}

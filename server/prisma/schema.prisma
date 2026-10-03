@@ -1,11 +1,18 @@
 // prisma/schema.prisma — production query patterns (report Phase 5.1).
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // native      = local dev (Windows/macOS/Linux)
+  // rhel-*      = Vercel serverless (Amazon Linux 2 / AL2023)
+  binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // directUrl is only needed when DATABASE_URL points to the pgBouncer pooler
+  // (Supabase port 6543). Set DIRECT_URL to the port-5432 connection string so
+  // `prisma migrate deploy` can bypass the pooler. Leave unset for local dev.
+  directUrl = env("DIRECT_URL")
 }
 
 enum Role {
