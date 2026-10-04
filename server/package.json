@@ -8,6 +8,8 @@
   "scripts": {
     "dev": "node src/index.js",
     "start": "node src/index.js",
+    "build": "npx prisma generate",
+    "vercel-build": "npx prisma generate",
     "generate": "prisma generate",
     "migrate:deploy": "prisma migrate deploy",
     "db:push": "prisma db push",

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cd server && npm ci && npx prisma generate",
+  "buildCommand": "if [ -d server ]; then cd server && npm ci && npx prisma generate; else npm ci && npx prisma generate; fi",
   "builds": [
     {
       "src": "api/index.js",
