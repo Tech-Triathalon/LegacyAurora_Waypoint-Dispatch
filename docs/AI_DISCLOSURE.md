@@ -2,13 +2,14 @@
 
 Per competition rules, this document states how AI tools were used in building this submission.
 
-**Tooling:** AI coding assistants (Codebuff/Claude) were used during implementation.
+**Tooling:** AI coding assistants (Codebuff/Claude/Antigravity) and Archify visualization tooling (`tt-a1i/archify`) were used during implementation.
 
 **AI-assisted work:**
 - Scaffolding the Express/Prisma backend structure (schema, routes, auth) from our written plan.
 - Implementing the greedy allocation engine and feasibility validator from our prioritization policy (the policy, constraint list and deferral reason codes are ours, derived from the challenge booklet).
 - Unit tests for the validator and engine determinism.
 - Boilerplate: docker-compose, Dockerfile, GitHub Actions CI, service worker, outbox queue skeleton.
+- Generation of the interactive system architecture map ([`docs/architecture.html`](architecture.html)) and SVG system topology diagram ([`docs/architecture.svg`](architecture.svg)) using Archify principles.
 
 **Human work:**
 - Day-5 product design (all screens, flows, conflict rules — designed before implementation).

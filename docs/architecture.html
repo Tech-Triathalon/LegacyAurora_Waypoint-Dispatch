@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waypoint Dispatch — Interactive Architecture Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --bg-surface: #111827;
+      --bg-card: #172033;
+      --bg-card-hover: #1f2c47;
+      --border: #28354f;
+      --border-accent: #3b82f6;
+      --text: #f3f4f6;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --primary: #f59e0b;
+      --accent-blue: #38bdf8;
+      --accent-emerald: #10b981;
+      --accent-violet: #a855f7;
+      --accent-rose: #f43f5e;
+      --font-title: 'Space Grotesk', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius: 12px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    }
+    html[data-theme="light"] {
+      --bg: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-card: #f1f5f9;
+      --bg-card-hover: #e2e8f0;
+      --border: #cbd5e1;
+      --border-accent: #2563eb;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #94a3b8;
+      --primary: #d97706;
+      --accent-blue: #0284c7;
+      --accent-emerald: #059669;
+      --accent-violet: #7c3aed;
+      --accent-rose: #e11d48;
+      --shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    header {
+      padding: 20px 32px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .brand-title {
+      font-family: var(--font-title);
+      font-size: 20px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-badge {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--primary);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-accent);
+    }
+    .btn.active {
+      background: var(--primary);
+      color: #121212;
+      border-color: var(--primary);
+      font-weight: 700;
+    }
+    main {
+      flex: 1;
+      padding: 32px;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+    .section-title {
+      font-family: var(--font-title);
+      font-size: 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .roles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .role-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .role-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+    .role-card.dispatcher::before { background: var(--primary); }
+    .role-card.loader::before { background: var(--accent-blue); }
+    .role-card.driver::before { background: var(--accent-emerald); }
+    .role-card.manager::before { background: var(--accent-violet); }
+    .role-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-accent);
+      box-shadow: 0 14px 28px -4px rgba(0,0,0,0.4);
+    }
+    .role-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .role-badge {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .role-card.dispatcher .role-badge { background: rgba(245,158,11,0.15); color: var(--primary); }
+    .role-card.loader .role-badge { background: rgba(56,189,248,0.15); color: var(--accent-blue); }
+    .role-card.driver .role-badge { background: rgba(16,185,129,0.15); color: var(--accent-emerald); }
+    .role-card.manager .role-badge { background: rgba(168,85,247,0.15); color: var(--accent-violet); }
+    .role-title {
+      font-size: 17px;
+      font-weight: 700;
+      font-family: var(--font-title);
+    }
+    .role-env {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12px;
+    }
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      color: var(--text-muted);
+    }
+    .feature-item strong {
+      color: var(--text);
+    }
+    .feature-icon {
+      flex-shrink: 0;
+      font-size: 13px;
+    }
+    .diagram-viewport {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+    .interactive-mesh {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .detail-drawer {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-top: 16px;
+      display: none;
+    }
+    .detail-drawer.active {
+      display: block;
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-title">
+      <span>🌐 Waypoint Dispatch</span>
+      <span class="brand-badge">Archify Architecture Map</span>
+    </div>
+    <div class="header-controls">
+      <button class="btn" onclick="toggleTrace()">⚡ Trace Realtime Flows</button>
+      <button class="btn" onclick="toggleTheme()">🌙 / ☀️ Theme</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="section-title">👥 The 4 Operating User Roles</div>
+    <div class="roles-grid">
+      <!-- DISPATCHER -->
+      <div class="role-card dispatcher" onclick="inspectComponent('dispatcher')">
+        <div class="role-header">
+          <span class="role-title">1. Dispatcher</span>
+          <span class="role-badge">Planning Office</span>
+        </div>
+        <div class="role-env">Desktop Console · /dispatcher.html · Peliyagoda Hub</div>
+        <ul class="feature-list">
+          <li class="feature-item"><span class="feature-icon">📋</span><span><strong>WDI Order Queue:</strong> Post-cutoff scarcity sorting (Chilled, Ambient, Style, Tech).</span></li>
+          <li class="feature-item"><span class="feature-icon">🧠</span><span><strong>Allocation Engine:</strong> Greedy multi-brand trip routing with hard constraints.</span></li>
+          <li class="feature-item"><span class="feature-icon">📜</span><span><strong>Deferral Ledger:</strong> Explainable deferral reason tracking (CAP/REF/INV).</span></li>
+          <li class="feature-item"><span class="feature-icon">🛰️</span><span><strong>Live Runs & Radar:</strong> Live vehicle progress, stop timelines, and outage simulation.</span></li>
+        </ul>
+      </div>
+
+      <!-- LOADER -->
+      <div class="role-card loader" onclick="inspectComponent('loader')">
+        <div class="role-header">
+          <span class="role-title">2. Dock Loader</span>
+          <span class="role-badge">Warehouse Bay</span>
+        </div>
+        <div class="role-env">Tablet Viewport (768px) · /loader.html · Glove Mode</div>
+        <ul class="feature-list">
+          <li class="feature-item"><span class="feature-icon">📦</span><span><strong>Reverse-Sequence Manifest:</strong> Staging load lists for efficient unloading order.</span></li>
+          <li class="feature-item"><span class="feature-icon">🚩</span><span><strong>Shortage Flagging:</strong> Photo + reason dock reports before vehicle departure.</span></li>
+          <li class="feature-item"><span class="feature-icon">📝</span><span><strong>Dock Communications:</strong> Bay notes & shift handover release verification.</span></li>
+          <li class="feature-item"><span class="feature-icon">🔄</span><span><strong>Realtime Plan Sync:</strong> Live manifest re-rendering upon dispatcher commit.</span></li>
+        </ul>
+      </div>
+
+      <!-- DRIVER -->
+      <div class="role-card driver" onclick="inspectComponent('driver')">
+        <div class="role-header">
+          <span class="role-title">3. Driver</span>
+          <span class="role-badge">Mobile / Road</span>
+        </div>
+        <div class="role-env">Phone Screen (390px) · /driver.html · PWA Offline-First</div>
+        <ul class="feature-list">
+          <li class="feature-item"><span class="feature-icon">🗺️</span><span><strong>Leaflet Route Navigation:</strong> Interactive stops, arrival windows & geofence tracking.</span></li>
+          <li class="feature-item"><span class="feature-icon">📸</span><span><strong>POD Capture:</strong> Proof of delivery photo capture & exception reporting.</span></li>
+          <li class="feature-item"><span class="feature-icon">📶</span><span><strong>Offline Outbox:</strong> Local storage queue with client-UUID deduplication.</span></li>
+          <li class="feature-item"><span class="feature-icon">🔁</span><span><strong>Idempotent Replay:</strong> Safe multi-burst sync on connection recovery.</span></li>
+        </ul>
+      </div>
+
+      <!-- STORE MANAGER -->
+      <div class="role-card manager" onclick="inspectComponent('manager')">
+        <div class="role-header">
+          <span class="role-title">4. Store Manager</span>
+          <span class="role-badge">Retail Outlet</span>
+        </div>
+        <div class="role-env">Counter Desktop/Phone · /store.html · 120 Outlets</div>
+        <ul class="feature-list">
+          <li class="feature-item"><span class="feature-icon">🛒</span><span><strong>Real-time Order Placement:</strong> Multi-brand & cold-chain stock requisition.</span></li>
+          <li class="feature-item"><span class="feature-icon">⏱️</span><span><strong>Delivery Timeline:</strong> ETA arrival updates & pinned deferral notices.</span></li>
+          <li class="feature-item"><span class="feature-icon">🧾</span><span><strong>Discrepancy Receipt Claim:</strong> Auto-matches loader's dock shortage flags.</span></li>
+          <li class="feature-item"><span class="feature-icon">🔔</span><span><strong>Instant Notifications:</strong> SSE alerts on vehicle dispatch & arrival.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SYSTEM TOPOLOGY SVG MAP -->
+    <div class="section-title">📐 Architecture Mesh & Data Connections</div>
+    <div class="diagram-viewport">
+      <svg class="interactive-mesh" viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="gradDispatcher" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#1e293b"/>
+          </linearGradient>
+          <linearGradient id="gradServer" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#1e293b"/>
+          </linearGradient>
+          <linearGradient id="gradDb" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#10b981" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#1e293b"/>
+          </linearGradient>
+          <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+          </filter>
+        </defs>
+
+        <!-- BACKGROUND GRID -->
+        <g stroke="var(--border)" stroke-width="0.5" opacity="0.3">
+          <line x1="0" y1="100" x2="1200" y2="100" />
+          <line x1="0" y1="250" x2="1200" y2="250" />
+          <line x1="0" y1="450" x2="1200" y2="450" />
+          <line x1="0" y1="600" x2="1200" y2="600" />
+          <line x1="300" y1="0" x2="300" y2="700" />
+          <line x1="600" y1="0" x2="600" y2="700" />
+          <line x1="900" y1="0" x2="900" y2="700" />
+        </g>
+
+        <!-- TIER 1: CLIENT FRONTENDS (4 ROLES) -->
+        <!-- Dispatcher Node -->
+        <g id="node-dispatcher" onclick="inspectComponent('dispatcher')" style="cursor:pointer;">
+          <rect x="50" y="40" width="240" height="110" rx="10" fill="url(#gradDispatcher)" stroke="#f59e0b" stroke-width="2"/>
+          <text x="70" y="70" fill="#f59e0b" font-family="Space Grotesk" font-weight="700" font-size="16">🖥️ Dispatcher Portal</text>
+          <text x="70" y="92" fill="#cbd5e1" font-family="Inter" font-size="12">Order Queue · Engine · Ledger</text>
+          <text x="70" y="112" fill="#94a3b8" font-family="JetBrains Mono" font-size="11">HTTP / SSE Stream: 'dispatcher'</text>
+          <text x="70" y="132" fill="#f59e0b" font-family="JetBrains Mono" font-size="10">client/dispatcher.html</text>
+        </g>
+
+        <!-- Loader Node -->
+        <g id="node-loader" onclick="inspectComponent('loader')" style="cursor:pointer;">
+          <rect x="340" y="40" width="240" height="110" rx="10" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+          <text x="360" y="70" fill="#38bdf8" font-family="Space Grotesk" font-weight="700" font-size="16">📦 Dock Loader Portal</text>
+          <text x="360" y="92" fill="#cbd5e1" font-family="Inter" font-size="12">Manifest · Shortage Flags</text>
+          <text x="360" y="112" fill="#94a3b8" font-family="JetBrains Mono" font-size="11">SSE: 'loader' / 'loader:{vId}'</text>
+          <text x="360" y="132" fill="#38bdf8" font-family="JetBrains Mono" font-size="10">client/loader.html</text>
+        </g>
+
+        <!-- Driver Node -->
+        <g id="node-driver" onclick="inspectComponent('driver')" style="cursor:pointer;">
+          <rect x="630" y="40" width="240" height="110" rx="10" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+          <text x="650" y="70" fill="#10b981" font-family="Space Grotesk" font-weight="700" font-size="16">🚚 Driver App (PWA)</text>
+          <text x="650" y="92" fill="#cbd5e1" font-family="Inter" font-size="12">Route Map · Offline POD Outbox</text>
+          <text x="650" y="112" fill="#94a3b8" font-family="JetBrains Mono" font-size="11">Idempotent Sync: /events/batch</text>
+          <text x="650" y="132" fill="#10b981" font-family="JetBrains Mono" font-size="10">client/driver.html + outbox.js</text>
+        </g>
+
+        <!-- Store Manager Node -->
+        <g id="node-manager" onclick="inspectComponent('manager')" style="cursor:pointer;">
+          <rect x="920" y="40" width="240" height="110" rx="10" fill="#1e293b" stroke="#a855f7" stroke-width="2"/>
+          <text x="940" y="70" fill="#a855f7" font-family="Space Grotesk" font-weight="700" font-size="16">🏬 Store Manager Portal</text>
+          <text x="940" y="92" fill="#cbd5e1" font-family="Inter" font-size="12">Order Placement · Receipts</text>
+          <text x="940" y="112" fill="#94a3b8" font-family="JetBrains Mono" font-size="11">SSE: 'store:{outletId}'</text>
+          <text x="940" y="132" fill="#a855f7" font-family="JetBrains Mono" font-size="10">client/store.html</text>
+        </g>
+
+        <!-- TIER 2: API GATEWAY & BACKEND SERVICES (EXPRESS) -->
+        <g id="node-server" onclick="inspectComponent('server')" style="cursor:pointer;">
+          <rect x="120" y="240" width="960" height="200" rx="14" fill="url(#gradServer)" stroke="#3b82f6" stroke-width="2.5"/>
+          <text x="600" y="275" fill="#f8fafc" font-family="Space Grotesk" font-weight="700" font-size="18" text-anchor="middle">⚙️ Node.js Express Backend Service (:8080 / :3000)</text>
+          
+          <!-- Sub-modules -->
+          <rect x="150" y="300" width="200" height="115" rx="8" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+          <text x="165" y="325" fill="#f59e0b" font-family="Space Grotesk" font-weight="700" font-size="13">Routing & Allocation</text>
+          <text x="165" y="348" fill="#cbd5e1" font-family="Inter" font-size="11">• Greedy engine (engine.js)</text>
+          <text x="165" y="368" fill="#cbd5e1" font-family="Inter" font-size="11">• Hard validator (validate.js)</text>
+          <text x="165" y="388" fill="#cbd5e1" font-family="Inter" font-size="11">• Travel models (travel.js)</text>
+
+          <rect x="380" y="300" width="210" height="115" rx="8" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+          <text x="395" y="325" fill="#38bdf8" font-family="Space Grotesk" font-weight="700" font-size="13">Auth & Role Control</text>
+          <text x="395" y="348" fill="#cbd5e1" font-family="Inter" font-size="11">• JWT in httpOnly Cookie</text>
+          <text x="395" y="368" fill="#cbd5e1" font-family="Inter" font-size="11">• RBAC (requireRole)</text>
+          <text x="395" y="388" fill="#cbd5e1" font-family="Inter" font-size="11">• Rate limiters (security.js)</text>
+
+          <rect x="620" y="300" width="210" height="115" rx="8" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+          <text x="635" y="325" fill="#10b981" font-family="Space Grotesk" font-weight="700" font-size="13">Realtime & Idempotency</text>
+          <text x="635" y="348" fill="#cbd5e1" font-family="Inter" font-size="11">• SSE pub/sub (realtime.js)</text>
+          <text x="635" y="368" fill="#cbd5e1" font-family="Inter" font-size="11">• Batch sync (/events/batch)</text>
+          <text x="635" y="388" fill="#cbd5e1" font-family="Inter" font-size="11">• clientRef replay safety</text>
+
+          <rect x="860" y="300" width="190" height="115" rx="8" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+          <text x="875" y="325" fill="#a855f7" font-family="Space Grotesk" font-weight="700" font-size="13">Ops & Auto-Match</text>
+          <text x="875" y="348" fill="#cbd5e1" font-family="Inter" font-size="11">• Shortage flags & receipt</text>
+          <text x="875" y="368" fill="#cbd5e1" font-family="Inter" font-size="11">• Telemetry outage toggle</text>
+          <text x="875" y="388" fill="#cbd5e1" font-family="Inter" font-size="11">• Analytics aggregator</text>
+        </g>
+
+        <!-- TIER 3: DATABASE (POSTGRESQL 16 VIA PRISMA) -->
+        <g id="node-database" onclick="inspectComponent('database')" style="cursor:pointer;">
+          <rect x="240" y="520" width="720" height="135" rx="14" fill="url(#gradDb)" stroke="#10b981" stroke-width="2.5"/>
+          <text x="600" y="555" fill="#f8fafc" font-family="Space Grotesk" font-weight="700" font-size="18" text-anchor="middle">🗄️ PostgreSQL 16 (Prisma ORM Client)</text>
+          <text x="600" y="585" fill="#cbd5e1" font-family="Inter" font-size="13" text-anchor="middle">
+            User · Outlet · Vehicle · Order · Trip · TripStop · DeliveryEvent · ShortageFlag · DeferralLedger
+          </text>
+          <text x="600" y="612" fill="#94a3b8" font-family="JetBrains Mono" font-size="11" text-anchor="middle">
+            Direct Port 5432 (Docker / Compose) · PgBouncer Pooler 6543 (Supabase Production / Vercel)
+          </text>
+          <text x="600" y="635" fill="#10b981" font-family="JetBrains Mono" font-size="11" text-anchor="middle">
+            Seed Data: 58 Orders · 6 Baseline Committed Trips · 18 Deferrals · 3 Shortage Flags
+          </text>
+        </g>
+
+        <!-- CONNECTORS / DATA PIPES -->
+        <!-- Dispatcher to Server -->
+        <path d="M 170 150 L 170 240" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4" fill="none"/>
+        <!-- Loader to Server -->
+        <path d="M 460 150 L 460 240" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4" fill="none"/>
+        <!-- Driver to Server -->
+        <path d="M 750 150 L 750 240" stroke="#10b981" stroke-width="2" stroke-dasharray="4" fill="none"/>
+        <!-- Manager to Server -->
+        <path d="M 1040 150 L 1040 240" stroke="#a855f7" stroke-width="2" stroke-dasharray="4" fill="none"/>
+        <!-- Server to DB -->
+        <path d="M 600 440 L 600 520" stroke="#3b82f6" stroke-width="3" fill="none"/>
+      </svg>
+    </div>
+
+    <!-- DETAIL INSPECT DRAWER -->
+    <div id="detail-drawer" class="detail-drawer">
+      <div id="detail-content"></div>
+    </div>
+  </main>
+
+  <script>
+    const details = {
+      dispatcher: {
+        title: '🖥️ Dispatcher Portal Details',
+        desc: 'The central command interface (Peliyagoda planning office) running on desktop viewports. Consumes /api/orders, /api/plan/allocate, /api/plan/commit, /api/deferrals, and /api/telemetry. Listens to SSE channel "dispatcher" for real-time notifications on driver events, loader checkoffs, and new orders.'
+      },
+      loader: {
+        title: '📦 Dock Loader Portal Details',
+        desc: 'Tablet-optimized interface for warehouse loading bays at Peliyagoda and Kandy. Renders reverse-drop manifests (last stop loaded first). Submits shortage flags to /api/flags with photo evidence and description. Realtime updates wake upon dispatcher plan commitment.'
+      },
+      driver: {
+        title: '🚚 Driver PWA App Details',
+        desc: 'Mobile-first PWA for truck and van drivers. Features offline outbox caching (outbox.js) so drivers can record stops, POD signatures, and issues with zero mobile coverage. When connectivity returns, /api/events/batch accepts queued events with automatic deduplication by eventId.'
+      },
+      manager: {
+        title: '🏬 Store Manager Portal Details',
+        desc: 'Outlet counter portal across 120 stores. Allows placing fresh, style, and tech orders before 16:00 cutoff. Tracks live delivery timeline, displays pinned deferral notices, and performs discrepancy claims at /api/receipt that auto-match dock shortage flags.'
+      },
+      server: {
+        title: '⚙️ Express Backend Architecture',
+        desc: 'Node.js 20 micro-framework with singleton PrismaClient pool, bcrypt + JWT authentication in httpOnly cookies, rate limiting, and Zod-style validation. Features greedy allocation algorithm respecting brand homogeneity, temperature caps, van-only access, time budgets, and weekly fuel quotas.'
+      },
+      database: {
+        title: '🗄️ PostgreSQL 16 & Prisma Schema',
+        desc: 'Normalized relational database with 9 core entities. Includes transactional idempotency safeguards, foreign key constraints (cascading tripStop before trip), and support for both local Docker and Supabase transaction pooler.'
+      }
+    };
+
+    function inspectComponent(key) {
+      const drawer = document.getElementById('detail-drawer');
+      const content = document.getElementById('detail-content');
+      const d = details[key];
+      if (d) {
+        content.innerHTML = `
+          <h3 style="font-size: 18px; font-weight: 700; font-family: var(--font-title); margin-bottom: 8px;">${d.title}</h3>
+          <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6;">${d.desc}</p>
+        `;
+        drawer.classList.add('active');
+        drawer.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+    }
+
+    function toggleTrace() {
+      const paths = document.querySelectorAll('path[stroke-dasharray]');
+      paths.forEach(p => {
+        p.style.animation = p.style.animation ? '' : 'dash 1s linear infinite';
+      });
+      alert('⚡ Realtime flow tracing active: showing live data synchronization across all 4 roles and database.');
+    }
+  </script>
+</body>
+</html>
