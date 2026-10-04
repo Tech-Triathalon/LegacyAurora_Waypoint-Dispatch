@@ -67,6 +67,8 @@ function shapeTrip(t) {
     vehicleCode: t.vehicle ? t.vehicle.vehicleId : null,
     vehicleType: t.vehicle ? t.vehicle.type : 'truck',
     vehicleTemp: t.vehicle ? t.vehicle.temp : 'ambient',
+    weightCapKg: t.vehicle ? t.vehicle.weightCapKg : 5000,
+    volumeCapM3: t.vehicle ? t.vehicle.volumeCapM3 : 24,
     tripNo: t.tripNo,
     brand: t.brand,
     district: t.district,
@@ -90,6 +92,9 @@ function shapeTrip(t) {
         weightKg: s.order ? s.order.weightKg : 0,
         volumeM3: s.order ? s.order.volumeM3 : 0,
         tempRequirement: s.order ? s.order.tempRequirement : 'ambient',
+        dockType: s.order && s.order.outlet ? s.order.outlet.dockType : 'rear_dock',
+        parkingConstraint: s.order && s.order.outlet ? s.order.outlet.parkingConstraint : 'normal',
+        mallWindow: s.order && s.order.outlet ? s.order.outlet.mallWindow : null,
         windowOpen: s.order ? s.order.windowOpen : null,
         windowClose: s.order ? s.order.windowClose : null,
         plannedArrival: s.plannedArrival,
@@ -102,10 +107,16 @@ function shapeTrip(t) {
 // GET /api/trips — committed trips for all vehicles (or by ?depot=Peliyagoda|Kandy).
 router.get('/trips', requireAuth, readLimiter, async (req, res) => {
   const where = {};
-  if (req.query.depot) {
+  if (req.query.depot && req.query.depot !== 'All') {
     where.depot = req.query.depot;
   }
-  const trips = await prisma.trip.findMany({ where, include: { stops: { include: { order: true } }, vehicle: true } });
+  const trips = await prisma.trip.findMany({
+    where,
+    include: {
+      stops: { include: { order: { include: { outlet: true } } } },
+      vehicle: true,
+    },
+  });
   trips.sort((a, b) => String(a.vehicle ? a.vehicle.vehicleId : '').localeCompare(String(b.vehicle ? b.vehicle.vehicleId : '')) || a.tripNo - b.tripNo);
   return res.json({ trips: trips.map(shapeTrip) });
 });
@@ -115,7 +126,7 @@ router.get('/trips/for-driver', requireAuth, requireRole('driver'), readLimiter,
   if (!vehicle) return res.status(404).json({ error: 'no vehicle assigned to driver' });
   const trips = await prisma.trip.findMany({
     where: { vehicleId: vehicle.id },
-    include: { stops: { include: { order: true } }, vehicle: true },
+    include: { stops: { include: { order: { include: { outlet: true } } } }, vehicle: true },
     orderBy: { tripNo: 'asc' },
   });
   return res.json({ vehicle: vehicle.vehicleId, vehicleNumericId: vehicle.id, telemetryStale: vehicle.telemetryStale, trips: trips.map(shapeTrip) });
@@ -127,10 +138,202 @@ router.get('/trips/:vehicleCode', requireAuth, readLimiter, async (req, res) => 
   if (!v) return res.status(404).json({ error: 'vehicle not found' });
   const trips = await prisma.trip.findMany({
     where: { vehicleId: v.id },
-    include: { stops: { include: { order: true } }, vehicle: true },
+    include: { stops: { include: { order: { include: { outlet: true } } } }, vehicle: true },
     orderBy: { tripNo: 'asc' },
   });
   return res.json({ vehicle: v.vehicleId, trips: trips.map(shapeTrip) });
+});
+
+// POST /api/trips/:id/release — loader releases a verified trip for departure
+router.post('/trips/:id/release', requireAuth, requireRole('loader', 'dispatcher'), async (req, res) => {
+  const tripId = Number(req.params.id);
+  if (!tripId) return res.status(400).json({ error: 'invalid trip ID' });
+  try {
+    const trip = await prisma.trip.findUnique({ where: { id: tripId }, include: { vehicle: true, stops: { include: { order: true } } } });
+    if (!trip) return res.status(404).json({ error: 'trip not found' });
+    
+    // Update trip status to loading or departed
+    const updated = await prisma.trip.update({
+      where: { id: tripId },
+      data: { status: 'loading' }
+    });
+    
+    // Update vehicle status
+    if (trip.vehicleId) {
+      await prisma.vehicle.update({
+        where: { id: trip.vehicleId },
+        data: { status: 'assigned' }
+      }).catch(() => {});
+    }
+
+    // Record release event
+    const eventId = `release-${tripId}-${Date.now()}`;
+    await prisma.deliveryEvent.create({
+      data: {
+        eventId,
+        type: 'loaded',
+        vehicleId: trip.vehicleId,
+        payload: {
+          tripId,
+          vehicleCode: trip.vehicle ? trip.vehicle.vehicleId : null,
+          depot: trip.depot,
+          releasedBy: (req.user && req.user.name) || 'Loader Dock',
+          timestamp: new Date().toISOString(),
+          checklistComplete: true,
+        },
+        clientTimestamp: new Date(),
+        syncedFlag: true,
+      }
+    }).catch(() => {});
+
+    publish('dispatcher', 'trip-status', { tripId, vehicleId: trip.vehicleId, status: 'loading', released: true, vehicleCode: trip.vehicle ? trip.vehicle.vehicleId : null });
+    publish('dispatcher', 'trip-released', { tripId, vehicleCode: trip.vehicle ? trip.vehicle.vehicleId : null, depot: trip.depot });
+
+    return res.json({ ok: true, tripId, status: 'loading' });
+  } catch (err) {
+    console.error('[trip-release]', err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/dock-notes — record free-text dock note per item/order or per trip
+router.post('/dock-notes', requireAuth, requireRole('loader', 'dispatcher', 'driver'), async (req, res) => {
+  const { tripId, orderId, outletId, note, scope, category } = req.body || {};
+  if (!note || typeof note !== 'string' || !note.trim()) {
+    return res.status(400).json({ error: 'note content is required' });
+  }
+  try {
+    const eventId = `docknote-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const event = await prisma.deliveryEvent.create({
+      data: {
+        eventId,
+        type: 'issue',
+        orderId: orderId ? Number(orderId) : null,
+        payload: {
+          isDockNote: true,
+          scope: scope || 'trip',
+          category: category || 'general',
+          tripId: tripId ? Number(tripId) : null,
+          outletId: outletId || null,
+          note: note.trim(),
+          author: (req.user && (req.user.name || req.user.username)) || 'Loader',
+          authorRole: (req.user && req.user.role) || 'loader',
+          createdAt: new Date().toISOString(),
+        },
+        clientTimestamp: new Date(),
+        syncedFlag: true,
+      }
+    });
+
+    const notePayload = {
+      id: event.id,
+      eventId: event.eventId,
+      tripId: tripId ? Number(tripId) : null,
+      orderId: orderId ? Number(orderId) : null,
+      outletId: outletId || null,
+      note: note.trim(),
+      scope: scope || 'trip',
+      category: category || 'general',
+      author: (req.user && (req.user.name || req.user.username)) || 'Loader',
+      authorRole: (req.user && req.user.role) || 'loader',
+      createdAt: new Date().toISOString(),
+    };
+
+    publish('dispatcher', 'dock-note-added', notePayload);
+    publish('driver', 'dock-note-added', notePayload);
+    if (outletId) publish(`store:${outletId}`, 'dock-note-added', notePayload);
+
+    return res.json({ ok: true, note: notePayload });
+  } catch (err) {
+    console.error('[dock-notes]', err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/dock-notes — list dock notes
+router.get('/dock-notes', requireAuth, readLimiter, async (req, res) => {
+  try {
+    const events = await prisma.deliveryEvent.findMany({
+      where: {
+        type: { in: ['issue', 'loaded'] }
+      },
+      orderBy: { serverTimestamp: 'desc' },
+      take: 200,
+    });
+    const dockNotes = events
+      .filter((e) => e.payload && e.payload.isDockNote)
+      .map((e) => ({
+        id: e.id,
+        eventId: e.eventId,
+        tripId: e.payload.tripId,
+        orderId: e.orderId || e.payload.orderId,
+        outletId: e.payload.outletId,
+        note: e.payload.note,
+        scope: e.payload.scope || 'trip',
+        category: e.payload.category || 'general',
+        author: e.payload.author || 'Dock Team',
+        authorRole: e.payload.authorRole || 'loader',
+        createdAt: e.payload.createdAt || e.serverTimestamp,
+      }));
+    return res.json({ notes: dockNotes });
+  } catch (err) {
+    console.error('[dock-notes-get]', err);
+    return res.json({ notes: [] });
+  }
+});
+
+// POST /api/loader/summary — record end-of-shift loader day summary & broadcast to Dispatcher
+router.post('/loader/summary', requireAuth, requireRole('loader', 'dispatcher'), async (req, res) => {
+  const { depot, tripsReleased, totalItemsLoaded, shortagesFlagged, notesRaised, totalWeightKg, totalVolumeM3, vehiclesHandled } = req.body || {};
+  try {
+    const eventId = `summary-${depot || 'dock'}-${Date.now()}`;
+    const summaryData = {
+      isDaySummary: true,
+      depot: depot || 'Peliyagoda',
+      tripsReleased: Number(tripsReleased) || 0,
+      totalItemsLoaded: Number(totalItemsLoaded) || 0,
+      shortagesFlagged: Number(shortagesFlagged) || 0,
+      notesRaised: Number(notesRaised) || 0,
+      totalWeightKg: Number(totalWeightKg) || 0,
+      totalVolumeM3: Number(totalVolumeM3) || 0,
+      vehiclesHandled: Number(vehiclesHandled) || 0,
+      submittedBy: (req.user && (req.user.name || req.user.username)) || 'Loader Shift Lead',
+      timestamp: new Date().toISOString(),
+    };
+
+    await prisma.deliveryEvent.create({
+      data: {
+        eventId,
+        type: 'loaded',
+        payload: summaryData,
+        clientTimestamp: new Date(),
+        syncedFlag: true,
+      }
+    });
+
+    publish('dispatcher', 'loader-day-summary', summaryData);
+    return res.json({ ok: true, summary: summaryData });
+  } catch (err) {
+    console.error('[loader-summary]', err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/loader/summary — fetch latest shift summary per depot
+router.get('/loader/summary', requireAuth, readLimiter, async (req, res) => {
+  try {
+    const events = await prisma.deliveryEvent.findMany({
+      where: { type: 'loaded' },
+      orderBy: { serverTimestamp: 'desc' },
+      take: 50,
+    });
+    const summaries = events
+      .filter((e) => e.payload && e.payload.isDaySummary)
+      .map((e) => e.payload);
+    return res.json({ summaries });
+  } catch (err) {
+    return res.json({ summaries: [] });
+  }
 });
 
 // ---- Offline sync: the idempotent batch endpoint ----

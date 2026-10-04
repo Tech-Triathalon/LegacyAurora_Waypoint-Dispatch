@@ -3895,6 +3895,12 @@
                 showToast(`🧾 Receipt confirmed for ${orderRef(r.orderId)} · ${r.matchedFlags} flag(s) matched`);
                 loadFlagsDesk();
             });
+            WaypointRealtime.on('dock-note-added', (n) => {
+                showToast(`📝 Dock Note (${n.author}): ${n.note.slice(0, 50)}...`);
+            });
+            WaypointRealtime.on('loader-day-summary', (s) => {
+                showToast(`📋 ${s.depot} Dock Day Summary: ${s.tripsReleased} trips released, ${s.totalItemsLoaded} items loaded (${s.shortagesFlagged} shortages)`);
+            });
             WaypointRealtime.onPoll(() => { loadTripsBoard(); loadFlagsDesk(); });
         }
 
