@@ -22,7 +22,7 @@ First boot automatically migrates the schema and seeds **one deterministic, deli
 | Loader | `loader` | `load123` | loader.html |
 | Store Manager | `manager` | `manage123` | store.html |
 
-## Judge walkthrough (numbered)
+## Judge walkthrough
 
 1. `docker compose up` → open http://localhost:8080 → login **dispatcher / dispatch123**. The Order Queue shows the seeded day; the capacity verdict banner reports the **reefer shortfall** (chilled demand exceeds reefer volume).
 2. Click **Auto-allocate**. The engine proposes trips (weight/volume bars, time budgets, fuel) plus deferred orders with reason codes **CAP / REF / INV**. Review, then **Commit Plan** — hard validation runs again server-side before anything is persisted.
