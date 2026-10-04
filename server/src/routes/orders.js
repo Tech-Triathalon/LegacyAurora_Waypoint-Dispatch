@@ -565,6 +565,7 @@ router.post('/orders/:id/allocate', requireAuth, requireRole('dispatcher'), writ
       type: 'loaded',
       orderId: id,
       payload: { isAllocation: true, ...eventPayload },
+      clientTimestamp: new Date(),
       syncedFlag: true,
     },
   });

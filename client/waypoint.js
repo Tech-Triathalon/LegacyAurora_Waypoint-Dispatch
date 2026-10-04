@@ -16,7 +16,7 @@
     const res = await fetch(path, {
       headers,
       method: opts.method || 'GET',
-      body: opts.body ? JSON.stringify(opts.body) : undefined,
+      body: opts.body ? (typeof opts.body === 'string' ? opts.body : JSON.stringify(opts.body)) : undefined,
       credentials: 'same-origin',
     });
     if (res.status === 401 && opts.on401) opts.on401(res);

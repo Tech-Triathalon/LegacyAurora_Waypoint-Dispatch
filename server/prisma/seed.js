@@ -140,6 +140,94 @@ async function main() {
       })),
     });
 
+    const dbVehicles = await prisma.vehicle.findMany();
+    const vIdMap = Object.fromEntries(dbVehicles.map((v) => [v.vehicleId, v.id]));
+    const dbOrders = await prisma.order.findMany({ orderBy: { id: 'asc' } });
+    const orderIdMap = Object.fromEntries(orders.map((o, idx) => [o.id, dbOrders[idx] ? dbOrders[idx].id : dbOrders[0].id]));
+
+    console.log('Creating initial baseline committed trips & stops...');
+    for (let i = 0; i < Math.min(dry.trips.length, 6); i++) {
+      const dt = dry.trips[i];
+      const createdTrip = await prisma.trip.create({
+        data: {
+          vehicleId: vIdMap[dt.vehicleId] || dbVehicles[i % dbVehicles.length].id,
+          tripNo: dt.tripNo,
+          brand: dt.brand,
+          district: dt.district,
+          depot: dt.depot,
+          totalWeight: dt.totalWeight,
+          totalVolume: dt.totalVolume,
+          estMinutes: dt.estMinutes,
+          distanceKm: dt.distanceKm,
+          fuelLiters: dt.fuelLiters,
+          status: i === 0 ? 'departed' : 'planned',
+          committedAt: new Date(`${DEMO_DAY}T06:00:00.000Z`),
+        },
+      });
+
+      let seq = 1;
+      for (const st of dt.plannedStops) {
+        const realOrderId = orderIdMap[st.orderId] || dbOrders[0].id;
+        await prisma.tripStop.create({
+          data: {
+            tripId: createdTrip.id,
+            seq: seq++,
+            orderId: realOrderId,
+            plannedArrival: st.plannedArrival || '08:30',
+          },
+        });
+        await prisma.order.update({
+          where: { id: realOrderId },
+          data: { status: 'allocated' },
+        }).catch(() => {});
+      }
+    }
+
+    console.log('Inserting seed deferral ledger records for pagination demonstration...');
+    const defReasons = ['CAP', 'REF', 'INV'];
+    for (let i = 0; i < 18; i++) {
+      const ord = dbOrders[i % dbOrders.length];
+      const r = defReasons[i % defReasons.length];
+      const isPast = i > 6;
+      const pDate = isPast ? '2026-06-24' : '2026-06-26';
+      await prisma.deferralLedger.create({
+        data: {
+          orderId: ord.id,
+          reason: r,
+          detail: r === 'REF' ? 'Chilled Reefer Capacity Constraint' : (r === 'CAP' ? 'Axle Weight Payload Limit' : 'Inventory Staging Delay'),
+          promiseDate: new Date(`${pDate}T00:00:00.000Z`),
+          kept: isPast ? (i % 2 === 0 ? true : false) : null,
+          promisedAt: new Date(Date.now() - i * 3600000),
+        },
+      });
+    }
+
+    console.log('Inserting initial shortage flags & dock notes...');
+    await prisma.shortageFlag.createMany({
+      data: [
+        { orderId: dbOrders[0].id, qty: 12, itemDesc: 'Anchor Fresh Milk 1L', reason: 'damaged_pallet', status: 'open', createdBy: 'G. Sloan' },
+        { orderId: dbOrders[1].id, qty: 6, itemDesc: 'Highland Butter 200g', reason: 'supplier_short', status: 'open', createdBy: 'G. Sloan' },
+        { orderId: dbOrders[2].id, qty: 4, itemDesc: 'Cotton Crew T-Shirts L', reason: 'label_mismatch', status: 'resolved', createdBy: 'G. Sloan' },
+      ],
+    });
+
+    await prisma.deliveryEvent.create({
+      data: {
+        eventId: `note-seed-1`,
+        type: 'loaded',
+        orderId: dbOrders[0].id,
+        payload: {
+          isDockNote: true,
+          note: 'Dock Bay 2: Chilled pre-cooling verified at 4°C. Pallet straps secured for Mountain Run.',
+          vehicleCode: 'VEH035',
+          depot: 'Peliyagoda',
+          author: 'G. Sloan (Loader)',
+        },
+        clientTimestamp: new Date(),
+        syncedFlag: true,
+      },
+    });
+
     console.log('Creating users (dispatch/driver/loader/manager)...');
     const driverVehicle = await prisma.vehicle.findUnique({ where: { vehicleId: 'VEH035' } });
     const managerOutlet = await prisma.outlet.findUnique({ where: { outletId: 'OUT012' } });
@@ -154,11 +242,7 @@ async function main() {
       ],
     });
 
-    // Persist the dry-run deferral storyline for the README: how many CAP/REF/INV codes.
-    console.log(`SEED COMPLETE. Orders: 58 | Trips (dry): ${dry.trips.length} | Deferrals (dry): ${dry.deferred.length}`);
-    const counts = {};
-    for (const d of dry.deferred) counts[d.reason] = (counts[d.reason] || 0) + 1;
-    console.log('Deferral reason mix:', JSON.stringify(counts));
+    console.log(`SEED COMPLETE. Total Orders: ${dbOrders.length} | Baseline Trips: 6 | Deferrals: 18 | Shortages: 3`);
   } finally {
     await prisma.$disconnect();
   }

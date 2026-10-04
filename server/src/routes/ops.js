@@ -380,6 +380,7 @@ router.post('/receipt', requireAuth, requireRole('manager'), syncLimiter, idempo
       type: 'receipt',
       orderId: Number(orderId),
       payload: { claim: claim || 'confirmed', qtyDelta: qtyDelta || 0, note: note || '' },
+      clientTimestamp: new Date(),
       syncedFlag: true,
     },
   });
@@ -442,6 +443,7 @@ router.post('/checklist/toggle', requireAuth, requireRole('loader', 'dispatcher'
         bay: bay || 'Bay 2',
         checkedBy: (req.user && req.user.name) || (req.user && req.user.username) || 'Loader',
       },
+      clientTimestamp: new Date(),
       syncedFlag: true,
     },
   });
@@ -521,6 +523,7 @@ router.post('/dock-notes', requireAuth, requireRole('loader', 'dispatcher'), syn
         depot: depot || 'Peliyagoda',
         author: authorName,
       },
+      clientTimestamp: new Date(),
       syncedFlag: true,
     },
   });
@@ -582,6 +585,7 @@ router.post('/trips/scan-weight', requireAuth, requireRole('loader', 'dispatcher
         bay: bay || 'Bay 2',
         scannedBy: (req.user && req.user.name) || 'Loader',
       },
+      clientTimestamp: new Date(),
       syncedFlag: true,
     },
   });
@@ -629,6 +633,7 @@ router.post('/trips/:id/final-check', requireAuth, requireRole('loader', 'dispat
         notes: notes || '',
         confirmedAt: new Date().toISOString(),
       },
+      clientTimestamp: new Date(),
       syncedFlag: true,
     },
   });
@@ -717,6 +722,7 @@ router.post('/loader/day-summary', requireAuth, requireRole('loader', 'dispatche
       eventId,
       type: 'loaded',
       payload: { isDaySummary: true, ...payload },
+      clientTimestamp: new Date(),
       syncedFlag: true,
     },
   });

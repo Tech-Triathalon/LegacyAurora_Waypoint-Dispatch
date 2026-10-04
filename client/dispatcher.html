@@ -3658,6 +3658,8 @@
                 <button class="btn-primary-yellow" onclick="verifyCurrentStop()">Verify & Confirm Stop</button>
             </div>
         </div>
+    </div>
+
     <!-- ALLOCATE ORDER MODAL -->
     <div class="modal-overlay" id="allocate-order-modal">
         <div class="modal-container" style="max-width: 520px;">
@@ -4009,19 +4011,30 @@
         let activeAllocOrderId = null;
 
         async function openAllocateModal(orderId, ref, outletId, brand, district, weightKg, volumeM3, temp) {
-            activeAllocOrderId = orderId;
-            document.getElementById('alloc-order-ref-title').textContent = ref;
-            document.getElementById('alloc-outlet-val').textContent = outletId || '—';
-            document.getElementById('alloc-brand-dist-val').textContent = `${brand || 'Fresh'} · ${district || 'Peliyagoda'}`;
-            document.getElementById('alloc-payload-val').textContent = `${weightKg || 0} kg · ${volumeM3 || 0} m³`;
-            document.getElementById('alloc-temp-val').textContent = (temp || 'ambient').toUpperCase();
+            const numId = Number(orderId);
+            activeAllocOrderId = numId;
+            let order = (dps.queue && dps.queue.orders && dps.queue.orders.find(o => o.id === numId)) || null;
+
+            const oRef = (order && order.orderRef) || ref || orderRef(numId);
+            const oOutlet = (order && order.outletId) || outletId || '—';
+            const oBrand = (order && order.brand) || brand || 'Fresh';
+            const oDist = (order && order.district) || district || 'Peliyagoda';
+            const oWeight = (order && order.weightKg) || weightKg || 0;
+            const oVol = (order && order.volumeM3) || volumeM3 || 0;
+            const oTemp = (order && order.tempRequirement) || temp || 'ambient';
+
+            document.getElementById('alloc-order-ref-title').textContent = oRef;
+            document.getElementById('alloc-outlet-val').textContent = oOutlet;
+            document.getElementById('alloc-brand-dist-val').textContent = `${oBrand} · ${oDist}`;
+            document.getElementById('alloc-payload-val').textContent = `${oWeight} kg · ${oVol} m³`;
+            document.getElementById('alloc-temp-val').textContent = oTemp.toUpperCase();
 
             const dateInput = document.getElementById('alloc-date-input');
             if (dateInput) {
                 dateInput.value = (dps.queue && dps.queue.date) || new Date().toISOString().slice(0, 10);
             }
 
-            await populateAllocVehicleSelect(temp);
+            await populateAllocVehicleSelect(oTemp);
             openModal('allocate-order-modal');
         }
 
@@ -4063,11 +4076,11 @@
             try {
                 const res = await WaypointUtil.api(`/api/orders/${activeAllocOrderId}/allocate`, {
                     method: 'POST',
-                    body: JSON.stringify({ vehicleCode, dockBay, tripNo, date })
+                    body: { vehicleCode, dockBay, tripNo: Number(tripNo) || 1, date }
                 });
 
                 closeModal('allocate-order-modal');
-                showToast(`✅ Order ${res.allocation.orderRef} allocated to ${vehicleCode} (${dockBay}) on Day ${date}! Driver, Loader & Store notified.`);
+                showToast(`✅ Order ${res.allocation ? res.allocation.orderRef : 'ORD-' + activeAllocOrderId} allocated to ${vehicleCode} (${dockBay}) on Day ${date}! Driver, Loader & Store notified.`);
                 await loadQueue();
                 await loadTripsBoard();
                 await loadVehiclesFleetBoard();
