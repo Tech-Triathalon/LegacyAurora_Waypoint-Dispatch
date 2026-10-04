@@ -2488,19 +2488,30 @@
 
         function currentTrip() {
             const depotTrips = getDepotTrips();
-            if (state.selectedTrip && depotTrips.some(t => t.id === state.selectedTrip.id)) {
-                return state.selectedTrip;
+            if (state.selectedTrip) {
+                const found = depotTrips.find(t => t.id === state.selectedTrip.id || (t.vehicleCode && t.vehicleCode === state.selectedTrip.vehicleCode));
+                if (found) {
+                    state.selectedTrip = found;
+                    state.vehicleCode = found.vehicleCode;
+                    return found;
+                }
             }
             if (state.vehicleCode) {
                 const found = depotTrips.find(t => t.vehicleCode === state.vehicleCode);
-                if (found) return found;
+                if (found) {
+                    state.selectedTrip = found;
+                    return found;
+                }
             }
-            return depotTrips.length > 0 ? depotTrips[0] : null;
+            state.selectedTrip = depotTrips.length > 0 ? depotTrips[0] : null;
+            if (state.selectedTrip) state.vehicleCode = state.selectedTrip.vehicleCode;
+            return state.selectedTrip;
         }
 
         function switchDepot(depot) {
             state.selectedDepot = depot;
             state.vehicleCode = null;
+            state.selectedTrip = null;
             document.querySelectorAll('.depot-pill-btn').forEach(b => b.classList.remove('active'));
             if (depot === 'Peliyagoda') document.getElementById('depot-btn-peliyagoda')?.classList.add('active');
             else if (depot === 'Kandy') document.getElementById('depot-btn-kandy')?.classList.add('active');
@@ -3428,6 +3439,11 @@
                 ldrToast(`📥 New load plan received from Dispatcher (${p.diffSummary || 'Plan updated'})`);
                 loadManifest();
             });
+            WaypointRealtime.on('order-allocated', (a) => {
+                ldrToast(`📦 Order ${a.orderRef || ''} allocated to ${a.vehicleCode || 'vehicle'} (Bay: ${a.dockBay || '2'})`);
+                loadManifest();
+            });
+            WaypointRealtime.on('new-order', () => loadManifest());
             WaypointRealtime.on('shortage-flagged', () => loadFlags().then(renderView));
             WaypointRealtime.on('dock-note-added', (n) => {
                 ldrToast(`📝 Dock Note: ${n.note.slice(0, 40)}...`);
