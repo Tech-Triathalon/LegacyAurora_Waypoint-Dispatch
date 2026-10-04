@@ -16,6 +16,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS & JS for Interactive Route Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
         :root {
@@ -1084,6 +1087,262 @@
             height: 110px;
             display: block;
         }
+
+        /* --- DRIVER SIDEBAR DRAWER & OVERLAY --- */
+        #driver-sidebar-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        #driver-sidebar-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #driver-sidebar-drawer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 82%;
+            max-width: 330px;
+            background: #ffffff;
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(-100%);
+            transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 10px 0 25px -5px rgba(0,0,0,0.35);
+        }
+
+        #driver-sidebar-drawer.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-header-box {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            padding: 24px 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+        }
+
+        .sidebar-close-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: #ffffff;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-user-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-user-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 17px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255,255,255,0.4);
+            box-shadow: 0 4px 12px rgba(37,99,235,0.4);
+        }
+
+        .sidebar-menu-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sidebar-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 12px;
+            color: #1e293b;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            background: transparent;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .sidebar-menu-item:hover, .sidebar-menu-item:active {
+            background: #f1f5f9;
+            color: #2563eb;
+        }
+
+        .sidebar-menu-item.active {
+            background: #eff6ff;
+            color: #2563eb;
+            font-weight: 800;
+        }
+
+        .sidebar-menu-item .icon-box {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            flex-shrink: 0;
+        }
+
+        .sidebar-menu-item.active .icon-box {
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #2563eb;
+        }
+
+        .sidebar-badge {
+            margin-left: auto;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .sidebar-footer-box {
+            padding: 14px 16px;
+            border-top: 1px solid #e2e8f0;
+            background: #fafafa;
+        }
+
+        .btn-sidebar-logout {
+            width: 100%;
+            padding: 11px;
+            border-radius: 10px;
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-sidebar-logout:hover {
+            background: #fca5a5;
+        }
+
+        /* --- MAP SCREEN & LEAFLET CANVAS --- */
+        #driver-leaflet-map {
+            width: 100%;
+            height: 340px;
+            border-radius: 16px;
+            border: 1.5px solid #cbd5e1;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            font-family: inherit;
+        }
+
+        .map-marker-pin {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 12px;
+            border: 2px solid #ffffff;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+        }
+
+        /* PHOTO UPLOAD PREVIEW */
+        .photo-preview-box {
+            margin-top: 8px;
+            padding: 8px;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .photo-preview-thumb {
+            width: 50px;
+            height: 50px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid #cbd5e1;
+        }
+
+        /* MESSAGES & CHAT UI */
+        .driver-chat-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 12px 16px;
+        }
+
+        .chat-bubble-received {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px 14px 14px 2px;
+            padding: 10px 14px;
+            max-width: 88%;
+            align-self: flex-start;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .chat-bubble-sent {
+            background: #2563eb;
+            color: #ffffff;
+            border-radius: 14px 14px 2px 14px;
+            padding: 10px 14px;
+            max-width: 88%;
+            align-self: flex-end;
+            box-shadow: 0 2px 6px rgba(37,99,235,0.25);
+        }
     </style>
 </head>
 <body>
@@ -1117,19 +1376,94 @@
         <span style="font-size: 11px; font-weight: 800; color: #ffffff;">📱 SELECT DRIVER SCREEN:</span>
         <select class="screen-select-dropdown" id="screen-dropdown" onchange="jumpToScreen(this.value)">
             <option value="driver-overview">1. Home (Driver Profile & Summary)</option>
-            <option value="driver-home">2. Deliveries (Trip 1 Kandy Corridor)</option>
-            <option value="stop-list">3. Routes (Stop List & Current Stop OUT088)</option>
-            <option value="stop-detail">4. Activity (Activities & POD Sign-off)</option>
-            <option value="screen-10-defer">5. Deferral Drawer (ORD-2241 OUT074)</option>
-            <option value="connectivity-v3b">6. More: Connectivity (4 Queued)</option>
-            <option value="connectivity-v3c">7. More: Synced State</option>
-            <option value="notification-driver">8. Notification (4 Records Accepted / Conflict Resolved)</option>
+            <option value="driver-map">2. Route Map (Interactive Map & GPS)</option>
+            <option value="driver-home">3. Deliveries Planned (Trips & Stops)</option>
+            <option value="stop-list">4. Routes (Stop List & Execution)</option>
+            <option value="stop-detail">5. Activity (Activities & POD Photo)</option>
+            <option value="driver-deferred">6. Deferred Orders (Reallocated)</option>
+            <option value="driver-summary">7. Overall Summary (Shift Metrics)</option>
+            <option value="driver-messages">8. Messages (Dispatch Alerts & Chat)</option>
+            <option value="screen-10-defer">9. Report Route Issue / Deferral</option>
+            <option value="connectivity-v3b">10. More: Connectivity (Queued)</option>
+            <option value="connectivity-v3c">11. More: Synced State</option>
+            <option value="notification-driver">12. Notification Center</option>
         </select>
     </div>
 
     <!-- PHONE DEVICE FRAME -->
     <div class="phone-mockup-frame">
         
+        <!-- SIDEBAR DRAWER OVERLAY & MENU -->
+        <div id="driver-sidebar-overlay" onclick="closeDriverSidebar()"></div>
+        <aside id="driver-sidebar-drawer">
+            <div class="sidebar-header-box">
+                <button class="sidebar-close-btn" onclick="closeDriverSidebar()">✕</button>
+                <div class="sidebar-user-row">
+                    <div class="sidebar-user-avatar" id="sidebar-user-initials">MK</div>
+                    <div>
+                        <div style="font-size: 15px; font-weight: 900; color: #ffffff;" id="sidebar-driver-name">Marcus K.</div>
+                        <div style="font-size: 11px; color: #94a3b8;" id="sidebar-vehicle-code">Vehicle VEH035 · Reefer</div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span class="pill-online-green" id="sidebar-online-status">● ONLINE</span>
+                    <span style="font-size: 10px; color: #cbd5e1;" id="sidebar-sync-count">0 pending</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-menu-list">
+                <button class="sidebar-menu-item active" onclick="jumpToScreen('driver-overview'); closeDriverSidebar();">
+                    <div class="icon-box">🏠</div>
+                    <span>Home Overview</span>
+                </button>
+                <button class="sidebar-menu-item" onclick="jumpToScreen('driver-map'); closeDriverSidebar();">
+                    <div class="icon-box">🗺️</div>
+                    <span>Route Map</span>
+                    <span class="sidebar-badge" style="background: #eff6ff; color: #1d4ed8;">LIVE</span>
+                </button>
+                <button class="sidebar-menu-item" onclick="jumpToScreen('driver-home'); closeDriverSidebar();">
+                    <div class="icon-box">📦</div>
+                    <span>Deliveries Planned</span>
+                </button>
+                <button class="sidebar-menu-item" onclick="jumpToScreen('stop-list'); closeDriverSidebar();">
+                    <div class="icon-box">🧭</div>
+                    <span>Stop List & Routes</span>
+                </button>
+                <button class="sidebar-menu-item" onclick="jumpToScreen('stop-detail'); closeDriverSidebar();">
+                    <div class="icon-box">✍️</div>
+                    <span>Activity & POD</span>
+                </button>
+                <button class="sidebar-menu-item" onclick="jumpToScreen('driver-deferred'); closeDriverSidebar();">
+                    <div class="icon-box">🛑</div>
+                    <span>Deferred Orders</span>
+                    <span class="sidebar-badge" id="sidebar-deferred-badge">0</span>
+                </button>
+                <button class="sidebar-menu-item" onclick="jumpToScreen('driver-summary'); closeDriverSidebar();">
+                    <div class="icon-box">📊</div>
+                    <span>Overall Summary</span>
+                </button>
+                <button class="sidebar-menu-item" onclick="jumpToScreen('driver-messages'); closeDriverSidebar();">
+                    <div class="icon-box">💬</div>
+                    <span>Messages & Alerts</span>
+                </button>
+                <button class="sidebar-menu-item" onclick="openIssueDrawer(); closeDriverSidebar();">
+                    <div class="icon-box">⚠️</div>
+                    <span>Report Route Issue</span>
+                </button>
+                <button class="sidebar-menu-item" onclick="jumpToScreen('connectivity-v3b'); closeDriverSidebar();">
+                    <div class="icon-box">🔄</div>
+                    <span>Sync & Connectivity</span>
+                </button>
+            </div>
+
+            <div class="sidebar-footer-box">
+                <button class="btn-sidebar-logout" onclick="handleDriverLogout()">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Logout Driver
+                </button>
+            </div>
+        </aside>
+
         <!-- STATUS BAR -->
         <div class="ios-status-bar">
             <span id="phone-clock">08:41</span>
@@ -1156,11 +1490,11 @@
 
                 <!-- TOP HEADER -->
                 <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px 10px; background: #FAF9F6;">
-                    <button onclick="jumpToScreen('driver-overview')" style="background: none; border: none; font-size: 20px; color: var(--text-dark); cursor: pointer; display: flex; align-items: center; padding: 2px 4px;">
+                    <button onclick="openDriverSidebar()" style="background: none; border: none; font-size: 20px; color: var(--text-dark); cursor: pointer; display: flex; align-items: center; padding: 2px 4px;" title="Open Menu">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                     </button>
                     <h1 style="font-size: 18px; font-weight: 900; color: var(--text-dark); margin: 0;">Home</h1>
-                    <div style="display: flex; align-items: center; gap: 8px; cursor: pointer;" onclick="jumpToScreen('connectivity-v3b')">
+                    <div style="display: flex; align-items: center; gap: 8px; cursor: pointer;" onclick="openDriverSidebar()">
                         <div style="position: relative;">
                             <div style="width: 34px; height: 34px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #1e293b; border: 1.5px solid #cbd5e1;">
                                 SP
@@ -1306,6 +1640,13 @@
                  TAB 2: DELIVERIES (SCREENSHOT 2: DRIVER-HOME)
                  ================================================================ -->
             <div class="driver-screen" id="scr-driver-home">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: #FAF9F6; border-bottom: 1px solid var(--border-color);">
+                    <button onclick="openDriverSidebar()" style="background: none; border: none; font-size: 20px; color: var(--text-dark); cursor: pointer; display: flex; align-items: center; padding: 2px 4px;" title="Open Menu">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                    <div style="font-size: 15px; font-weight: 900; color: var(--text-dark);">Deliveries Planned</div>
+                    <button onclick="jumpToScreen('driver-map')" style="background: none; border: none; font-size: 16px; cursor: pointer;" title="View on Map">🗺️</button>
+                </div>
                 <div class="home-pad">
                     <h2 class="home-main-title">Deliveries</h2>
 
@@ -1375,11 +1716,11 @@
             <div class="driver-screen" id="scr-stop-list">
                 
                 <div class="driver-top-user-bar">
-                    <div class="user-chip-name" onclick="jumpToScreen('connectivity-v3b')">
-                        <span>👋 Sunil • VEH045</span>
+                    <div class="user-chip-name" onclick="openDriverSidebar()">
+                        <span>☰ 👋 Sunil • VEH045</span>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
                     </div>
-                    <span class="pill-offline-beige" id="drv-queued-pill" onclick="jumpToScreen('connectivity-v3b')">OFFLINE • 4 QUEUED</span>
+                    <span class="pill-offline-beige" id="drv-queued-pill" onclick="openDriverSidebar()">OFFLINE • 4 QUEUED</span>
                 </div>
 
                 <div class="banner-yellow-subtle" onclick="jumpToScreen('connectivity-v3b')">
@@ -1522,8 +1863,20 @@
                             <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #94a3b8; font-size: 11px; pointer-events: none;" id="pod-label">Recipient signature pad</div>
                         </div>
 
-                        <div class="camera-box-dashed" style="margin-top: 8px;" onclick="alert('Camera module ready. Dock photo captured.')">
-                            📷 Take photo proof of goods
+                        <!-- REAL PHOTO UPLOAD FOR POD -->
+                        <input type="file" id="driver-pod-photo-input" accept="image/*" capture="environment" style="display: none;" onchange="handleDriverPodPhoto(event)">
+                        <div class="camera-box-dashed" style="margin-top: 8px;" onclick="document.getElementById('driver-pod-photo-input').click()">
+                            📷 Take or Upload Goods Photo Proof
+                        </div>
+                        <div id="driver-pod-photo-preview-wrap" style="display: none; margin-top: 8px;" class="photo-preview-box">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <img id="driver-pod-photo-img" class="photo-preview-thumb" src="" alt="POD Preview">
+                                <div>
+                                    <div style="font-size: 11px; font-weight: 800; color: #0f172a;" id="driver-pod-photo-name">dock_photo.jpg</div>
+                                    <div style="font-size: 10px; color: #10b981; font-weight: 700;">✓ Photo attached for POD</div>
+                                </div>
+                            </div>
+                            <button type="button" onclick="removeDriverPodPhoto()" style="background: none; border: none; color: #ef4444; font-size: 11px; font-weight: 800; cursor: pointer; padding: 4px 8px;">✕ Remove</button>
                         </div>
                     </div>
 
@@ -1540,78 +1893,221 @@
             </div>
 
             <!-- ================================================================
-                 DEFERRAL DRAWER (SCREENSHOT 5 & NEXT ORDER FLOW)
+                 NEW SCREEN: ROUTE MAP (MAPLIBRE / LEAFLET LIVE TRACKING)
+                 ================================================================ -->
+            <div class="driver-screen" id="scr-driver-map">
+                <!-- TOP HEADER -->
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: #FAF9F6; border-bottom: 1px solid var(--border-color);">
+                    <button onclick="openDriverSidebar()" style="background: none; border: none; font-size: 20px; color: var(--text-dark); cursor: pointer; display: flex; align-items: center; padding: 2px 4px;" title="Open Menu">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                    <div style="font-size: 15px; font-weight: 900; color: var(--text-dark);">Live Route Map</div>
+                    <button onclick="recenterDriverMap()" style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 5px 8px; font-size: 11px; font-weight: 800; color: #2563eb; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                        🎯 GPS
+                    </button>
+                </div>
+
+                <!-- MAP WRAPPER -->
+                <div style="padding: 12px 16px 6px;">
+                    <div id="driver-leaflet-map"></div>
+                </div>
+
+                <!-- ROUTE STATS STRIP -->
+                <div style="margin: 6px 16px 10px; background: #ffffff; border: 1px solid var(--border-color); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-card);">
+                    <div>
+                        <div style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase;">ACTIVE CORRIDOR</div>
+                        <div style="font-size: 13px; font-weight: 900; color: #0f172a;" id="map-corridor-title">Kandy Corridor</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase;">EST. REMAINING</div>
+                        <div style="font-size: 13px; font-weight: 900; color: #2563eb;" id="map-corridor-eta">-- min · -- km</div>
+                    </div>
+                </div>
+
+                <!-- STOPS QUICK LIST UNDER MAP -->
+                <div style="padding: 0 16px 14px;">
+                    <div style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 6px;">SCHEDULED STOPS</div>
+                    <div id="map-stops-quicklist" style="display: flex; flex-direction: column; gap: 6px;">
+                        <!-- Rendered by renderDriverMap() -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================================================================
+                 NEW SCREEN: DEFERRED ORDERS (REALLOCATED BY DISPATCHER)
+                 ================================================================ -->
+            <div class="driver-screen" id="scr-driver-deferred">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: #FAF9F6; border-bottom: 1px solid var(--border-color);">
+                    <button onclick="openDriverSidebar()" style="background: none; border: none; font-size: 20px; color: var(--text-dark); cursor: pointer; display: flex; align-items: center; padding: 2px 4px;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                    <div style="font-size: 15px; font-weight: 900; color: var(--text-dark);">Deferred & Reallocated</div>
+                    <span class="pill-offline-beige" id="deferred-count-pill">0 ORDERS</span>
+                </div>
+
+                <div style="margin: 10px 16px 6px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 12px 14px;">
+                    <div style="font-size: 12px; font-weight: 800; color: #92400e; display: flex; align-items: center; gap: 6px;">
+                        <span>ℹ️</span> Dispatcher Ledger Decisions
+                    </div>
+                    <div style="font-size: 11px; color: #b45309; margin-top: 4px; line-height: 1.35;">
+                        Orders deferred or reallocated after allocation due to dock shortages, reefer limits, or cutoff adjustments. Store managers are notified automatically.
+                    </div>
+                </div>
+
+                <div style="padding: 6px 16px 16px; display: flex; flex-direction: column; gap: 8px;" id="driver-deferred-list">
+                    <div style="padding: 24px; text-align: center; color: #94a3b8; font-size: 12px;">Loading deferred ledger…</div>
+                </div>
+            </div>
+
+            <!-- ================================================================
+                 NEW SCREEN: OVERALL SHIFT SUMMARY
+                 ================================================================ -->
+            <div class="driver-screen" id="scr-driver-summary">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: #FAF9F6; border-bottom: 1px solid var(--border-color);">
+                    <button onclick="openDriverSidebar()" style="background: none; border: none; font-size: 20px; color: var(--text-dark); cursor: pointer; display: flex; align-items: center; padding: 2px 4px;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                    <div style="font-size: 15px; font-weight: 900; color: var(--text-dark);">Shift & Trip Summary</div>
+                    <span class="pill-online-green">LIVE</span>
+                </div>
+
+                <div style="padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 10px;" id="driver-summary-cards">
+                    <!-- Stat Card 1 -->
+                    <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow-card);">
+                        <div style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 8px;">DELIVERY PROGRESS</div>
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <div style="font-size: 22px; font-weight: 900; color: #0f172a;" id="sum-stops-done">0 / 0</div>
+                                <div style="font-size: 11px; color: #64748b;">Stops Completed</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 22px; font-weight: 900; color: #10b981;" id="sum-ontime-pct">100%</div>
+                                <div style="font-size: 11px; color: #64748b;">On-Time Window</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stat Card 2 -->
+                    <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow-card);">
+                        <div style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 8px;">PAYLOAD & CAPACITY</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div>
+                                <div style="font-size: 18px; font-weight: 900; color: #0f172a;" id="sum-weight-kg">0 kg</div>
+                                <div style="font-size: 11px; color: #64748b;">Total Weight</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 18px; font-weight: 900; color: #0f172a;" id="sum-volume-m3">0 m³</div>
+                                <div style="font-size: 11px; color: #64748b;">Total Volume</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stat Card 3 -->
+                    <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow-card);">
+                        <div style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 8px;">SHIFT EFFICIENCY</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div>
+                                <div style="font-size: 18px; font-weight: 900; color: #2563eb;" id="sum-dist-km">0 km</div>
+                                <div style="font-size: 11px; color: #64748b;">Distance Driven</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 18px; font-weight: 900; color: #059669;" id="sum-fuel-l">0 L</div>
+                                <div style="font-size: 11px; color: #64748b;">Est Fuel Usage</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================================================================
+                 NEW SCREEN: DRIVER MESSAGES (DISPATCH & STORE MANAGERS)
+                 ================================================================ -->
+            <div class="driver-screen" id="scr-driver-messages">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: #FAF9F6; border-bottom: 1px solid var(--border-color);">
+                    <button onclick="openDriverSidebar()" style="background: none; border: none; font-size: 20px; color: var(--text-dark); cursor: pointer; display: flex; align-items: center; padding: 2px 4px;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                    <div style="font-size: 15px; font-weight: 900; color: var(--text-dark);">Communications</div>
+                    <button onclick="loadDriverMessages()" style="background: none; border: none; font-size: 14px; color: #2563eb; font-weight: 800; cursor: pointer;">🔄</button>
+                </div>
+
+                <div style="padding: 8px 16px; display: flex; gap: 6px; background: #ffffff; border-bottom: 1px solid var(--border-color);">
+                    <button type="button" id="msg-tab-dock" onclick="switchDriverMsgTab('dock')" style="flex: 1; padding: 8px; border-radius: 8px; font-size: 11px; font-weight: 800; border: 1px solid #2563eb; background: #eff6ff; color: #1d4ed8; cursor: pointer;">
+                        📢 Dock & Dispatch
+                    </button>
+                    <button type="button" id="msg-tab-store" onclick="switchDriverMsgTab('store')" style="flex: 1; padding: 8px; border-radius: 8px; font-size: 11px; font-weight: 800; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; cursor: pointer;">
+                        🏪 Store Manager
+                    </button>
+                </div>
+
+                <div id="driver-chat-list" class="driver-chat-container" style="flex: 1; overflow-y: auto; max-height: 440px;">
+                    <!-- Rendered by loadDriverMessages() -->
+                </div>
+
+                <!-- COMPOSE BOX -->
+                <div style="padding: 10px 16px 14px; background: #ffffff; border-top: 1px solid var(--border-color);">
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+                        <button onclick="quickDriverMsg('Arriving at dock in 10 mins')" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 9999px; padding: 3px 8px; font-size: 10px; font-weight: 700; color: #334155; cursor: pointer;">⏱️ Arriving in 10m</button>
+                        <button onclick="quickDriverMsg('Dock is blocked by traffic/van')" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 9999px; padding: 3px 8px; font-size: 10px; font-weight: 700; color: #334155; cursor: pointer;">🚧 Dock Blocked</button>
+                        <button onclick="quickDriverMsg('Unloading completed, departing now')" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 9999px; padding: 3px 8px; font-size: 10px; font-weight: 700; color: #334155; cursor: pointer;">✓ Unloaded</button>
+                    </div>
+                    <form onsubmit="sendDriverMsg(event)" style="display: flex; gap: 8px;">
+                        <input type="text" id="driver-msg-input" placeholder="Type message to dispatch/store..." style="flex: 1; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 12px;" required>
+                        <button type="submit" style="padding: 10px 16px; background: #2563eb; color: #ffffff; border: none; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer;">Send</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ================================================================
+                 DEFERRAL / ISSUE DRAWER (SCREENSHOT 5 & REPORT ROUTE ISSUE)
                  ================================================================ -->
             <div class="driver-screen" id="scr-screen-10-defer">
                 <div class="defer-screen-body">
                     
                     <div class="defer-title-bar">
-                        <h2 class="defer-main-heading">Defer ORD-2241 · OUT074 · chilled · 420 kg</h2>
+                        <h2 class="defer-main-heading">Report Route Issue / Deferral</h2>
                         <button class="close-circle-btn" onclick="jumpToScreen('stop-list')" title="Close">✕</button>
                     </div>
 
-                    <div class="assistant-ranking-label">
-                        <span>Assistant ranking</span>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                    </div>
-
-                    <div class="defer-grid-table">
-                        <div class="defer-grid-row">
-                            <div class="defer-row-left">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                                <span>days_since_last_served</span>
-                            </div>
-                            <span class="defer-row-val">2</span>
-                        </div>
-                        <div class="defer-grid-row">
-                            <div class="defer-row-left">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-                                <span>window</span>
-                            </div>
-                            <span class="defer-row-val">Next delivery window</span>
-                        </div>
-                        <div class="defer-grid-row">
-                            <div class="defer-row-left">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-                                <span>temp flexibility</span>
-                            </div>
-                            <span class="defer-row-val">High (chilled)</span>
-                        </div>
-                        <div class="defer-grid-row">
-                            <div class="defer-row-left">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                                <span>cost</span>
-                            </div>
-                            <span class="defer-row-val">Low</span>
-                        </div>
-                    </div>
-
-                    <div class="alert-red-warning-card">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                        <div>
-                            <div class="alert-red-title">Consecutive-defer warning</div>
-                            <div class="alert-red-desc">OUT074 was deferred yesterday (by ORD-2198). Consecutive deferrals may affect service score.</div>
-                        </div>
-                    </div>
-
                     <div class="form-field-group">
-                        <label class="form-field-label">Override note (optional)</label>
-                        <textarea class="form-field-textarea" id="defer-override-note" rows="3" placeholder="Add context for this deferral (visible to store and audit trail)"></textarea>
-                    </div>
-
-                    <div class="form-field-group">
-                        <label class="form-field-label">Reason code *</label>
-                        <select class="form-field-select" id="defer-reason-code">
-                            <option value="">Select a reason</option>
-                            <option value="REE" selected>Reefer Capacity / Load Balancing</option>
-                            <option value="STORE_CLOSED">Store Closed / Receiver Unavailable</option>
-                            <option value="DOCK_BLOCKED">Dock Congestion / Access Blocked</option>
-                            <option value="CUST_REQ">Customer Request</option>
+                        <label class="form-field-label">Issue Category *</label>
+                        <select class="form-field-select" id="defer-reason-code" onchange="handleIssueCategoryChange(this.value)">
+                            <option value="TRAFFIC_DELAY">🚦 Traffic & Road Congestion (Delay)</option>
+                            <option value="DOCK_BLOCKED">🚧 Dock Congestion / Bay Blocked</option>
+                            <option value="STORE_CLOSED">🔒 Store Closed / Receiver Unavailable</option>
+                            <option value="SHORTAGE_DAMAGED">📦 Stock Shortage / Damaged Goods</option>
+                            <option value="REE" selected>❄️ Reefer Temp Alert / Capacity</option>
+                            <option value="VEHICLE_BREAKDOWN">⚙️ Vehicle Breakdown / Mechanical Issue</option>
+                            <option value="CUST_REQ">✋ Store Refusal / Customer Override</option>
                         </select>
                     </div>
 
                     <div class="form-field-group">
-                        <label class="form-field-label">Next run promise *</label>
+                        <label class="form-field-label">Issue Notes & Details *</label>
+                        <textarea class="form-field-textarea" id="defer-override-note" rows="3" placeholder="Add specific details of the issue to notify Dispatcher and Store Manager instantly..."></textarea>
+                    </div>
+
+                    <!-- ISSUE PHOTO CAPTURE -->
+                    <div class="form-field-group">
+                        <label class="form-field-label">Issue Photo Proof (Optional)</label>
+                        <input type="file" id="driver-issue-photo-input" accept="image/*" capture="environment" style="display: none;" onchange="handleDriverIssuePhoto(event)">
+                        <div class="camera-box-dashed" onclick="document.getElementById('driver-issue-photo-input').click()">
+                            📷 Capture or Upload Issue Photo
+                        </div>
+                        <div id="driver-issue-photo-preview-wrap" style="display: none; margin-top: 8px;" class="photo-preview-box">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <img id="driver-issue-photo-img" class="photo-preview-thumb" src="" alt="Issue Preview">
+                                <div>
+                                    <div style="font-size: 11px; font-weight: 800; color: #0f172a;" id="driver-issue-photo-name">issue_photo.jpg</div>
+                                    <div style="font-size: 10px; color: #10b981; font-weight: 700;">✓ Photo attached</div>
+                                </div>
+                            </div>
+                            <button type="button" onclick="removeDriverIssuePhoto()" style="background: none; border: none; color: #ef4444; font-size: 11px; font-weight: 800; cursor: pointer; padding: 4px 8px;">✕ Remove</button>
+                        </div>
+                    </div>
+
+                    <div class="form-field-group" id="defer-promise-group">
+                        <label class="form-field-label">Next Delivery Promise (If Deferring) *</label>
                         <select class="form-field-select" id="defer-next-promise">
                             <option value="tomorrow_0630">📅 tomorrow · promised 06:30</option>
                             <option value="tomorrow_0800">📅 tomorrow · promised 08:00</option>
@@ -1621,12 +2117,12 @@
 
                     <div class="alert-blue-notice-card">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                        <div class="alert-blue-desc">This deferral will notify the store manager immediately and be recorded in the order trail.</div>
+                        <div class="alert-blue-desc">This issue report will alert Central Dispatch and the relevant Store Manager immediately in real-time.</div>
                     </div>
 
                     <div class="defer-actions-grid">
                         <button class="btn-cancel-white" onclick="cancelDeferralAndContinueOrder()">Cancel</button>
-                        <button class="btn-defer-red" onclick="executeDeferral()">Defer Order</button>
+                        <button class="btn-defer-red" onclick="executeIssueReport()">Submit Report / Defer</button>
                     </div>
 
                 </div>
@@ -1926,7 +2422,44 @@
     <script>
         // --- DRIVER APP STATE + REAL MANIFEST ---
         const { orderRef, hhmm, esc } = WaypointUtil;
-        const state = { user: null, manifest: null, currentSeq: null, issueOrderId: null };
+        const state = { 
+            user: null, 
+            manifest: null, 
+            currentSeq: null, 
+            issueOrderId: null,
+            podPhoto: null,
+            issuePhoto: null,
+            msgTab: 'dock',
+            messages: []
+        };
+
+        let driverMap = null;
+        let driverMarkers = [];
+        let driverPolyline = null;
+
+        // --- SIDEBAR DRAWER CONTROLS ---
+        function openDriverSidebar() {
+            const drawer = document.getElementById('driver-sidebar-drawer');
+            const overlay = document.getElementById('driver-sidebar-overlay');
+            if (drawer) drawer.classList.add('open');
+            if (overlay) overlay.classList.add('open');
+        }
+
+        function closeDriverSidebar() {
+            const drawer = document.getElementById('driver-sidebar-drawer');
+            const overlay = document.getElementById('driver-sidebar-overlay');
+            if (drawer) drawer.classList.remove('open');
+            if (overlay) overlay.classList.remove('open');
+        }
+
+        async function handleDriverLogout() {
+            try {
+                await WaypointAuth.logout();
+            } catch {}
+            sessionStorage.clear();
+            localStorage.removeItem('delivery_auth_user');
+            window.location.href = 'index.html';
+        }
 
         function driverChannel() {
             const ch = ['driver'];
@@ -1959,6 +2492,10 @@
             renderTripCards();
             renderStopList();
             renderStopDetail();
+            renderDriverMap();
+            renderDriverDeferred();
+            renderDriverSummary();
+            loadDriverMessages();
         }
 
         function renderOverview() {
@@ -1968,7 +2505,7 @@
             const cur = currentStop();
             const trip = (cur && cur.trip) || state.manifest.trips[0];
             const nameEl = document.getElementById('drv-route-name');
-            if (nameEl) nameEl.textContent = `${trip.brand} · ${trip.district}`;
+            if (nameEl) nameEl.textContent = `${trip.brand || 'Fresh'} · ${trip.district || 'Corridor'}`;
             const progEl = document.getElementById('drv-route-progress');
             if (progEl) progEl.innerHTML = `Stop <strong style="color: #2563eb;">${Math.min(done + 1, stops.length)}</strong> of ${stops.length}`;
             const track = document.getElementById('drv-progress-track');
@@ -1978,7 +2515,7 @@
                 track.children[1].style.width = `${100 - pct}%`;
             }
             const metaEl = document.getElementById('drv-route-meta');
-            if (metaEl) metaEl.textContent = `⏱️ ${Math.round(trip.estMinutes)} min est · 🛣️ ${Math.round(trip.distanceKm)} km · ${stops.length} stops`;
+            if (metaEl) metaEl.textContent = `⏱️ ${Math.round(trip.estMinutes || 120)} min est · 🛣️ ${Math.round(trip.distanceKm || 45)} km · ${stops.length} stops`;
         }
 
         function renderTripCards() {
@@ -1987,7 +2524,7 @@
             const label = document.querySelector('.trip-orange-label');
             if (label && t1) label.textContent = `TRIP ${t1.tripNo} OF ${trips.length}`;
             const name = document.querySelector('.trip-name-title');
-            if (name && t1) name.textContent = `${t1.brand} corridor · ${t1.district}`;
+            if (name && t1) name.textContent = `${t1.brand || 'Fresh'} corridor · ${t1.district || 'Main'}`;
             const progText = document.querySelector('.stop-progress-text');
             if (progText && t1) {
                 const done = t1.stops.filter((s) => s.status === 'delivered').length;
@@ -2021,17 +2558,17 @@
                         <div style="display: flex; align-items: center; justify-content: space-between;">
                             <div>
                                 <span class="pill-wait-blue">🕒 NEXT</span>
-                                <div style="font-size: 13px; font-weight: 900; color: #0f172a; margin-top: 4px;">${orderRef(s.orderId)} • ${esc(s.trip.brand)}</div>
+                                <div style="font-size: 13px; font-weight: 900; color: #0f172a; margin-top: 4px;">${orderRef(s.orderId)} • ${esc(s.trip.brand || 'Fresh')}</div>
                                 <div style="font-size: 11px; color: #2563eb;">window ${esc(s.windowOpen || '—')}–${esc(s.windowClose || '—')} • ETA ${esc(s.plannedArrival || '—')}</div>
-                                <div style="font-size: 10px; font-weight: 700; color: #1e40af; margin-top: 4px;">📦 Goods for delivery</div>
+                                <div style="font-size: 10px; font-weight: 700; color: #1e40af; margin-top: 4px;">📦 Goods for delivery (${s.units || 0} units · ${s.weightKg || 0} kg)</div>
                             </div>
                         </div>
                     </div>`;
                 }
                 const icon = s.status === 'delivered' ? ['✓', '#10b981'] : ['○', '#cbd5e1'];
-                const sub = s.status === 'delivered' ? 'Delivered ✓' : `Planned arrival ${esc(s.plannedArrival || '—')}`;
+                const sub = s.status === 'delivered' ? 'Delivered ✓' : `Planned arrival ${esc(s.plannedArrival || '—')} · ${s.units || 0} units`;
                 return `
-                    <div class="stop-item-box">
+                    <div class="stop-item-box" onclick="selectStopDetail(${s.orderId})">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <div style="color: ${icon[1]}; font-weight: 900;">${icon[0]}</div>
                             <div>
@@ -2044,6 +2581,18 @@
             }).join('');
         }
 
+        function selectStopDetail(orderId) {
+            state.issueOrderId = orderId;
+            const stop = allStops().find(s => s.orderId === orderId);
+            if (stop) {
+                const titleEl = document.getElementById('stop-detail-outlet-title');
+                const subEl = document.getElementById('stop-detail-outlet-sub');
+                if (titleEl) titleEl.textContent = stop.outletId || orderRef(stop.orderId);
+                if (subEl) subEl.textContent = `${orderRef(stop.orderId)} · window ${stop.windowOpen || '—'}–${stop.windowClose || '—'} · ETA ${stop.plannedArrival || '—'}`;
+            }
+            jumpToScreen('stop-detail');
+        }
+
         function renderStopDetail() {
             const cur = currentStop();
             if (!cur) return;
@@ -2051,6 +2600,384 @@
             const subEl = document.getElementById('stop-detail-outlet-sub');
             if (titleEl) titleEl.textContent = cur.outletId || orderRef(cur.orderId);
             if (subEl) subEl.textContent = `${orderRef(cur.orderId)} · window ${cur.windowOpen || '—'}–${cur.windowClose || '—'} · ETA ${cur.plannedArrival || '—'}`;
+        }
+
+        // --- INTERACTIVE ROUTE MAP (LEAFLET / MAPLIBRE) ---
+        const DEPOT_COORDS = {
+            'Peliyagoda': [6.9708, 79.8893],
+            'Kandy': [7.2906, 80.6337]
+        };
+
+        const DISTRICT_COORDS = {
+            'Colombo': [6.9271, 79.8612],
+            'Gampaha': [7.0917, 79.9999],
+            'Kalutara': [6.5854, 79.9607],
+            'Kandy': [7.2936, 80.6413],
+            'Matale': [7.4675, 80.6234],
+            'Nuwara Eliya': [6.9497, 80.7891],
+            'Galle': [6.0535, 80.2210],
+            'Matara': [5.9496, 80.5469],
+            'Hambantota': [6.1429, 81.1212],
+            'Kurunegala': [7.4863, 80.3623],
+            'Kegalle': [7.2513, 80.3464],
+            'Ratnapura': [6.7056, 80.3847]
+        };
+
+        function getStopCoords(stop, idx, total) {
+            const district = stop.district || 'Colombo';
+            const base = DISTRICT_COORDS[district] || [6.9271, 79.8612];
+            // Deterministic spread around district center
+            const angle = (idx / Math.max(total, 1)) * 2 * Math.PI;
+            const radius = 0.015 + ((stop.orderId % 10) * 0.003);
+            return [base[0] + (Math.sin(angle) * radius), base[1] + (Math.cos(angle) * radius)];
+        }
+
+        function initDriverMap() {
+            const mapEl = document.getElementById('driver-leaflet-map');
+            if (!mapEl || driverMap) return;
+            try {
+                driverMap = L.map('driver-leaflet-map', {
+                    zoomControl: true,
+                    attributionControl: false
+                }).setView([6.9708, 79.8893], 11);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 18,
+                }).addTo(driverMap);
+            } catch (err) {
+                console.warn('Leaflet map init warning:', err);
+            }
+        }
+
+        function renderDriverMap() {
+            initDriverMap();
+            if (!driverMap) return;
+
+            // Clear existing markers & route line
+            driverMarkers.forEach(m => driverMap.removeLayer(m));
+            driverMarkers = [];
+            if (driverPolyline) {
+                driverMap.removeLayer(driverPolyline);
+                driverPolyline = null;
+            }
+
+            const stops = allStops();
+            const trips = (state.manifest && state.manifest.trips) || [];
+            const curTrip = trips[0] || {};
+            const depotName = curTrip.depot || 'Peliyagoda';
+            const depotCoord = DEPOT_COORDS[depotName] || [6.9708, 79.8893];
+
+            // Update corridor title
+            const titleEl = document.getElementById('map-corridor-title');
+            if (titleEl) titleEl.textContent = `${curTrip.brand || 'Fresh'} · ${curTrip.district || 'Corridor'}`;
+            const etaEl = document.getElementById('map-corridor-eta');
+            if (etaEl) etaEl.textContent = `${Math.round(curTrip.estMinutes || 118)} min · ${Math.round(curTrip.distanceKm || 45)} km`;
+
+            const latLngs = [depotCoord];
+
+            // Depot marker
+            const depotIcon = L.divIcon({
+                className: 'custom-map-icon',
+                html: `<div style="background:#0f172a; color:#fff; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:900; border:2px solid #fff; box-shadow:0 3px 8px rgba(0,0,0,.4);">🏭</div>`,
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            });
+            const depotMarker = L.marker(depotCoord, { icon: depotIcon }).addTo(driverMap)
+                .bindPopup(`<strong>${depotName} Central Depot</strong><br><span style="font-size:11px; color:#64748b;">Trip Origin & Load Bay</span>`);
+            driverMarkers.push(depotMarker);
+
+            // Quick list below map
+            const quickListEl = document.getElementById('map-stops-quicklist');
+            const quickHtml = [];
+
+            stops.forEach((s, idx) => {
+                const coords = getStopCoords(s, idx, stops.length);
+                latLngs.push(coords);
+
+                const isDelivered = s.status === 'delivered';
+                const isCurrent = state.currentSeq === s.seq;
+                const bgColor = isDelivered ? '#10b981' : isCurrent ? '#2563eb' : '#64748b';
+                const label = isDelivered ? '✓' : String(s.seq);
+
+                const pinIcon = L.divIcon({
+                    className: 'custom-map-pin',
+                    html: `<div style="background:${bgColor}; color:#ffffff; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; border:2px solid #ffffff; box-shadow:0 3px 8px rgba(0,0,0,.35);">${label}</div>`,
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14]
+                });
+
+                const marker = L.marker(coords, { icon: pinIcon }).addTo(driverMap)
+                    .bindPopup(`
+                        <div style="font-family:inherit; min-width:180px;">
+                            <div style="font-size:13px; font-weight:900; color:#0f172a;">Stop ${s.seq} · ${esc(s.outletId || 'Outlet')}</div>
+                            <div style="font-size:11px; color:#2563eb; font-weight:700; margin:2px 0;">${orderRef(s.orderId)} · ${esc(s.brand || 'Fresh')}</div>
+                            <div style="font-size:11px; color:#64748b;">Window: ${esc(s.windowOpen || '—')}–${esc(s.windowClose || '—')}</div>
+                            <div style="font-size:10px; color:#475569; margin:4px 0 8px;">📦 ${s.units || 0} units · ${s.weightKg || 0} kg · ${s.tempRequirement || 'ambient'}</div>
+                            <button onclick="selectStopDetail(${s.orderId})" style="width:100%; padding:6px 10px; background:#2563eb; color:#fff; border:none; border-radius:6px; font-size:11px; font-weight:800; cursor:pointer;">Go to Activity ›</button>
+                        </div>
+                    `);
+                driverMarkers.push(marker);
+
+                quickHtml.push(`
+                    <div style="background:#ffffff; border:1px solid var(--border-color); border-radius:10px; padding:8px 12px; display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="selectStopDetail(${s.orderId})">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="background:${bgColor}; color:#fff; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:900;">${label}</span>
+                            <div>
+                                <div style="font-size:12px; font-weight:800; color:#0f172a;">${esc(s.outletId || 'Outlet')} · ${orderRef(s.orderId)}</div>
+                                <div style="font-size:10px; color:#64748b;">Window ${esc(s.windowOpen || '—')}–${esc(s.windowClose || '—')} • ETA ${esc(s.plannedArrival || '—')}</div>
+                            </div>
+                        </div>
+                        <span style="font-size:12px; color:#2563eb; font-weight:800;">›</span>
+                    </div>
+                `);
+            });
+
+            if (quickListEl) quickListEl.innerHTML = quickHtml.join('') || '<div style="font-size:11px; color:#94a3b8; text-align:center; padding:12px;">No active stops</div>';
+
+            // Route Polyline
+            if (latLngs.length > 1) {
+                driverPolyline = L.polyline(latLngs, {
+                    color: '#2563eb',
+                    weight: 4,
+                    opacity: 0.85,
+                    dashArray: '6, 6'
+                }).addTo(driverMap);
+
+                try {
+                    driverMap.fitBounds(driverPolyline.getBounds(), { padding: [25, 25] });
+                } catch {}
+            }
+        }
+
+        function recenterDriverMap() {
+            if (!driverMap) return;
+            const cur = currentStop();
+            const stops = allStops();
+            if (cur) {
+                const idx = stops.findIndex(s => s.orderId === cur.orderId);
+                const coords = getStopCoords(cur, idx, stops.length);
+                driverMap.setView(coords, 14);
+                showToastBanner(`📍 Centered on Stop ${cur.seq} (${cur.outletId || ''})`);
+            } else if (driverPolyline) {
+                driverMap.fitBounds(driverPolyline.getBounds(), { padding: [30, 30] });
+            }
+        }
+
+        // --- DEFERRED ORDERS LIST (REALLOCATED BY DISPATCHER) ---
+        async function renderDriverDeferred() {
+            const listEl = document.getElementById('driver-deferred-list');
+            const badgeEl = document.getElementById('sidebar-deferred-badge');
+            const countPill = document.getElementById('deferred-count-pill');
+            if (!listEl) return;
+
+            try {
+                const data = await WaypointUtil.api('/api/deferrals').catch(() => ({ entries: [] }));
+                const entries = (data && data.entries) || [];
+                
+                if (badgeEl) badgeEl.textContent = entries.length;
+                if (countPill) countPill.textContent = `${entries.length} ORDERS`;
+
+                if (entries.length === 0) {
+                    listEl.innerHTML = `
+                        <div style="background:#ffffff; border:1px solid var(--border-color); border-radius:12px; padding:24px 16px; text-align:center;">
+                            <div style="font-size:24px; margin-bottom:6px;">✓</div>
+                            <div style="font-size:13px; font-weight:800; color:#0f172a;">No Deferred Orders</div>
+                            <div style="font-size:11px; color:#64748b; margin-top:2px;">All allocated items are scheduled for today's run.</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                listEl.innerHTML = entries.map((d) => `
+                    <div style="background:#ffffff; border:1px solid #fed7aa; border-radius:12px; padding:12px 14px; box-shadow:var(--shadow-card);">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                            <span style="font-size:13px; font-weight:900; color:#9a3412;">${orderRef(d.orderId)} · ${esc(d.outletId || 'Outlet')}</span>
+                            <span style="background:#ffedd5; color:#c2410c; font-size:10px; font-weight:800; padding:2px 8px; border-radius:9999px;">
+                                ${esc(d.reasonCode || 'DEFERRED')}
+                            </span>
+                        </div>
+                        <div style="font-size:11px; color:#475569; margin-bottom:4px;">
+                            ${esc(d.detail || 'Deferred by dispatcher due to operational capacity constraints.')}
+                        </div>
+                        <div style="display:flex; align-items:center; justify-content:space-between; font-size:10px; color:#64748b; padding-top:6px; border-top:1px solid #ffedd5;">
+                            <span>Promised: <strong>${d.promiseDate ? new Date(d.promiseDate).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) : 'Next Run'}</strong></span>
+                            <span>Recorded: ${hhmm(d.createdAt)}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                listEl.innerHTML = `<div style="padding:16px; text-align:center; color:#ef4444; font-size:11px;">Unable to load deferral ledger.</div>`;
+            }
+        }
+
+        // --- OVERALL SHIFT SUMMARY ---
+        function renderDriverSummary() {
+            const stops = allStops();
+            const trips = (state.manifest && state.manifest.trips) || [];
+            const done = stops.filter(s => s.status === 'delivered').length;
+            const totalWeight = trips.reduce((acc, t) => acc + (t.totalWeight || 0), 0);
+            const totalVol = trips.reduce((acc, t) => acc + (t.totalVolume || 0), 0);
+            const totalDist = trips.reduce((acc, t) => acc + (t.distanceKm || 0), 0);
+            const totalFuel = trips.reduce((acc, t) => acc + (t.fuelLiters || 0), 0);
+
+            const doneEl = document.getElementById('sum-stops-done');
+            if (doneEl) doneEl.textContent = `${done} / ${stops.length}`;
+            const ontimeEl = document.getElementById('sum-ontime-pct');
+            if (ontimeEl) ontimeEl.textContent = `${stops.length > 0 ? Math.round((done / stops.length) * 100) : 100}%`;
+            const weightEl = document.getElementById('sum-weight-kg');
+            if (weightEl) weightEl.textContent = `${Math.round(totalWeight)} kg`;
+            const volEl = document.getElementById('sum-volume-m3');
+            if (volEl) volEl.textContent = `${Math.round(totalVol * 10) / 10} m³`;
+            const distEl = document.getElementById('sum-dist-km');
+            if (distEl) distEl.textContent = `${Math.round(totalDist)} km`;
+            const fuelEl = document.getElementById('sum-fuel-l');
+            if (fuelEl) fuelEl.textContent = `${Math.round(totalFuel)} L`;
+        }
+
+        // --- DRIVER MESSAGES & COMMUNICATION ---
+        function switchDriverMsgTab(tab) {
+            state.msgTab = tab;
+            const dockTab = document.getElementById('msg-tab-dock');
+            const storeTab = document.getElementById('msg-tab-store');
+            if (tab === 'dock') {
+                if (dockTab) { dockTab.style.background = '#eff6ff'; dockTab.style.borderColor = '#2563eb'; dockTab.style.color = '#1d4ed8'; }
+                if (storeTab) { storeTab.style.background = '#ffffff'; storeTab.style.borderColor = '#cbd5e1'; storeTab.style.color = '#475569'; }
+            } else {
+                if (storeTab) { storeTab.style.background = '#eff6ff'; storeTab.style.borderColor = '#2563eb'; storeTab.style.color = '#1d4ed8'; }
+                if (dockTab) { dockTab.style.background = '#ffffff'; dockTab.style.borderColor = '#cbd5e1'; dockTab.style.color = '#475569'; }
+            }
+            renderDriverChat();
+        }
+
+        async function loadDriverMessages() {
+            try {
+                const res = await WaypointUtil.api('/api/dock-notes').catch(() => ({ notes: [] }));
+                state.messages = (res && res.notes) || [];
+                renderDriverChat();
+            } catch {}
+        }
+
+        function renderDriverChat() {
+            const chatList = document.getElementById('driver-chat-list');
+            if (!chatList) return;
+
+            if (state.messages.length === 0) {
+                chatList.innerHTML = `
+                    <div style="padding: 24px; text-align: center; color: #94a3b8; font-size: 12px;">
+                        No messages yet.<br><span style="font-size: 11px;">Send an alert or status update below.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            chatList.innerHTML = state.messages.map((m) => {
+                const isMe = (state.user && m.author && m.author.includes(state.user.name)) || (m.author === 'Driver');
+                const bubbleCls = isMe ? 'chat-bubble-sent' : 'chat-bubble-received';
+                return `
+                    <div class="${bubbleCls}">
+                        <div style="font-size: 10px; font-weight: 800; opacity: 0.85; margin-bottom: 2px;">
+                            ${esc(m.author || 'Dock Dispatch')} · ${hhmm(m.createdAt)}
+                        </div>
+                        <div style="font-size: 12px; line-height: 1.35;">
+                            ${esc(m.note)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            chatList.scrollTop = chatList.scrollHeight;
+        }
+
+        function quickDriverMsg(text) {
+            const input = document.getElementById('driver-msg-input');
+            if (input) {
+                input.value = text;
+                input.focus();
+            }
+        }
+
+        async function sendDriverMsg(e) {
+            e.preventDefault();
+            const input = document.getElementById('driver-msg-input');
+            if (!input || !input.value.trim()) return;
+            const noteText = input.value.trim();
+            input.value = '';
+
+            const trip = state.manifest && state.manifest.trips && state.manifest.trips[0];
+            const body = {
+                note: noteText,
+                vehicleCode: state.user ? state.user.vehicleCode : 'VEH035',
+                tripId: trip ? trip.id : null,
+                author: state.user ? `${state.user.name} (Driver)` : 'Driver Marcus',
+                depot: trip ? trip.depot : 'Peliyagoda'
+            };
+
+            try {
+                await WaypointUtil.api('/api/dock-notes', { method: 'POST', body });
+                showToastBanner('✓ Message broadcast to Dispatcher & Dock');
+                await loadDriverMessages();
+            } catch (err) {
+                showToastBanner(`Message failed: ${err.message}`);
+            }
+        }
+
+        // --- PHOTO CAPTURE & UPLOAD (FOR PHONE ACTIVITY & POD) ---
+        function handleDriverPodPhoto(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                state.podPhoto = e.target.result;
+                const img = document.getElementById('driver-pod-photo-img');
+                const nameEl = document.getElementById('driver-pod-photo-name');
+                const wrap = document.getElementById('driver-pod-photo-preview-wrap');
+                if (img) img.src = state.podPhoto;
+                if (nameEl) nameEl.textContent = file.name || 'pod_goods_photo.jpg';
+                if (wrap) wrap.style.display = 'flex';
+                showToastBanner('📸 Goods proof photo captured & attached');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeDriverPodPhoto() {
+            state.podPhoto = null;
+            const input = document.getElementById('driver-pod-photo-input');
+            if (input) input.value = '';
+            const wrap = document.getElementById('driver-pod-photo-preview-wrap');
+            if (wrap) wrap.style.display = 'none';
+        }
+
+        function handleDriverIssuePhoto(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                state.issuePhoto = e.target.result;
+                const img = document.getElementById('driver-issue-photo-img');
+                const nameEl = document.getElementById('driver-issue-photo-name');
+                const wrap = document.getElementById('driver-issue-photo-preview-wrap');
+                if (img) img.src = state.issuePhoto;
+                if (nameEl) nameEl.textContent = file.name || 'issue_photo.jpg';
+                if (wrap) wrap.style.display = 'flex';
+                showToastBanner('📸 Issue photo attached');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeDriverIssuePhoto() {
+            state.issuePhoto = null;
+            const input = document.getElementById('driver-issue-photo-input');
+            if (input) input.value = '';
+            const wrap = document.getElementById('driver-issue-photo-preview-wrap');
+            if (wrap) wrap.style.display = 'none';
+        }
+
+        function handleIssueCategoryChange(cat) {
+            const promiseGrp = document.getElementById('defer-promise-group');
+            if (promiseGrp) {
+                promiseGrp.style.display = (cat === 'REE' || cat === 'CUST_REQ' || cat === 'STORE_CLOSED') ? 'block' : 'none';
+            }
         }
 
         // --- DRIVER ACTIONS → real events (offline-safe via outbox) ---
@@ -2078,6 +3005,8 @@
                 : `<strong>Online</strong> · all events synced`;
             const pill = document.getElementById('drv-queued-pill');
             if (pill) pill.textContent = n > 0 ? `${navigator.onLine ? 'SYNCING' : 'OFFLINE'} • ${n} QUEUED` : 'ONLINE • SYNCED';
+            const sideCount = document.getElementById('sidebar-sync-count');
+            if (sideCount) sideCount.textContent = `${n} pending`;
         }
 
         function driverArrive() {
@@ -2100,10 +3029,12 @@
                 recipient: recipientEl ? recipientEl.value : '',
                 outcome: outcomeEl ? outcomeEl.value : 'delivered — full',
                 signature,
+                photo: state.podPhoto || null,
                 seq: cur.seq,
                 outletId: cur.outletId,
             });
             enqueue('pod', cur.orderId, payload);
+            removeDriverPodPhoto();
             setTimeout(loadManifest, 600);
         }
 
@@ -2115,13 +3046,43 @@
             jumpToScreen('screen-10-defer');
         }
 
-        function executeDeferral() {
+        async function executeIssueReport() {
             const reasonSelect = document.getElementById('defer-reason-code');
-            const reasonText = reasonSelect ? reasonSelect.options[reasonSelect.selectedIndex].text : 'Reefer Capacity';
+            const reasonText = reasonSelect ? reasonSelect.options[reasonSelect.selectedIndex].text : 'Issue';
             const noteEl = document.getElementById('defer-override-note');
             const note = noteEl ? noteEl.value : '';
-            enqueue('issue', state.issueOrderId, { reason: reasonText, note, deferRequested: true });
+            const cur = currentStop();
+            const orderId = state.issueOrderId || (cur ? cur.orderId : null);
+
+            enqueue('issue', orderId, {
+                reason: reasonText,
+                note,
+                photo: state.issuePhoto || null,
+                deferRequested: true
+            });
+
+            // Also post as urgent operational dock note
+            if (note) {
+                try {
+                    await WaypointUtil.api('/api/dock-notes', {
+                        method: 'POST',
+                        body: {
+                            note: `[ISSUE ${reasonSelect.value}] ${note}`,
+                            vehicleCode: state.user ? state.user.vehicleCode : 'VEH035',
+                            author: state.user ? `${state.user.name} (Driver)` : 'Driver Marcus'
+                        }
+                    });
+                } catch {}
+            }
+
+            removeDriverIssuePhoto();
+            showToastBanner('⚠️ Issue logged and broadcast to Dispatcher & Store');
             jumpToScreen('stop-list');
+            setTimeout(loadManifest, 600);
+        }
+
+        function executeDeferral() {
+            executeIssueReport();
         }
 
         // --- REALTIME: plan updates from dispatcher + loader messages + polling fallback ---
@@ -2137,6 +3098,7 @@
             });
             WaypointRealtime.on('dock-note-added', (n) => {
                 showToastBanner(`📢 Dock Alert from ${n.author || 'Loader'}: ${n.note}`);
+                loadDriverMessages();
             });
             WaypointRealtime.on('final-check-completed', (f) => {
                 showToastBanner(`🔒 Vehicle Final Check Verified by ${f.confirmedBy || 'Loader'} — Ready for departure`);
@@ -2173,6 +3135,13 @@
         function applyUserProfile(user) {
             const chip = document.querySelector('.user-chip-name span');
             if (chip) chip.textContent = `👋 ${user.name || 'Driver'} • ${user.vehicleCode || '—'}`;
+            const sideName = document.getElementById('sidebar-driver-name');
+            if (sideName) sideName.textContent = user.name || 'Marcus K.';
+            const sideVeh = document.getElementById('sidebar-vehicle-code');
+            if (sideVeh) sideVeh.textContent = `Vehicle ${user.vehicleCode || 'VEH035'} · Active`;
+            const sideInit = document.getElementById('sidebar-user-initials');
+            if (sideInit) sideInit.textContent = (user.name || 'DR').split(/\s+/).map((p) => p[0]).join('').slice(0, 2).toUpperCase();
+
             document.querySelectorAll('div').forEach((d) => {
                 if (d.childElementCount === 0 && d.textContent.trim() === 'VEH045') d.textContent = user.vehicleCode || '—';
                 if (d.childElementCount === 0 && d.textContent.trim() === 'SP') d.textContent = (user.name || 'DR').split(/\s+/).map((p) => p[0]).join('').slice(0, 2).toUpperCase();
@@ -2208,6 +3177,7 @@
         function jumpToScreen(screenId) {
             document.querySelectorAll('.driver-screen').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-tab-action').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sidebar-menu-item').forEach(el => el.classList.remove('active'));
 
             const target = document.getElementById('scr-' + screenId);
             if (target) target.classList.add('active');
@@ -2217,23 +3187,33 @@
 
             // EXACT TAB HIGHLIGHT MATCHING:
             if (screenId === 'driver-overview') {
-                document.getElementById('tab-btn-home').classList.add('active');
-            } else if (screenId === 'driver-home') {
-                document.getElementById('tab-btn-deliv').classList.add('active');
-            } else if (screenId === 'stop-list') {
-                document.getElementById('tab-btn-routes').classList.add('active');
+                const b = document.getElementById('tab-btn-home'); if (b) b.classList.add('active');
+            } else if (screenId === 'driver-home' || screenId === 'driver-summary') {
+                const b = document.getElementById('tab-btn-deliv'); if (b) b.classList.add('active');
+            } else if (screenId === 'stop-list' || screenId === 'driver-map') {
+                const b = document.getElementById('tab-btn-routes'); if (b) b.classList.add('active');
             } else if (screenId === 'stop-detail') {
-                document.getElementById('tab-btn-activity').classList.add('active');
+                const b = document.getElementById('tab-btn-activity'); if (b) b.classList.add('active');
             } else if (screenId === 'screen-10-defer') {
-                document.getElementById('tab-btn-deliv').classList.add('active');
-            } else if (screenId === 'notification-driver') {
-                document.getElementById('tab-btn-more').classList.add('active');
-            } else if (screenId.includes('connectivity')) {
-                document.getElementById('tab-btn-more').classList.add('active');
+                const b = document.getElementById('tab-btn-deliv'); if (b) b.classList.add('active');
+            } else {
+                const b = document.getElementById('tab-btn-more'); if (b) b.classList.add('active');
             }
 
             if (screenId === 'stop-detail') {
                 setTimeout(resizeCanvas, 50);
+            }
+            if (screenId === 'driver-map') {
+                setTimeout(() => {
+                    if (driverMap) driverMap.invalidateSize();
+                    renderDriverMap();
+                }, 100);
+            }
+            if (screenId === 'driver-messages') {
+                loadDriverMessages();
+            }
+            if (screenId === 'driver-deferred') {
+                renderDriverDeferred();
             }
         }
 

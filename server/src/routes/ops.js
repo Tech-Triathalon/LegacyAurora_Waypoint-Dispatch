@@ -92,6 +92,9 @@ function shapeTrip(t) {
         tempRequirement: s.order ? s.order.tempRequirement : 'ambient',
         windowOpen: s.order ? s.order.windowOpen : null,
         windowClose: s.order ? s.order.windowClose : null,
+        dockType: s.order && s.order.outlet ? s.order.outlet.dockType : null,
+        parkingConstraint: s.order && s.order.outlet ? s.order.outlet.parkingConstraint : null,
+        mallWindow: s.order && s.order.outlet ? s.order.outlet.mallWindow : null,
         plannedArrival: s.plannedArrival,
         status: s.order ? s.order.status : null,
       })),
@@ -105,7 +108,7 @@ router.get('/trips', requireAuth, readLimiter, async (req, res) => {
   if (req.query.depot && req.query.depot !== 'all') {
     where.depot = req.query.depot;
   }
-  const trips = await prisma.trip.findMany({ where, include: { stops: { include: { order: true } }, vehicle: true } });
+  const trips = await prisma.trip.findMany({ where, include: { stops: { include: { order: { include: { outlet: true } } } }, vehicle: true } });
   trips.sort((a, b) => String(a.vehicle ? a.vehicle.vehicleId : '').localeCompare(String(b.vehicle ? b.vehicle.vehicleId : '')) || a.tripNo - b.tripNo);
   return res.json({ trips: trips.map(shapeTrip) });
 });
@@ -185,7 +188,7 @@ router.get('/trips/for-driver', requireAuth, requireRole('driver'), readLimiter,
   if (!vehicle) return res.status(404).json({ error: 'no vehicle assigned to driver' });
   const trips = await prisma.trip.findMany({
     where: { vehicleId: vehicle.id },
-    include: { stops: { include: { order: true } }, vehicle: true },
+    include: { stops: { include: { order: { include: { outlet: true } } } }, vehicle: true },
     orderBy: { tripNo: 'asc' },
   });
   return res.json({ vehicle: vehicle.vehicleId, vehicleNumericId: vehicle.id, telemetryStale: vehicle.telemetryStale, trips: trips.map(shapeTrip) });
@@ -197,7 +200,7 @@ router.get('/trips/:vehicleCode', requireAuth, readLimiter, async (req, res) => 
   if (!v) return res.status(404).json({ error: 'vehicle not found' });
   const trips = await prisma.trip.findMany({
     where: { vehicleId: v.id },
-    include: { stops: { include: { order: true } }, vehicle: true },
+    include: { stops: { include: { order: { include: { outlet: true } } } }, vehicle: true },
     orderBy: { tripNo: 'asc' },
   });
   return res.json({ vehicle: v.vehicleId, trips: trips.map(shapeTrip) });
@@ -342,7 +345,11 @@ router.get('/outlet/:id/timeline', requireAuth, readLimiter, async (req, res) =>
       return res.status(403).json({ error: 'managers can only view their own outlet timeline' });
     }
   }
-  const orders = await prisma.order.findMany({ where: { outletId }, include: { outlet: true } });
+  const orders = await prisma.order.findMany({
+    where: { outletId },
+    include: { outlet: true },
+    orderBy: { orderDate: 'desc' },
+  });
   const orderIds = orders.map((o) => o.id);
   const events = await prisma.deliveryEvent.findMany({
     where: { orderId: { in: orderIds } },
@@ -354,11 +361,54 @@ router.get('/outlet/:id/timeline', requireAuth, readLimiter, async (req, res) =>
     include: { order: true },
     orderBy: { promisedAt: 'desc' },
   });
+  const flags = await prisma.shortageFlag.findMany({
+    where: { orderId: { in: orderIds } },
+    orderBy: { createdAt: 'desc' },
+    take: 50,
+  });
   return res.json({
     outletId,
-    orders: orders.map((o) => ({ id: o.id, orderRef: `ORD-${String(o.id).padStart(4, '0')}`, status: o.status, windowOpen: o.windowOpen, windowClose: o.windowClose })),
+    orders: orders.map((o) => ({
+      id: o.id,
+      orderRef: `ORD-${String(o.id).padStart(4, '0')}`,
+      status: o.status,
+      windowOpen: o.windowOpen,
+      windowClose: o.windowClose,
+      brand: o.brand,
+      district: o.district,
+      depot: o.depot,
+      tempRequirement: o.tempRequirement,
+      units: o.units,
+      weightKg: o.weightKg,
+      volumeM3: o.volumeM3,
+      orderDate: o.orderDate,
+      deferredYesterday: o.deferredYesterday,
+      deferralReason: o.deferralReason,
+      promiseDate: o.promiseDate,
+      createdAt: o.createdAt,
+      outlet: o.outlet,
+    })),
     events: events.map((e) => ({ type: e.type, orderId: e.orderId, at: e.serverTimestamp, payload: e.payload })),
-    deferrals: deferrals.map((d) => ({ reason: d.reason, promiseDate: d.promiseDate, orderRef: `ORD-${String(d.orderId).padStart(4, '0')}` })),
+    deferrals: deferrals.map((d) => ({
+      id: d.id,
+      reason: d.reason,
+      promiseDate: d.promiseDate,
+      orderRef: `ORD-${String(d.orderId).padStart(4, '0')}`,
+      orderId: d.orderId,
+      detail: d.detail,
+      kept: d.kept,
+      promisedAt: d.promisedAt,
+      createdAt: d.createdAt,
+    })),
+    flags: flags.map((f) => ({
+      id: f.id,
+      orderId: f.orderId,
+      itemDesc: f.itemDesc,
+      qty: f.qty,
+      reason: f.reason,
+      status: f.status,
+      createdAt: f.createdAt,
+    })),
   });
 });
 
@@ -500,8 +550,8 @@ router.get('/dock-notes', requireAuth, readLimiter, async (req, res) => {
   return res.json({ notes });
 });
 
-// POST /api/dock-notes — loader or dispatcher saves a dock note; notifies all roles
-router.post('/dock-notes', requireAuth, requireRole('loader', 'dispatcher'), syncLimiter, async (req, res) => {
+// POST /api/dock-notes — loader, dispatcher, driver, or manager saves a note/message; notifies all roles
+router.post('/dock-notes', requireAuth, requireRole('loader', 'dispatcher', 'driver', 'manager'), syncLimiter, async (req, res) => {
   const { tripId, orderId, vehicleCode, depot, note, author } = req.body || {};
   if (!note || typeof note !== 'string' || !note.trim()) {
     return res.status(400).json({ error: 'note content required' });
