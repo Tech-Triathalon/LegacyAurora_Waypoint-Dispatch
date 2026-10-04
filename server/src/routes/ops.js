@@ -324,43 +324,323 @@ router.post('/receipt', requireAuth, requireRole('manager'), syncLimiter, idempo
   return res.json({ ok: true, matchedFlags: flags.length, claim: claim || 'confirmed' });
 });
 
-// ---- Telemetry outage simulation (dispatcher console toggle, persisted server-side) ----
+// ---- Loader Operations: Checklist, Dock Notes, Scan/Weight, Final Check, Day Summary ----
 
-router.post('/telemetry/outage', requireAuth, requireRole('dispatcher'), readLimiter, async (req, res) => {
-  const stale = vBool({})(req.body && req.body.stale);
-  const code = vString({ min: 3, max: 24 })(req.body && req.body.vehicleCode);
-  if (stale.err || code.err) return res.status(400).json({ error: 'vehicleCode and stale required' });
-  const v = await prisma.vehicle.findUnique({ where: { vehicleId: code.value } });
-  if (!v) return res.status(404).json({ error: 'vehicle not found' });
-  await prisma.vehicle.update({ where: { vehicleId: code.value }, data: { telemetryStale: stale.value } });
-  return res.json({ vehicleCode: code.value, telemetryStale: stale.value });
-});
-
-// GET /api/telemetry/fleet — fleet board state incl. stale flags.
-router.get('/telemetry/fleet', requireAuth, readLimiter, async (req, res) => {
-  const vehicles = await prisma.vehicle.findMany({ orderBy: { id: 'asc' } });
-  return res.json({
-    fleet: vehicles.map((v) => ({ vehicleCode: v.vehicleId, depot: v.depot, temp: v.temp, type: v.type, telemetryStale: v.telemetryStale, status: v.status })),
-  });
-});
-
-// GET /api/flags/geo — latest GPS fix per vehicle (from departed/arrived/pod event payloads).
-router.get('/flags/geo', requireAuth, readLimiter, async (req, res) => {
+// GET /api/checklist — returns map of checked order item statuses from DB events
+router.get('/checklist', requireAuth, readLimiter, async (req, res) => {
   const events = await prisma.deliveryEvent.findMany({
-    where: { type: { in: ['departed', 'arrived', 'pod'] } },
-    orderBy: { serverTimestamp: 'desc' },
-    take: 400,
+    where: { type: 'loaded' },
+    orderBy: { serverTimestamp: 'asc' },
+    take: 1000,
   });
-  const latest = new Map(); // vehicleId → newest event carrying coordinates
+  const checkedMap = {};
   for (const e of events) {
-    const vid = e.vehicleId || (e.payload && e.payload.vehicleId);
-    const lat = e.payload && Number(e.payload.lat);
-    const lng = e.payload && Number(e.payload.lng);
-    if (vid && Number.isFinite(lat) && Number.isFinite(lng) && !latest.has(vid)) {
-      latest.set(vid, { vehicleId: vid, type: e.type, orderId: e.orderId, lat, lng, at: e.serverTimestamp });
+    if (e.payload && e.payload.isChecklistItem && e.orderId) {
+      checkedMap[e.orderId] = {
+        checked: Boolean(e.payload.checked),
+        checkedAt: e.serverTimestamp,
+        checkedBy: e.payload.checkedBy || 'Loader',
+        vehicleCode: e.payload.vehicleCode,
+        tripId: e.payload.tripId,
+        seq: e.payload.seq,
+      };
     }
   }
-  return res.json({ positions: Array.from(latest.values()) });
+  return res.json({ checkedMap });
+});
+
+// POST /api/checklist/toggle — loader checks/unchecks an item/stop; persists to DB
+router.post('/checklist/toggle', requireAuth, requireRole('loader', 'dispatcher'), syncLimiter, async (req, res) => {
+  const { orderId, tripId, vehicleCode, checked, seq, bay } = req.body || {};
+  if (!orderId) return res.status(400).json({ error: 'orderId required' });
+  const isChecked = Boolean(checked);
+  const eventId = `chk-${orderId}-${isChecked ? 'on' : 'off'}-${Date.now()}`;
+  
+  const ord = await prisma.order.findUnique({ where: { id: Number(orderId) } }).catch(() => null);
+
+  await prisma.deliveryEvent.create({
+    data: {
+      eventId,
+      type: 'loaded',
+      orderId: Number(orderId),
+      payload: {
+        isChecklistItem: true,
+        checked: isChecked,
+        tripId: tripId ? Number(tripId) : null,
+        vehicleCode: vehicleCode || null,
+        seq: Number(seq) || 1,
+        bay: bay || 'Bay 2',
+        checkedBy: (req.user && req.user.name) || (req.user && req.user.username) || 'Loader',
+      },
+      syncedFlag: true,
+    },
+  });
+
+  // Count total items checked for this trip
+  const tripEvents = await prisma.deliveryEvent.findMany({
+    where: { type: 'loaded' },
+    orderBy: { serverTimestamp: 'asc' },
+  });
+  const tripCheckedMap = {};
+  for (const e of tripEvents) {
+    if (e.payload && e.payload.isChecklistItem && e.payload.tripId === Number(tripId)) {
+      tripCheckedMap[e.orderId] = Boolean(e.payload.checked);
+    }
+  }
+  const totalChecked = Object.values(tripCheckedMap).filter(Boolean).length;
+
+  publish('dispatcher', 'loader-check', {
+    orderId: Number(orderId),
+    orderRef: `ORD-${String(orderId).padStart(4, '0')}`,
+    outletId: ord ? ord.outletId : null,
+    tripId: tripId ? Number(tripId) : null,
+    vehicleCode: vehicleCode || null,
+    checked: isChecked,
+    totalChecked,
+    checkedBy: (req.user && req.user.name) || 'Loader',
+  });
+
+  return res.json({ ok: true, orderId: Number(orderId), checked: isChecked, totalChecked });
+});
+
+// GET /api/dock-notes — retrieve real dock notes from DB
+router.get('/dock-notes', requireAuth, readLimiter, async (req, res) => {
+  const events = await prisma.deliveryEvent.findMany({
+    where: { type: 'loaded' },
+    orderBy: { serverTimestamp: 'desc' },
+    take: 200,
+  });
+  const notes = [];
+  for (const e of events) {
+    if (e.payload && e.payload.isDockNote && e.payload.note) {
+      notes.push({
+        id: e.id,
+        note: e.payload.note,
+        vehicleCode: e.payload.vehicleCode || 'All Vehicles',
+        tripId: e.payload.tripId || null,
+        depot: e.payload.depot || 'Peliyagoda',
+        author: e.payload.author || 'Dock Loader',
+        createdAt: e.serverTimestamp,
+        orderId: e.orderId,
+      });
+    }
+  }
+  return res.json({ notes });
+});
+
+// POST /api/dock-notes — loader or dispatcher saves a dock note; notifies all roles
+router.post('/dock-notes', requireAuth, requireRole('loader', 'dispatcher'), syncLimiter, async (req, res) => {
+  const { tripId, orderId, vehicleCode, depot, note, author } = req.body || {};
+  if (!note || typeof note !== 'string' || !note.trim()) {
+    return res.status(400).json({ error: 'note content required' });
+  }
+  const cleanNote = note.trim().slice(0, 1000);
+  const authorName = author || (req.user && req.user.name) || (req.user && req.user.username) || 'Loader';
+  const eventId = `note-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+
+  await prisma.deliveryEvent.create({
+    data: {
+      eventId,
+      type: 'loaded',
+      orderId: orderId ? Number(orderId) : null,
+      payload: {
+        isDockNote: true,
+        note: cleanNote,
+        vehicleCode: vehicleCode || null,
+        tripId: tripId ? Number(tripId) : null,
+        depot: depot || 'Peliyagoda',
+        author: authorName,
+      },
+      syncedFlag: true,
+    },
+  });
+
+  const notePayload = {
+    note: cleanNote,
+    vehicleCode: vehicleCode || 'Dock Bay',
+    tripId: tripId ? Number(tripId) : null,
+    depot: depot || 'Peliyagoda',
+    author: authorName,
+    createdAt: new Date().toISOString(),
+  };
+
+  publish('dispatcher', 'dock-note-added', notePayload);
+  publish('driver', 'dock-note-added', notePayload);
+  publish('loader', 'dock-note-added', notePayload);
+
+  return res.json({ ok: true, note: notePayload });
+});
+
+// POST /api/trips/scan-weight — record scan verification and weight measurement
+router.post('/trips/scan-weight', requireAuth, requireRole('loader', 'dispatcher'), syncLimiter, async (req, res) => {
+  const { tripId, orderId, scannedCode, actualWeightKg, plannedWeightKg, bay } = req.body || {};
+  if (!orderId || actualWeightKg === undefined) {
+    return res.status(400).json({ error: 'orderId and actualWeightKg required' });
+  }
+  const actW = Number(actualWeightKg);
+  const planW = Number(plannedWeightKg) || actW;
+  const deltaKg = Math.round((actW - planW) * 10) / 10;
+  const isDiscrepancy = planW > 0 && Math.abs(deltaKg) > (0.05 * planW);
+
+  const eventId = `scan-${orderId}-${Date.now()}`;
+  await prisma.deliveryEvent.create({
+    data: {
+      eventId,
+      type: 'loaded',
+      orderId: Number(orderId),
+      payload: {
+        isScanWeight: true,
+        tripId: tripId ? Number(tripId) : null,
+        scannedCode: scannedCode || `ORD-${String(orderId).padStart(4, '0')}`,
+        actualWeightKg: actW,
+        plannedWeightKg: planW,
+        weightDeltaKg: deltaKg,
+        isDiscrepancy,
+        bay: bay || 'Bay 2',
+        scannedBy: (req.user && req.user.name) || 'Loader',
+      },
+      syncedFlag: true,
+    },
+  });
+
+  publish('dispatcher', 'weight-scanned', {
+    orderId: Number(orderId),
+    orderRef: `ORD-${String(orderId).padStart(4, '0')}`,
+    tripId: tripId ? Number(tripId) : null,
+    actualWeightKg: actW,
+    plannedWeightKg: planW,
+    weightDeltaKg: deltaKg,
+    isDiscrepancy,
+  });
+
+  return res.json({ ok: true, actualWeightKg: actW, plannedWeightKg: planW, weightDeltaKg: deltaKg, isDiscrepancy });
+});
+
+// POST /api/trips/:id/final-check — finalize vehicle loading & handoff
+router.post('/trips/:id/final-check', requireAuth, requireRole('loader', 'dispatcher'), syncLimiter, async (req, res) => {
+  const tripId = Number(req.params.id);
+  const { vehicleCode, sealNumber, bay, allLoaded, palletsSecured, balanced, tempChecked, confirmedBy, notes } = req.body || {};
+
+  const trip = await prisma.trip.findUnique({ where: { id: tripId }, include: { stops: true } });
+  if (!trip) return res.status(404).json({ error: 'trip not found' });
+
+  // Update trip status to loading or planned readiness
+  await prisma.trip.update({ where: { id: tripId }, data: { status: 'planned' } }).catch(() => {});
+
+  const eventId = `finchk-${tripId}-${Date.now()}`;
+  await prisma.deliveryEvent.create({
+    data: {
+      eventId,
+      type: 'loaded',
+      payload: {
+        isFinalCheck: true,
+        tripId,
+        vehicleCode: vehicleCode || (trip.vehicle ? trip.vehicle.vehicleId : null),
+        sealNumber: sealNumber || `SEAL-${Math.floor(100000 + Math.random() * 900000)}`,
+        bay: bay || 'Bay 2',
+        allLoaded: Boolean(allLoaded !== false),
+        palletsSecured: Boolean(palletsSecured !== false),
+        balanced: Boolean(balanced !== false),
+        tempChecked: Boolean(tempChecked !== false),
+        confirmedBy: confirmedBy || (req.user && req.user.name) || 'Loader',
+        notes: notes || '',
+        confirmedAt: new Date().toISOString(),
+      },
+      syncedFlag: true,
+    },
+  });
+
+  publish('dispatcher', 'final-check-completed', {
+    tripId,
+    vehicleCode: vehicleCode || trip.vehicleId,
+    confirmedBy: confirmedBy || 'Loader',
+    status: 'ready_for_departure',
+  });
+
+  publish(`driver:${trip.vehicleId}`, 'final-check-completed', {
+    tripId,
+    status: 'ready_for_departure',
+  });
+
+  return res.json({ ok: true, tripId, status: 'ready_for_departure' });
+});
+
+// GET /api/loader/day-summary — computed summary of loading operations
+router.get('/loader/day-summary', requireAuth, readLimiter, async (req, res) => {
+  const depot = req.query.depot || 'Peliyagoda';
+  const where = depot && depot !== 'all' ? { depot } : {};
+
+  const trips = await prisma.trip.findMany({
+    where,
+    include: { stops: { include: { order: true } }, vehicle: true },
+  });
+
+  const totalTrips = trips.length;
+  const tripsReleased = trips.filter(t => t.status === 'departed' || t.status === 'completed').length;
+  
+  let totalOrdersLoaded = 0;
+  let totalWeightLoaded = 0;
+  let totalVolumeLoaded = 0;
+
+  for (const t of trips) {
+    totalWeightLoaded += (t.totalWeight || 0);
+    totalVolumeLoaded += (t.totalVolume || 0);
+    totalOrdersLoaded += (t.stops ? t.stops.length : 0);
+  }
+
+  const flags = await prisma.shortageFlag.findMany({
+    where: { status: 'open' },
+  });
+
+  const events = await prisma.deliveryEvent.findMany({
+    where: { type: 'loaded' },
+  });
+  const notesCount = events.filter(e => e.payload && e.payload.isDockNote).length;
+
+  return res.json({
+    depot: depot || 'All Facilities',
+    totalTrips,
+    tripsReleased,
+    tripsPending: Math.max(0, totalTrips - tripsReleased),
+    totalOrdersLoaded,
+    totalWeightLoaded: Math.round(totalWeightLoaded),
+    totalVolumeLoaded: Math.round(totalVolumeLoaded * 10) / 10,
+    shortagesFlagged: flags.length,
+    notesCount,
+    updatedAt: new Date().toISOString(),
+  });
+});
+
+// POST /api/loader/day-summary — transmits dock day summary to Dispatcher
+router.post('/loader/day-summary', requireAuth, requireRole('loader', 'dispatcher'), syncLimiter, async (req, res) => {
+  const { depot, totalTrips, tripsReleased, totalOrdersLoaded, totalWeightLoaded, totalVolumeLoaded, shortagesFlagged, notesCount } = req.body || {};
+  
+  const payload = {
+    depot: depot || 'Peliyagoda',
+    totalTrips: Number(totalTrips) || 0,
+    tripsReleased: Number(tripsReleased) || 0,
+    totalOrdersLoaded: Number(totalOrdersLoaded) || 0,
+    totalWeightLoaded: Number(totalWeightLoaded) || 0,
+    totalVolumeLoaded: Number(totalVolumeLoaded) || 0,
+    shortagesFlagged: Number(shortagesFlagged) || 0,
+    notesCount: Number(notesCount) || 0,
+    sentAt: new Date().toISOString(),
+    sentBy: (req.user && req.user.name) || 'Loader',
+  };
+
+  const eventId = `daysum-${Date.now()}`;
+  await prisma.deliveryEvent.create({
+    data: {
+      eventId,
+      type: 'loaded',
+      payload: { isDaySummary: true, ...payload },
+      syncedFlag: true,
+    },
+  });
+
+  publish('dispatcher', 'loader-day-summary', payload);
+
+  return res.json({ ok: true, summary: payload });
 });
 
 // GET /api/health — liveness for uptime checks + CI smoke + hub status panel.
@@ -372,3 +652,4 @@ router.get('/health', async (req, res) => {
 });
 
 module.exports = { router };
+

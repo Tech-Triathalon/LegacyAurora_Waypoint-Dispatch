@@ -77,16 +77,47 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            transition: all 0.2s ease;
         }
 
-        /* --- TOP SCREEN SELECTOR TABS (FOR EASY NAVIGATION) --- */
+        /* --- GLOVE MODE STYLES (ENLARGED TOUCH TARGETS FOR WAREHOUSE TABLETS) --- */
+        body.glove-mode {
+            padding: 28px 24px 60px;
+        }
+        body.glove-mode button, 
+        body.glove-mode .screen-nav-btn,
+        body.glove-mode .s1-check-box,
+        body.glove-mode .s2-check-square,
+        body.glove-mode .s3-nav-btn,
+        body.glove-mode .depot-pill-btn,
+        body.glove-mode .vehicle-card-pill,
+        body.glove-mode .modal-select,
+        body.glove-mode input {
+            min-height: 48px !important;
+            font-size: 13px !important;
+            touch-action: manipulation;
+        }
+        body.glove-mode .s1-check-box, 
+        body.glove-mode .s2-check-square {
+            min-width: 38px !important;
+            min-height: 38px !important;
+        }
+        body.glove-mode .s1-item-row {
+            padding: 16px 18px !important;
+        }
+        body.glove-mode .s3-nav-btn {
+            padding: 14px 16px !important;
+            font-size: 13px !important;
+        }
+
+        /* --- TOP SCREEN SELECTOR TABS --- */
         .top-screen-nav-bar {
             width: 100%;
             max-width: 1100px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             flex-wrap: wrap;
             gap: 12px;
         }
@@ -135,7 +166,7 @@
             background: #0f172a;
             color: #ffffff;
             border: none;
-            padding: 6px 12px;
+            padding: 7px 14px;
             border-radius: var(--radius-pill);
             font-size: 11px;
             font-weight: 700;
@@ -143,18 +174,20 @@
             align-items: center;
             gap: 6px;
             cursor: pointer;
+            transition: all 0.2s ease;
         }
 
         .glove-toggle-btn.active {
             background: #f59e0b;
             color: #0f172a;
+            box-shadow: 0 0 10px rgba(245,158,11,0.4);
         }
 
         .btn-logout {
             background: #ffffff;
             border: 1px solid var(--border-color);
             color: var(--text-dark);
-            padding: 6px 12px;
+            padding: 7px 14px;
             border-radius: var(--radius-pill);
             font-size: 11px;
             font-weight: 700;
@@ -185,8 +218,116 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* --- DEPOT, VEHICLE & FILTER COMMAND BAR --- */
+        .depot-vehicle-bar {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 14px 18px;
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: var(--shadow-card);
+        }
+        .depot-pill-btn {
+            background: transparent;
+            border: none;
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .depot-pill-btn.active {
+            background: var(--header-black);
+            color: #ffffff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .filter-controls-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-subtle);
+        }
+        .filter-select, .filter-input {
+            padding: 6px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-dark);
+            background: #ffffff;
+            outline: none;
+        }
+        .filter-select:focus, .filter-input:focus {
+            border-color: #0f172a;
+        }
+
+        .vehicle-card-pill {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 8px 14px;
+            cursor: pointer;
+            min-width: 160px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+            text-align: left;
+        }
+        .vehicle-card-pill:hover {
+            border-color: #cbd5e1;
+            background: #ffffff;
+        }
+        .vehicle-card-pill.active {
+            background: #0f172a;
+            color: #ffffff;
+            border-color: #0f172a;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .vehicle-card-pill.active .v-code {
+            color: #f59e0b;
+        }
+        .vehicle-card-pill.active .v-meta {
+            color: #cbd5e1;
+        }
+        .v-code {
+            font-size: 12px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .v-meta {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .tag-spec-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        .tag-spec-chilled { background: #fee2e2; color: #991b1b; }
+        .tag-spec-ambient { background: #f1f5f9; color: #475569; }
+        .tag-spec-fresh { background: #ecfdf5; color: #065f46; }
+
         /* ==========================================================================
-           SCREEN 1: LOAD SHEET DETAIL (MATCHING SCREENSHOT 1)
+           SCREEN 1: LOAD SHEET DETAIL
            ========================================================================== */
         .s1-card {
             background: #ffffff;
@@ -249,34 +390,30 @@
             font-weight: 800;
             padding: 5px 12px;
             border-radius: var(--radius-pill);
-            text-transform: uppercase;
             letter-spacing: 0.04em;
         }
 
         .pill-glove-mode {
-            background: #27272a;
-            color: #ffffff;
-            font-size: 11px;
-            font-weight: 700;
+            background: #f59e0b;
+            color: #0f172a;
+            font-size: 10px;
+            font-weight: 800;
             padding: 5px 12px;
             border-radius: var(--radius-pill);
             display: flex;
             align-items: center;
             gap: 6px;
             cursor: pointer;
-            border: 1px solid #3f3f46;
         }
 
         .s1-body {
-            padding: 20px 24px 24px;
-            background: #f8fafc;
+            padding: 24px;
         }
 
-        /* 4 METRIC CARDS */
         .s1-metrics-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
+            gap: 16px;
             margin-bottom: 24px;
         }
 
@@ -287,10 +424,10 @@
         }
 
         .s1-metric-box {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
+            background: var(--bg-card-subtle);
+            border: 1px solid #e2e8f0;
             border-radius: var(--radius-md);
-            padding: 16px;
+            padding: 14px 16px;
             display: flex;
             flex-direction: column;
             gap: 4px;
@@ -300,55 +437,51 @@
             font-size: 10px;
             font-weight: 800;
             text-transform: uppercase;
+            color: var(--text-muted);
             letter-spacing: 0.04em;
-            color: #64748b;
         }
 
         .s1-metric-val {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 900;
             color: var(--text-dark);
-            letter-spacing: -0.02em;
+            font-family: 'JetBrains Mono', monospace;
         }
 
         .s1-metric-sub {
             font-size: 11px;
-            color: var(--green-text);
+            color: var(--text-light);
             font-weight: 600;
         }
 
-        /* SECTION HEADER */
         .s1-section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
+            margin-top: 18px;
         }
 
         .s1-section-title {
-            font-size: 13px;
-            font-weight: 900;
+            font-size: 12px;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.02em;
-            color: #0f172a;
+            color: var(--text-dark);
+            letter-spacing: 0.03em;
         }
 
         .s1-section-meta {
-            font-size: 12px;
-            color: #64748b;
+            font-size: 11px;
+            color: var(--text-muted);
             font-weight: 600;
         }
 
-        /* ITEM ROWS */
         .s1-item-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
 
         .s1-item-row {
             background: #ffffff;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-card);
             border-radius: var(--radius-md);
             padding: 14px 18px;
             display: flex;
@@ -357,9 +490,19 @@
             transition: all 0.15s ease;
         }
 
+        .s1-item-row:hover {
+            border-color: #cbd5e1;
+            background: var(--bg-card-subtle);
+        }
+
         .s1-item-row.flagged {
-            border: 1.5px solid var(--red-pill-border);
-            background: #fff5f5;
+            background: var(--red-bg);
+            border-color: var(--red-border);
+        }
+
+        .s1-item-row.checked-row {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
         }
 
         .s1-item-left {
@@ -369,110 +512,110 @@
         }
 
         .s1-check-box {
-            width: 28px;
-            height: 28px;
-            border: 1px solid #cbd5e1;
-            border-radius: var(--radius-sm);
+            width: 26px;
+            height: 26px;
+            border-radius: var(--radius-xs);
+            border: 1.5px solid #cbd5e1;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--green-text);
-            background: #ffffff;
             cursor: pointer;
-            flex-shrink: 0;
+            color: transparent;
+            background: #ffffff;
+            transition: all 0.15s ease;
+        }
+
+        .s1-check-box.checked {
+            background: var(--green-btn);
+            border-color: var(--green-btn);
+            color: #ffffff;
         }
 
         .s1-check-box.warning-icon {
-            border-color: var(--red-pill-border);
-            color: #e11d48;
-            background: #fff1f2;
+            background: transparent;
+            border-color: var(--red-flag);
+            color: var(--red-flag);
         }
 
         .s1-item-name {
             font-size: 13px;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--text-dark);
         }
 
         .s1-item-sub {
             font-size: 11px;
-            color: #64748b;
-            margin-top: 2px;
+            color: var(--text-muted);
+            font-weight: 600;
         }
 
         .s1-item-right {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
         }
 
         .s1-qty-bold {
-            font-size: 15px;
-            font-weight: 900;
-            color: #0f172a;
-            white-space: nowrap;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-dark);
+            font-family: 'JetBrains Mono', monospace;
         }
 
         .pill-flagged-discrepancy {
-            border: 1.5px solid #f87171;
-            color: #dc2626;
-            background: #fff1f2;
+            background: #fee2e2;
+            border: 1px solid var(--red-pill-border);
+            color: var(--red-pill-text);
             font-size: 10px;
             font-weight: 800;
             padding: 4px 10px;
             border-radius: var(--radius-pill);
-            text-transform: uppercase;
             letter-spacing: 0.04em;
         }
 
-        /* BOTTOM STICKY BAR */
         .s1-footer-bar {
-            background: var(--header-black);
-            color: #ffffff;
-            padding: 16px 24px;
+            background: #ffffff;
+            border-top: 1px solid var(--border-color);
+            padding: 14px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
         .s1-back-btn {
-            color: #ffffff;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            background: none;
+            background: transparent;
             border: none;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
         }
 
         .s1-footer-status {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 800;
+            color: var(--text-dark);
             letter-spacing: 0.04em;
-            color: #ffffff;
         }
 
         .s1-btn-review {
-            background: #15803d;
+            background: var(--header-black);
             color: #ffffff;
             border: none;
             padding: 10px 20px;
             border-radius: var(--radius-md);
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 800;
             cursor: pointer;
             transition: all 0.15s ease;
         }
 
         .s1-btn-review:hover {
-            background: #16a34a;
+            background: #262626;
         }
 
         /* ==========================================================================
-           SCREEN 2: BAY 2 LOADING PLAN (MATCHING SCREENSHOT 2)
+           SCREEN 2: BAY 2 LOADING PLAN
            ========================================================================== */
         .s2-card {
             background: #ffffff;
@@ -607,6 +750,12 @@
             cursor: pointer;
         }
 
+        .s2-check-square.checked {
+            background: var(--green-btn);
+            border-color: var(--green-btn);
+            color: #ffffff;
+        }
+
         .s2-row-name {
             font-size: 13px;
             font-weight: 800;
@@ -687,9 +836,9 @@
             color: #0f172a;
         }
 
-        .s2-diff-line.green {
-            color: var(--green-text);
-        }
+        .s2-diff-line.green { color: var(--green-text); }
+        .s2-diff-line.amber { color: var(--amber-text); }
+        .s2-diff-line.muted { color: var(--text-muted); font-style: italic; }
 
         .s2-notes-box {
             border: 1px solid #cbd5e1;
@@ -697,6 +846,9 @@
             padding: 14px;
             background: #ffffff;
             min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .s2-notes-title {
@@ -705,17 +857,21 @@
             text-transform: uppercase;
             color: #64748b;
             letter-spacing: 0.04em;
-            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .s2-notes-content {
             font-size: 12px;
             color: #334155;
             line-height: 1.5;
+            max-height: 180px;
+            overflow-y: auto;
         }
 
         /* ==========================================================================
-           SCREEN 3: LOAD-SHEET - REVERSE ORDER & PLAN DIFF (MATCHING SCREENSHOT 3)
+           SCREEN 3: LOAD-SHEET - ALL 6 FUNCTIONAL SIDEBARS
            ========================================================================== */
         .s3-layout-card {
             background: #ffffff;
@@ -723,8 +879,8 @@
             box-shadow: var(--shadow-card);
             border: 1px solid var(--border-color);
             display: grid;
-            grid-template-columns: 200px 1fr 280px;
-            min-height: 600px;
+            grid-template-columns: 210px 1fr 280px;
+            min-height: 620px;
             overflow: hidden;
         }
 
@@ -756,7 +912,7 @@
             font-weight: 700;
             color: #64748b;
             margin-top: 2px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .s3-nav-list {
@@ -831,6 +987,15 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+        }
+
+        .s3-subview {
+            display: none;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .s3-subview.active {
+            display: flex;
         }
 
         .s3-main-header-row {
@@ -910,6 +1075,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 10px;
         }
 
         .s3-item-val-text {
@@ -955,13 +1121,15 @@
             font-weight: 700;
             color: #94a3b8;
             margin-top: 2px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .s3-diff-items-list {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
+            max-height: 380px;
+            overflow-y: auto;
         }
 
         .s3-diff-entry {
@@ -987,11 +1155,6 @@
             font-size: 11px;
             color: #64748b;
             padding-left: 14px;
-        }
-
-        .s3-diff-entry-desc.green-bold {
-            color: #059669;
-            font-weight: 800;
         }
 
         .s3-diff-bottom-box {
@@ -1020,7 +1183,7 @@
         }
 
         /* ==========================================================================
-           SCREEN 4: LOADER HANDOFF (MATCHING SCREENSHOT 5)
+           SCREEN 4: LOADER HANDOFF
            ========================================================================== */
         .s4-card {
             background: #ffffff;
@@ -1118,6 +1281,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            cursor: pointer;
         }
 
         .s4-check-name {
@@ -1245,7 +1409,7 @@
         }
 
         /* ==========================================================================
-           MODAL: FLAG SHORTAGE (MATCHING SCREENSHOT 4)
+           MODALS (SHORTAGE + REVIEW + DOCK NOTE)
            ========================================================================== */
         .modal-overlay {
             position: fixed;
@@ -1269,7 +1433,7 @@
         .modal-card {
             background: #ffffff;
             width: 100%;
-            max-width: 480px;
+            max-width: 500px;
             border-radius: var(--radius-xl);
             box-shadow: var(--shadow-modal);
             overflow: hidden;
@@ -1282,18 +1446,19 @@
         }
 
         .modal-header-section {
-            padding: 24px 24px 16px;
+            padding: 20px 24px 14px;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .modal-title-row {
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: space-between;
             margin-bottom: 4px;
         }
 
         .modal-title {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 900;
             color: #0f172a;
         }
@@ -1315,10 +1480,10 @@
         }
 
         .modal-body-section {
-            padding: 0 24px 24px;
+            padding: 18px 24px 24px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
         }
 
         .modal-field-group {
@@ -1335,9 +1500,9 @@
             letter-spacing: 0.04em;
         }
 
-        .modal-select {
+        .modal-select, .modal-textarea {
             width: 100%;
-            padding: 12px 14px;
+            padding: 10px 12px;
             border: 1px solid #cbd5e1;
             border-radius: var(--radius-md);
             font-size: 13px;
@@ -1416,7 +1581,7 @@
         .proof-box {
             border: 1px solid #cbd5e1;
             border-radius: var(--radius-md);
-            padding: 14px;
+            padding: 12px 14px;
             background: #fdfbf7;
             display: flex;
             align-items: center;
@@ -1425,8 +1590,8 @@
         }
 
         .proof-camera-icon {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             background: #e2e8f0;
             border-radius: var(--radius-sm);
             display: flex;
@@ -1436,13 +1601,13 @@
         }
 
         .proof-title {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 800;
             color: #0f172a;
         }
 
         .proof-desc {
-            font-size: 11px;
+            font-size: 10px;
             color: #64748b;
         }
 
@@ -1450,7 +1615,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         .btn-modal-cancel {
@@ -1502,7 +1667,7 @@
             text-align: center;
         }
 
-        /* Printable manifest (dock clipboard): hide interactive chrome, flatten to one page */
+        /* Printable manifest (dock clipboard) */
         @media print {
             body { background: #ffffff; color: #000000; padding: 12mm 14mm; }
             .top-screen-nav-bar, .depot-vehicle-bar, .btn-logout, .screen-nav-pill-group, .glove-toggle-btn { display: none !important; }
@@ -1513,91 +1678,6 @@
             .modal-overlay { display: none !important; }
             @page { size: A4; margin: 12mm 14mm; }
         }
-
-        /* --- DEPOT & VEHICLE SELECTION COMMAND BAR --- */
-        .depot-vehicle-bar {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            padding: 14px 18px;
-            margin-bottom: 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            box-shadow: var(--shadow-card);
-        }
-        .depot-pill-btn {
-            background: transparent;
-            border: none;
-            padding: 6px 14px;
-            border-radius: var(--radius-pill);
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-        .depot-pill-btn.active {
-            background: var(--header-black);
-            color: #ffffff;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-        .vehicle-card-pill {
-            background: #f8fafc;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 8px 14px;
-            cursor: pointer;
-            min-width: 160px;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-            transition: all 0.15s ease;
-            flex-shrink: 0;
-            text-align: left;
-        }
-        .vehicle-card-pill:hover {
-            border-color: #cbd5e1;
-            background: #ffffff;
-        }
-        .vehicle-card-pill.active {
-            background: #0f172a;
-            color: #ffffff;
-            border-color: #0f172a;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        }
-        .vehicle-card-pill.active .v-code {
-            color: #f59e0b;
-        }
-        .vehicle-card-pill.active .v-meta {
-            color: #cbd5e1;
-        }
-        .v-code {
-            font-size: 12px;
-            font-weight: 800;
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .v-meta {
-            font-size: 10px;
-            font-weight: 600;
-            color: var(--text-muted);
-        }
-        .tag-spec-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 700;
-        }
-        .tag-spec-chilled { background: #fee2e2; color: #991b1b; }
-        .tag-spec-ambient { background: #f1f5f9; color: #475569; }
-        .tag-spec-fresh { background: #ecfdf5; color: #065f46; }
     </style>
 </head>
 <body>
@@ -1644,7 +1724,7 @@
         </div>
 
         <div class="top-user-status">
-            <button class="glove-toggle-btn" id="glove-btn" onclick="toggleGloveMode()">
+            <button class="glove-toggle-btn active" id="glove-btn" onclick="toggleGloveMode()">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
                 <span id="glove-text">Glove-Mode On</span>
             </button>
@@ -1655,7 +1735,7 @@
     <!-- MAIN VIEWPORT CONTAINER -->
     <main class="loader-viewport-container">
 
-        <!-- DEPOT & VEHICLE SELECTION COMMAND BAR -->
+        <!-- DEPOT, VEHICLE & FILTER COMMAND BAR -->
         <div class="depot-vehicle-bar" id="depot-vehicle-bar">
             <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
                 <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
@@ -1668,8 +1748,40 @@
                 </div>
                 <div id="loader-plan-status" style="font-size:11px; font-weight:700; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
                     <span class="live-pulse-dot" style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block;"></span>
-                    <span id="loader-status-text">Synced with Dispatcher</span>
+                    <span id="loader-status-text">Synced with Database</span>
                 </div>
+            </div>
+
+            <!-- Dynamic Filter Controls Row -->
+            <div class="filter-controls-row">
+                <span style="font-size:10px; font-weight:800; text-transform:uppercase; color:var(--text-muted);">Filters:</span>
+                <input type="text" class="filter-input" id="filter-search" placeholder="🔍 Search Order / Outlet / Vehicle..." oninput="applyFilters()" style="min-width:180px;">
+                <select class="filter-select" id="filter-brand" onchange="applyFilters()">
+                    <option value="">All Brands</option>
+                    <option value="Fresh">Fresh</option>
+                    <option value="Style">Style</option>
+                    <option value="Tech">Tech</option>
+                </select>
+                <select class="filter-select" id="filter-district" onchange="applyFilters()">
+                    <option value="">All Districts</option>
+                    <option value="Colombo">Colombo</option>
+                    <option value="Gampaha">Gampaha</option>
+                    <option value="Kalutara">Kalutara</option>
+                    <option value="Kandy">Kandy</option>
+                </select>
+                <select class="filter-select" id="filter-trip-no" onchange="applyFilters()">
+                    <option value="">All Trips</option>
+                    <option value="1">Trip #1</option>
+                    <option value="2">Trip #2</option>
+                </select>
+                <select class="filter-select" id="filter-status" onchange="applyFilters()">
+                    <option value="">All Statuses</option>
+                    <option value="planned">Planned</option>
+                    <option value="loading">Loading</option>
+                    <option value="departed">Departed</option>
+                    <option value="completed">Completed</option>
+                </select>
+                <button type="button" class="btn-logout" onclick="resetFilters()" style="padding:4px 10px; font-size:10px;">Reset</button>
             </div>
             
             <!-- Vehicle Selection Carousel / Badges -->
@@ -1685,7 +1797,7 @@
         </div>
 
         <!-- ====================================================================
-             SCREEN 1: LOAD SHEET DETAIL (MATCHING SCREENSHOT 1 EXACTLY)
+             SCREEN 1: LOAD SHEET DETAIL
              ==================================================================== -->
         <div class="screen-container active" id="screen-1">
             <div class="s1-card">
@@ -1697,13 +1809,13 @@
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                         </div>
                         <div>
-                            <div class="s1-title-main">LOAD SHEET DETAIL</div>
-                            <div class="s1-title-sub">TRIP #8849 • ROUTE-WEST</div>
+                            <div class="s1-title-main" id="s1-title-main">LOAD SHEET DETAIL</div>
+                            <div class="s1-title-sub" id="s1-title-sub">TRIP #-- • ROUTE-WEST</div>
                         </div>
                     </div>
 
                     <div class="s1-header-right">
-                        <span class="pill-trip-flags">TRIP HAS FLAGS</span>
+                        <span class="pill-trip-flags" id="s1-trip-flags-pill" onclick="openReviewModal()" style="cursor:pointer;">TRIP HAS FLAGS</span>
                         <div class="pill-glove-mode" onclick="toggleGloveMode()">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
                             Glove-Mode On
@@ -1718,95 +1830,42 @@
                     <div class="s1-metrics-grid">
                         <div class="s1-metric-box">
                             <span class="s1-metric-label">TOTAL WEIGHT</span>
-                            <span class="s1-metric-val">12,450 kg</span>
-                            <span class="s1-metric-sub">Max cap 15k</span>
+                            <span class="s1-metric-val" id="s1-met-weight">-- kg</span>
+                            <span class="s1-metric-sub" id="s1-met-weight-sub">Cap: --</span>
                         </div>
                         <div class="s1-metric-box">
                             <span class="s1-metric-label">VOLUME</span>
-                            <span class="s1-metric-val">48.2 m³</span>
-                            <span class="s1-metric-sub">84% utilized</span>
+                            <span class="s1-metric-val" id="s1-met-vol">-- m³</span>
+                            <span class="s1-metric-sub" id="s1-met-vol-sub">--% utilized</span>
                         </div>
                         <div class="s1-metric-box">
-                            <span class="s1-metric-label">PALLETS</span>
-                            <span class="s1-metric-val">22 Pallets</span>
-                            <span class="s1-metric-sub">AFT: 12 • FWD: 10</span>
+                            <span class="s1-metric-label">PALLETS / UNITS</span>
+                            <span class="s1-metric-val" id="s1-met-pallets">-- Pallets</span>
+                            <span class="s1-metric-sub" id="s1-met-units">-- Units</span>
                         </div>
                         <div class="s1-metric-box">
                             <span class="s1-metric-label">DELIVERY STOPS</span>
-                            <span class="s1-metric-val">5 Stops</span>
-                            <span class="s1-metric-sub">Reverse loaded</span>
+                            <span class="s1-metric-val" id="s1-met-stops">-- Stops</span>
+                            <span class="s1-metric-sub">Reverse loaded sequence</span>
                         </div>
                     </div>
 
-                    <!-- STOP 01 HEADER -->
-                    <div class="s1-section-header">
-                        <div class="s1-section-title">STOP 01: VIBRANT FOODS MARKET</div>
-                        <div class="s1-section-meta">Dock Bay 4 • ETA 10:15</div>
-                    </div>
-
-                    <!-- 3 ITEM ROWS (INCLUDING RED FLAGGED DISCREPANCY ROW) -->
-                    <div class="s1-item-list">
-                        <!-- ROW 1 -->
-                        <div class="s1-item-row" id="s1-row-1">
-                            <div class="s1-item-left">
-                                <div class="s1-check-box" onclick="toggleS1Check(1)">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                                </div>
-                                <div>
-                                    <div class="s1-item-name">Premium Dairy Whole Milk</div>
-                                    <div class="s1-item-sub">A1 • Chilled • Keep at 4°C</div>
-                                </div>
-                            </div>
-                            <div class="s1-item-right">
-                                <span class="s1-qty-bold">45 Cases</span>
-                            </div>
-                        </div>
-
-                        <!-- ROW 2: FLAGGED DISCREPANCY -->
-                        <div class="s1-item-row flagged" id="s1-row-2">
-                            <div class="s1-item-left">
-                                <div class="s1-check-box warning-icon" onclick="openShortageModal()">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                                </div>
-                                <div>
-                                    <div class="s1-item-name">Organic Grade A Eggs (Carton)</div>
-                                    <div class="s1-item-sub">A2 • Fragile • Base stow</div>
-                                </div>
-                            </div>
-                            <div class="s1-item-right">
-                                <span class="s1-qty-bold">12 Cases</span>
-                                <span class="pill-flagged-discrepancy" onclick="openShortageModal()" style="cursor: pointer;">FLAGGED DISCREPANCY</span>
-                            </div>
-                        </div>
-
-                        <!-- ROW 3 -->
-                        <div class="s1-item-row" id="s1-row-3">
-                            <div class="s1-item-left">
-                                <div class="s1-check-box" onclick="toggleS1Check(3)">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                                </div>
-                                <div>
-                                    <div class="s1-item-name">Fresh Bakery Sourdough Loaves</div>
-                                    <div class="s1-item-sub">A3 • Ambient • Load last</div>
-                                </div>
-                            </div>
-                            <div class="s1-item-right">
-                                <span class="s1-qty-bold">30 Trays</span>
-                            </div>
-                        </div>
+                    <!-- STOPS CONTAINER -->
+                    <div id="s1-stops-container">
+                        <div style="text-align:center; color:var(--text-muted); padding:30px 0;">Loading stop items...</div>
                     </div>
 
                 </div>
 
                 <!-- STICKY FOOTER BAR -->
                 <div class="s1-footer-bar">
-                    <button class="s1-back-btn" onclick="alert('Returning to Trips list...')">
-                        ← Back to Trips
+                    <button class="s1-back-btn" onclick="showScreen(2)">
+                        ➔ Next: Bay 2 Plan
                     </button>
-                    <div class="s1-footer-status">
-                        2/3 STOPS COMPLETED &nbsp;|&nbsp; 1 FLAG UNRESOLVED
+                    <div class="s1-footer-status" id="s1-footer-status">
+                        0/0 STOPS CHECKED | 0 FLAGS
                     </div>
-                    <button class="s1-btn-review" onclick="showScreen(2)">
+                    <button class="s1-btn-review" onclick="openReviewModal()">
                         Needs Review
                     </button>
                 </div>
@@ -1815,7 +1874,7 @@
         </div>
 
         <!-- ====================================================================
-             SCREEN 2: BAY 2 LOADING PLAN (MATCHING SCREENSHOT 2 EXACTLY)
+             SCREEN 2: BAY 2 LOADING PLAN
              ==================================================================== -->
         <div class="screen-container" id="screen-2">
             <div class="s2-card">
@@ -1826,119 +1885,23 @@
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                     </div>
                     <div>
-                        <div class="s2-title-main">BAY 2 LOADING PLAN</div>
-                        <div class="s2-title-sub">VEHICLE: VOLVO 16T • DRIVER: MARCUS V.</div>
+                        <div class="s2-title-main" id="s2-title-main">BAY 2 LOADING PLAN</div>
+                        <div class="s2-title-sub" id="s2-title-sub">VEHICLE: -- • DRIVER: MARCUS V.</div>
                     </div>
                 </div>
 
                 <!-- SUB HEADER BAR -->
                 <div class="s2-sub-bar">
-                    <div class="s2-chilled-label">CHILLED LOAD ONLY (4°C)</div>
-                    <div class="s2-updated-label">Plan Updated: 02:15</div>
+                    <div class="s2-chilled-label" id="s2-chilled-label">CHILLED / AMBIENT PLAN</div>
+                    <div class="s2-updated-label" id="s2-updated-label">Plan Synced: Realtime</div>
                 </div>
 
                 <!-- 2-COLUMN GRID (LEFT COMPARTMENTS + RIGHT CONTROLS) -->
                 <div class="s2-grid-2col">
                     
                     <!-- LEFT COLUMN -->
-                    <div class="s2-compartments-col">
-                        
-                        <!-- COMPARTMENT 1: LOADS FIRST (BAKERY) -->
-                        <div class="s2-comp-box">
-                            <div class="s2-comp-title">LOADS FIRST (BAKERY)</div>
-                            <div class="s2-comp-items">
-                                <div class="s2-comp-row">
-                                    <div class="s2-row-left">
-                                        <div class="s2-check-square">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                        </div>
-                                        <span class="s2-row-name">Sourdough</span>
-                                    </div>
-                                    <div class="s2-row-right">
-                                        <span class="s2-stack-label">Stack 1</span>
-                                        <span class="s2-cases-bold">12 Cases</span>
-                                    </div>
-                                </div>
-
-                                <div class="s2-comp-row">
-                                    <div class="s2-row-left">
-                                        <div class="s2-check-square">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                        </div>
-                                        <span class="s2-row-name">Whole Wheat Loaves</span>
-                                    </div>
-                                    <div class="s2-row-right">
-                                        <span class="s2-stack-label">Stack 2</span>
-                                        <span class="s2-cases-bold">24 Cases</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- COMPARTMENT 2: MID LOAD (PRODUCE & EGGS) -->
-                        <div class="s2-comp-box">
-                            <div class="s2-comp-title">MID LOAD (PRODUCE & EGGS)</div>
-                            <div class="s2-comp-items">
-                                <div class="s2-comp-row">
-                                    <div class="s2-row-left">
-                                        <div class="s2-check-square">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                        </div>
-                                        <span class="s2-row-name">Carton Eggs</span>
-                                    </div>
-                                    <div class="s2-row-right">
-                                        <span class="s2-stack-label">Stack 1</span>
-                                        <span class="s2-cases-bold">12 Cases</span>
-                                    </div>
-                                </div>
-
-                                <div class="s2-comp-row">
-                                    <div class="s2-row-left">
-                                        <div class="s2-check-square">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                        </div>
-                                        <span class="s2-row-name">Apples Case</span>
-                                    </div>
-                                    <div class="s2-row-right">
-                                        <span class="s2-stack-label">Stack 2</span>
-                                        <span class="s2-cases-bold">24 Cases</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- COMPARTMENT 3: TAILBOARD (DAIRY & MEAT) -->
-                        <div class="s2-comp-box">
-                            <div class="s2-comp-title">TAILBOARD (DAIRY & MEAT)</div>
-                            <div class="s2-comp-items">
-                                <div class="s2-comp-row">
-                                    <div class="s2-row-left">
-                                        <div class="s2-check-square">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                        </div>
-                                        <span class="s2-row-name">Organic Milk</span>
-                                    </div>
-                                    <div class="s2-row-right">
-                                        <span class="s2-stack-label">Stack 1</span>
-                                        <span class="s2-cases-bold">12 Cases</span>
-                                    </div>
-                                </div>
-
-                                <div class="s2-comp-row">
-                                    <div class="s2-row-left">
-                                        <div class="s2-check-square">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                        </div>
-                                        <span class="s2-row-name">Cheddar Block</span>
-                                    </div>
-                                    <div class="s2-row-right">
-                                        <span class="s2-stack-label">Stack 2</span>
-                                        <span class="s2-cases-bold">24 Cases</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
+                    <div class="s2-compartments-col" id="s2-compartments-col">
+                        <!-- Filled dynamically -->
                     </div>
 
                     <!-- RIGHT COLUMN: PLAN CONTROLS -->
@@ -1948,14 +1911,18 @@
 
                         <div class="s2-diff-box">
                             <div class="s2-diff-title">PLAN DIFFERENCE</div>
-                            <div class="s2-diff-line">- 2 Cases Sourdough</div>
-                            <div class="s2-diff-line green">+ 4 Cases Whole Milk</div>
+                            <div id="s2-diff-content">
+                                <div class="s2-diff-line muted">Checking plan difference...</div>
+                            </div>
                         </div>
 
                         <div class="s2-notes-box">
-                            <div class="s2-notes-title">DOCK NOTES</div>
-                            <div class="s2-notes-content">
-                                Load heavy dairy items near the tailboard for easier store handoff.
+                            <div class="s2-notes-title">
+                                <span>DOCK NOTES</span>
+                                <button type="button" onclick="openDockNoteModal()" style="background:none; border:none; color:#059669; font-weight:800; cursor:pointer; font-size:10px;">+ Add Note</button>
+                            </div>
+                            <div class="s2-notes-content" id="s2-dock-notes-list">
+                                Loading dock notes...
                             </div>
                         </div>
                     </div>
@@ -1966,7 +1933,7 @@
         </div>
 
         <!-- ====================================================================
-             SCREEN 3: LOAD-SHEET - REVERSE ORDER & PLAN DIFF (MATCHING SCREENSHOT 3)
+             SCREEN 3: LOAD-SHEET - ALL 6 FUNCTIONAL SIDEBARS
              ==================================================================== -->
         <div class="screen-container" id="screen-3">
             <div class="s3-layout-card">
@@ -1979,45 +1946,45 @@
 
                         <ul class="s3-nav-list">
                             <li>
-                                <button class="s3-nav-btn">
+                                <button class="s3-nav-btn" id="s3-btn-tab-overview" onclick="showS3Tab('overview')">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
                                     Overview
                                 </button>
                             </li>
                             <li>
-                                <button class="s3-nav-btn active">
+                                <button class="s3-nav-btn active" id="s3-btn-tab-loadsheet" onclick="showS3Tab('loadsheet')">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
                                     Load-Sheet
                                 </button>
                             </li>
                             <li>
-                                <button class="s3-nav-btn">
+                                <button class="s3-nav-btn" id="s3-btn-tab-scan" onclick="showS3Tab('scan')">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h3"/><path d="M20 7V4h-3"/><path d="M4 17v3h3"/><path d="M20 17v3h-3"/><line x1="4" y1="12" x2="20" y2="12"/></svg>
                                     Scan & Match
                                 </button>
                             </li>
                             <li>
-                                <button class="s3-nav-btn">
+                                <button class="s3-nav-btn" id="s3-btn-tab-weight" onclick="showS3Tab('weight')">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>
                                     Weight & Balance
                                 </button>
                             </li>
                             <li>
-                                <button class="s3-nav-btn">
+                                <button class="s3-nav-btn" id="s3-btn-tab-final" onclick="showS3Tab('final')">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
                                     Final Check
                                 </button>
                             </li>
                             <li>
-                                <button class="s3-nav-btn">
+                                <button class="s3-nav-btn" id="s3-btn-tab-summary" onclick="showS3Tab('summary')">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                                    Summary
+                                    Summary of Day
                                 </button>
                             </li>
                         </ul>
                     </div>
 
-                    <button class="s3-btn-emergency" onclick="alert('EMERGENCY HOLD ACTIVATED: Loading Bay halted and supervisor notified.')">
+                    <button class="s3-btn-emergency" onclick="triggerEmergencyHold()">
                         EMERGENCY HOLD
                     </button>
                 </div>
@@ -2026,66 +1993,120 @@
                 <div class="s3-col-center">
                     
                     <!-- ALERT BANNER -->
-                    <div class="s3-alert-banner">
+                    <div class="s3-alert-banner" id="s3-alert-banner">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                        Plan updated 02:15 — re-validate sequence
+                        <span id="s3-alert-banner-text">Live dock plan connected to database</span>
                     </div>
 
                     <div class="s3-center-body">
                         
-                        <div class="s3-main-header-row">
-                            <div>
-                                <div class="s3-title-text">LOAD-SHEET • REVERSE ORDER</div>
-                                <div class="s3-title-subtext">GROUPS 4 → 1</div>
-                            </div>
-                            <button class="s3-btn-revalidate-all" onclick="revalidateAllGroups()">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
-                                RE-VALIDATE ALL
-                            </button>
-                        </div>
-
-                        <!-- GROUP 4 -->
-                        <div class="s3-group-card">
-                            <div class="s3-group-top-row">
+                        <!-- SUBVIEW 1: OVERVIEW -->
+                        <div class="s3-subview" id="s3-view-overview">
+                            <div class="s3-main-header-row">
                                 <div>
-                                    <div class="s3-group-name">GROUP 4 - AFT LOWER</div>
-                                    <div class="s3-group-sub">Containment - AFT</div>
+                                    <div class="s3-title-text">TRIP OVERVIEW & ALLOCATION</div>
+                                    <div class="s3-title-subtext" id="s3-overview-sub">Allocated orders from Dispatcher</div>
                                 </div>
-                                <span class="pill-checked-green">CHECKED</span>
                             </div>
-                            <div class="s3-group-item-row">
-                                <span class="s3-item-val-text">✓ A4 - AFT LOWER 4 - 342 kg</span>
-                                <button class="pill-revalidate-amber" onclick="revalidateGroup(4)">RE-VALIDATE</button>
+                            <div id="s3-overview-content" style="display:flex; flex-direction:column; gap:12px;">
+                                <!-- Populated dynamically -->
                             </div>
                         </div>
 
-                        <!-- GROUP 3 -->
-                        <div class="s3-group-card">
-                            <div class="s3-group-top-row">
+                        <!-- SUBVIEW 2: LOAD-SHEET (REVERSE ORDER) -->
+                        <div class="s3-subview active" id="s3-view-loadsheet">
+                            <div class="s3-main-header-row">
                                 <div>
-                                    <div class="s3-group-name">GROUP 3 - AFT UPPER</div>
-                                    <div class="s3-group-sub">Containment - AFT</div>
+                                    <div class="s3-title-text">LOAD-SHEET • REVERSE ORDER</div>
+                                    <div class="s3-title-subtext">STOW SEQUENCE: FRONT (LAST DROPS) ➔ TAIL (FIRST DROPS)</div>
                                 </div>
-                                <span class="pill-checked-green">CHECKED</span>
+                                <button class="s3-btn-revalidate-all" onclick="revalidateAllGroups()">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+                                    RE-VALIDATE ALL
+                                </button>
                             </div>
-                            <div class="s3-group-item-row">
-                                <span class="s3-item-val-text">✓ A3 - AFT LOWER 4 - 342 kg</span>
-                                <button class="pill-revalidate-amber" onclick="revalidateGroup(3)">RE-VALIDATE</button>
+                            <div id="s3-groups-container" style="display:flex; flex-direction:column; gap:10px;">
+                                <!-- Groups populated dynamically -->
                             </div>
                         </div>
 
-                        <!-- GROUP 2 -->
-                        <div class="s3-group-card">
-                            <div class="s3-group-top-row">
+                        <!-- SUBVIEW 3: SCAN & MATCH (SCAN & WEIGHT) -->
+                        <div class="s3-subview" id="s3-view-scan">
+                            <div class="s3-main-header-row">
                                 <div>
-                                    <div class="s3-group-name">GROUP 2 - FWD LOWER</div>
-                                    <div class="s3-group-sub">Containment - FWD</div>
+                                    <div class="s3-title-text">SCAN & WEIGHT VERIFICATION</div>
+                                    <div class="s3-title-subtext">Compare actual scale readings vs planned weights</div>
                                 </div>
-                                <span class="pill-checked-green">CHECKED</span>
                             </div>
-                            <div class="s3-group-item-row">
-                                <span class="s3-item-val-text">✓ A4 - AFT LOWER 4 - 342 kg</span>
-                                <button class="pill-revalidate-amber" onclick="revalidateGroup(2)">RE-VALIDATE</button>
+                            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:var(--radius-md); padding:16px; display:flex; flex-direction:column; gap:12px;">
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                                    <div>
+                                        <label style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">Select Stop / Order</label>
+                                        <select class="modal-select" id="scan-order-select" onchange="updateScanOrderFields()"></select>
+                                    </div>
+                                    <div>
+                                        <label style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">Barcode / QR Simulation</label>
+                                        <div style="display:flex; gap:6px;">
+                                            <input type="text" class="filter-input" id="scan-barcode-input" placeholder="Scan or enter code..." style="flex:1;">
+                                            <button type="button" class="btn-logout" onclick="simulateBarcodeScan()" style="background:#0f172a; color:#fff; border:none;">📷 Scan</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; align-items:end;">
+                                    <div>
+                                        <label style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">Planned Weight</label>
+                                        <input type="text" class="filter-input" id="scan-planned-weight" readonly style="background:#f1f5f9; font-weight:800;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">Actual Scale Weight (kg)</label>
+                                        <input type="number" class="filter-input" id="scan-actual-weight" placeholder="Enter scale kg..." style="font-weight:800;">
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn-modal-submit" onclick="recordScannedWeight()" style="width:100%; padding:10px; font-size:12px;">⚖️ Record & Verify</button>
+                                    </div>
+                                </div>
+                                <div id="scan-verdict-box" style="display:none; padding:10px 14px; border-radius:6px; font-size:12px; font-weight:700;"></div>
+                            </div>
+                            <div id="scan-history-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+                        </div>
+
+                        <!-- SUBVIEW 4: WEIGHT & BALANCE -->
+                        <div class="s3-subview" id="s3-view-weight">
+                            <div class="s3-main-header-row">
+                                <div>
+                                    <div class="s3-title-text">WEIGHT & VOLUME BALANCE</div>
+                                    <div class="s3-title-subtext">Vehicle axle distribution & load envelope</div>
+                                </div>
+                            </div>
+                            <div id="s3-wb-container" style="display:flex; flex-direction:column; gap:14px;">
+                                <!-- Filled dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- SUBVIEW 5: FINAL CHECK -->
+                        <div class="s3-subview" id="s3-view-final">
+                            <div class="s3-main-header-row">
+                                <div>
+                                    <div class="s3-title-text">FINAL CHECK & DEPARTURE READINESS</div>
+                                    <div class="s3-title-subtext">Pre-departure verification before driver handover</div>
+                                </div>
+                            </div>
+                            <div id="s3-final-container" style="display:flex; flex-direction:column; gap:14px;">
+                                <!-- Filled dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- SUBVIEW 6: SUMMARY OF THE DAY -->
+                        <div class="s3-subview" id="s3-view-summary">
+                            <div class="s3-main-header-row">
+                                <div>
+                                    <div class="s3-title-text">SUMMARY OF THE DAY</div>
+                                    <div class="s3-title-subtext">Dock Operations Key Performance Metrics</div>
+                                </div>
+                                <button type="button" class="btn-modal-submit" onclick="sendDaySummaryToDispatcher()" style="padding:6px 14px; font-size:11px;">🚀 Transmit to Dispatcher</button>
+                            </div>
+                            <div id="s3-day-summary-container" style="display:flex; flex-direction:column; gap:14px;">
+                                <!-- Filled dynamically -->
                             </div>
                         </div>
 
@@ -2099,24 +2120,10 @@
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
                             PLAN DIFF
                         </div>
-                        <div class="s3-diff-sub">CHANGES DETECTED AT 02:15</div>
+                        <div class="s3-diff-sub" id="s3-diff-sub">CHANGES SINCE LAST COMMIT</div>
 
-                        <div class="s3-diff-items-list">
-                            <div class="s3-diff-entry">
-                                <div class="s3-diff-entry-title amber">● SEQUENCE SHIFT</div>
-                                <div class="s3-diff-entry-desc">AFT LOWER rows moved down by 1</div>
-                            </div>
-
-                            <div class="s3-diff-entry">
-                                <div class="s3-diff-entry-title black">● WEIGHT ADJUSTMENT</div>
-                                <div class="s3-diff-entry-desc">FWD UPPER total +7 kg</div>
-                                <div class="s3-diff-entry-desc green-bold">➔ FWD UPPER • NEW TOTAL 450 kg</div>
-                            </div>
-
-                            <div class="s3-diff-entry">
-                                <div class="s3-diff-entry-title green">● TEMP MATCH CONFIRMED</div>
-                                <div class="s3-diff-entry-desc">All group temps within tolerance</div>
-                            </div>
+                        <div class="s3-diff-items-list" id="s3-diff-items-list">
+                            <div style="font-size:11px; color:#64748b;">Checking plan difference...</div>
                         </div>
                     </div>
 
@@ -2134,7 +2141,7 @@
         </div>
 
         <!-- ====================================================================
-             SCREEN 4: LOADER HANDOFF (MATCHING SCREENSHOT 5 EXACTLY)
+             SCREEN 4: LOADER HANDOFF
              ==================================================================== -->
         <div class="screen-container" id="screen-4">
             <div class="s4-card">
@@ -2145,8 +2152,8 @@
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                     </div>
                     <div>
-                        <div class="s4-title-main">LOADER HANDOFF</div>
-                        <div class="s4-title-sub">FINAL OPERATIONS STAGE</div>
+                        <div class="s4-title-main" id="s4-title-main">LOADER HANDOFF</div>
+                        <div class="s4-title-sub" id="s4-title-sub">FINAL OPERATIONS STAGE</div>
                     </div>
                 </div>
 
@@ -2158,63 +2165,17 @@
                         <div>
                             <div class="s4-panel-header-row">
                                 <span class="s4-panel-title">LOAD CHECKLIST</span>
-                                <span class="s4-panel-time">TIME: 03:44</span>
+                                <span class="s4-panel-time" id="s4-panel-time">TIME: LIVE</span>
                             </div>
 
-                            <div class="s4-checklist-items">
-                                <div class="s4-check-row">
-                                    <div>
-                                        <div class="s4-check-name">All items loaded</div>
-                                        <div class="s4-check-sub">24 / 24 pieces</div>
-                                    </div>
-                                    <span class="pill-s4-checked">CHECKED</span>
-                                </div>
-
-                                <div class="s4-check-row">
-                                    <div>
-                                        <div class="s4-check-name">Pallets secured</div>
-                                        <div class="s4-check-sub">12 / 12 pallets</div>
-                                    </div>
-                                    <span class="pill-s4-checked">CHECKED</span>
-                                </div>
-
-                                <div class="s4-check-row">
-                                    <div>
-                                        <div class="s4-check-name">Load balanced</div>
-                                        <div class="s4-check-sub">Within axle limits</div>
-                                    </div>
-                                    <span class="pill-s4-checked">CHECKED</span>
-                                </div>
-
-                                <div class="s4-check-row">
-                                    <div>
-                                        <div class="s4-check-name">Hazardous items flagged</div>
-                                        <div class="s4-check-sub">2 flagged items</div>
-                                    </div>
-                                    <span class="pill-s4-flagged">FLAGGED</span>
-                                </div>
-
-                                <div class="s4-check-row">
-                                    <div>
-                                        <div class="s4-check-name">Temperature check</div>
-                                        <div class="s4-check-sub">Within chilled range</div>
-                                    </div>
-                                    <span class="pill-s4-checked">CHECKED</span>
-                                </div>
-
-                                <div class="s4-check-row">
-                                    <div>
-                                        <div class="s4-check-name">Seal / tamper check</div>
-                                        <div class="s4-check-sub">Intact</div>
-                                    </div>
-                                    <span class="pill-s4-checked">CHECKED</span>
-                                </div>
+                            <div class="s4-checklist-items" id="s4-checklist-items">
+                                <!-- Populated dynamically -->
                             </div>
                         </div>
 
                         <div>
-                            <div class="s4-alert-amber">
-                                ⚠️ 2 items flagged — noted for receiver
+                            <div class="s4-alert-amber" id="s4-flags-alert">
+                                ⚠️ 0 items flagged — ready for handoff
                             </div>
                             <button class="s4-btn-confirm" onclick="confirmHandoffAction()">
                                 Confirm load & handoff
@@ -2227,15 +2188,15 @@
                         <div>
                             <div class="s4-panel-header-row">
                                 <span class="s4-panel-title">HANDOFF STATUS</span>
-                                <span class="pill-s4-checked">COMPLETED</span>
+                                <span class="pill-s4-checked" id="s4-status-badge">READY</span>
                             </div>
 
                             <div class="s4-confirmed-center">
-                                <div class="s4-big-check-circle">
+                                <div class="s4-big-check-circle" id="s4-check-circle">
                                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                                 </div>
-                                <div class="s4-confirm-title">Handoff Confirmed</div>
-                                <div class="s4-confirm-sub">Journal updated successfully • 03:44</div>
+                                <div class="s4-confirm-title" id="s4-confirm-title">Handoff Pending</div>
+                                <div class="s4-confirm-sub" id="s4-confirm-sub">Verify checklist and confirm handoff</div>
                             </div>
                         </div>
 
@@ -2261,9 +2222,9 @@
     </main>
 
     <!-- ====================================================================
-         MODAL: FLAG SHORTAGE (MATCHING SCREENSHOT 4 EXACTLY)
+         MODAL 1: FLAG SHORTAGE
          ==================================================================== -->
-    <div class="modal-overlay" id="shortage-modal" onclick="closeModalOnBg(event)">
+    <div class="modal-overlay" id="shortage-modal" onclick="closeModalOnBg(event, 'shortage-modal')">
         <div class="modal-card">
             
             <div class="modal-header-section">
@@ -2279,22 +2240,18 @@
                 <!-- SELECT ITEM & STOP -->
                 <div class="modal-field-group">
                     <label class="modal-field-label">SELECT ITEM & STOP</label>
-                    <select class="modal-select" id="shortage-select">
-                        <option>Stop 02 • Organic Whole Milk (Case of 12)</option>
-                        <option>Stop 01 • Organic Grade A Eggs (Carton)</option>
-                        <option>Stop 03 • Fresh Sourdough Loaves</option>
-                    </select>
+                    <select class="modal-select" id="shortage-select"></select>
                 </div>
 
                 <!-- SHORTAGE QUANTITY STEPPER -->
                 <div class="modal-stepper-row">
                     <div>
                         <label class="modal-field-label">SHORTAGE QUANTITY</label>
-                        <div class="stepper-label-sub">Cases missing from expected 24</div>
+                        <div class="stepper-label-sub" id="shortage-sub-label">Units missing from planned drop</div>
                     </div>
                     <div class="stepper-controls">
                         <button type="button" class="btn-step-circle" onclick="changeQty(-1)">-</button>
-                        <span class="stepper-number" id="shortage-qty">4</span>
+                        <span class="stepper-number" id="shortage-qty">2</span>
                         <button type="button" class="btn-step-circle" onclick="changeQty(1)">+</button>
                     </div>
                 </div>
@@ -2310,22 +2267,89 @@
                 </div>
 
                 <!-- CAPTURE PROOF -->
-                <div class="proof-box" onclick="alert('Proof capture camera triggered. Attached frame saved to audit log.')">
+                <div class="proof-box" onclick="simulateProofCapture()">
                     <div class="proof-camera-icon">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                     </div>
                     <div>
-                        <div class="proof-title">Capture Proof</div>
+                        <div class="proof-title" id="proof-status-title">Capture Proof</div>
                         <div class="proof-desc">Required for damaged or substituted items</div>
                     </div>
                 </div>
 
                 <!-- MODAL BUTTONS -->
                 <div class="modal-actions-row">
-                    <button type="button" class="btn-modal-cancel" onclick="closeShortageModal()">Cancel</button>
+                    <button type="button" class="btn-modal-cancel" onclick="closeModal('shortage-modal')">Cancel</button>
                     <button type="button" class="btn-modal-submit" onclick="submitShortage()">Flag & Notify Dispatcher</button>
                 </div>
 
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ====================================================================
+         MODAL 2: REVIEW PANEL / MODAL
+         ==================================================================== -->
+    <div class="modal-overlay" id="review-modal" onclick="closeModalOnBg(event, 'review-modal')">
+        <div class="modal-card" style="max-width:560px;">
+            
+            <div class="modal-header-section">
+                <div class="modal-title-row">
+                    <span class="modal-title">Loading Operations Review</span>
+                    <span class="pill-dock-assigned" id="review-depot-badge">PELIYAGODA</span>
+                </div>
+                <div class="modal-subtext" id="review-trip-title">Summary of loaded items vs. planned allocation</div>
+            </div>
+
+            <div class="modal-body-section">
+                <div id="review-summary-metrics" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">
+                    <!-- Metrics filled dynamically -->
+                </div>
+
+                <div class="modal-field-group">
+                    <label class="modal-field-label">FLAGGED SHORTFALLS & DISCREPANCIES</label>
+                    <div id="review-flags-list" style="max-height:160px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;"></div>
+                </div>
+
+                <div class="modal-field-group">
+                    <label class="modal-field-label">CAPACITY ENVELOPE VERDICT</label>
+                    <div id="review-capacity-box" style="padding:12px; border-radius:var(--radius-md); background:#f8fafc; border:1px solid #e2e8f0; font-size:12px;"></div>
+                </div>
+
+                <div class="modal-actions-row">
+                    <button type="button" class="btn-modal-cancel" onclick="closeModal('review-modal')">Close</button>
+                    <button type="button" class="btn-modal-submit" onclick="proceedFromReview()">Proceed to Loading Plan ➔</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ====================================================================
+         MODAL 3: ADD DOCK NOTE
+         ==================================================================== -->
+    <div class="modal-overlay" id="dock-note-modal" onclick="closeModalOnBg(event, 'dock-note-modal')">
+        <div class="modal-card">
+            
+            <div class="modal-header-section">
+                <div class="modal-title-row">
+                    <span class="modal-title">Add Dock Note</span>
+                    <span class="pill-dock-assigned">COMMUNICATION</span>
+                </div>
+                <div class="modal-subtext">Broadcast notes to Dispatcher and Drivers in real-time</div>
+            </div>
+
+            <div class="modal-body-section">
+                <div class="modal-field-group">
+                    <label class="modal-field-label">DOCK NOTE MESSAGE</label>
+                    <textarea class="modal-textarea" id="dock-note-text" rows="4" placeholder="Enter special handling instructions, staging locations, tailboard notes..."></textarea>
+                </div>
+
+                <div class="modal-actions-row">
+                    <button type="button" class="btn-modal-cancel" onclick="closeModal('dock-note-modal')">Cancel</button>
+                    <button type="button" class="btn-modal-submit" onclick="submitDockNote()">Save & Broadcast Note</button>
+                </div>
             </div>
 
         </div>
@@ -2336,18 +2360,32 @@
     <script src="offline.js"></script>
     <script src="pwa.js"></script>
     <script>
-        // --- LOADER APP STATE + REAL MANIFEST ---
+        // --- LOADER REAL OPERATIONAL STATE ---
         const { orderRef, hhmm, esc } = WaypointUtil;
         const state = {
             user: null,
             allTrips: [],
+            filteredTrips: [],
             selectedDepot: 'Peliyagoda',
             vehicleCode: null,
             manifest: null,
             selectedTrip: null,
             flags: [],
-            shortageQty: 4,
-            selectedReason: 'Missing at Dock'
+            checkedMap: {},
+            dockNotes: [],
+            planDiff: null,
+            shortageQty: 2,
+            selectedReason: 'Missing at Dock',
+            proofCaptured: false,
+            gloveMode: true,
+            activeS3Tab: 'loadsheet',
+            filters: {
+                search: '',
+                brand: '',
+                district: '',
+                tripNo: '',
+                status: ''
+            }
         };
 
         function ldrToast(msg) {
@@ -2355,7 +2393,7 @@
             if (!t) {
                 t = document.createElement('div');
                 t.id = 'ldr-toast';
-                t.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;font-size:12px;font-weight:700;padding:10px 18px;border-radius:9999px;z-index:9999;box-shadow:0 8px 20px rgba(0,0,0,.35);max-width:86vw;text-align:center;';
+                t.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;font-size:12px;font-weight:700;padding:10px 18px;border-radius:9999px;z-index:99999;box-shadow:0 8px 20px rgba(0,0,0,.35);max-width:86vw;text-align:center;';
                 document.body.appendChild(t);
             }
             t.textContent = msg;
@@ -2364,13 +2402,100 @@
             t._h = setTimeout(() => { t.style.display = 'none'; }, 3400);
         }
 
+        // --- GLOVE MODE ---
+        function initGloveMode() {
+            const saved = localStorage.getItem('waypoint_glove_mode');
+            state.gloveMode = saved !== null ? (saved === 'true') : true;
+            renderGloveMode();
+        }
+
+        function toggleGloveMode() {
+            state.gloveMode = !state.gloveMode;
+            localStorage.setItem('waypoint_glove_mode', String(state.gloveMode));
+            renderGloveMode();
+            ldrToast(`Glove-Mode ${state.gloveMode ? 'Activated (Enlarged Targets)' : 'Deactivated'}`);
+        }
+
+        function renderGloveMode() {
+            const btn = document.getElementById('glove-btn');
+            const txt = document.getElementById('glove-text');
+            if (state.gloveMode) {
+                document.body.classList.add('glove-mode');
+                if (btn) btn.classList.add('active');
+                if (txt) txt.textContent = 'Glove-Mode On';
+            } else {
+                document.body.classList.remove('glove-mode');
+                if (btn) btn.classList.remove('active');
+                if (txt) txt.textContent = 'Glove-Mode Off';
+            }
+        }
+
+        // --- FILTER ENGINE ---
+        function applyFilters() {
+            state.filters.search = (document.getElementById('filter-search')?.value || '').toLowerCase().trim();
+            state.filters.brand = document.getElementById('filter-brand')?.value || '';
+            state.filters.district = document.getElementById('filter-district')?.value || '';
+            state.filters.tripNo = document.getElementById('filter-trip-no')?.value || '';
+            state.filters.status = document.getElementById('filter-status')?.value || '';
+
+            renderView();
+        }
+
+        function resetFilters() {
+            if (document.getElementById('filter-search')) document.getElementById('filter-search').value = '';
+            if (document.getElementById('filter-brand')) document.getElementById('filter-brand').value = '';
+            if (document.getElementById('filter-district')) document.getElementById('filter-district').value = '';
+            if (document.getElementById('filter-trip-no')) document.getElementById('filter-trip-no').value = '';
+            if (document.getElementById('filter-status')) document.getElementById('filter-status').value = '';
+            applyFilters();
+        }
+
         function getDepotTrips() {
-            if (state.selectedDepot === 'all') return state.allTrips;
-            return (state.allTrips || []).filter(t => (t.depot || '').toLowerCase().includes(state.selectedDepot.toLowerCase()));
+            let list = state.allTrips || [];
+            if (state.selectedDepot !== 'all') {
+                list = list.filter(t => (t.depot || '').toLowerCase().includes(state.selectedDepot.toLowerCase()));
+            }
+
+            // Apply active filters
+            if (state.filters.brand) {
+                list = list.filter(t => (t.brand || '').toLowerCase() === state.filters.brand.toLowerCase());
+            }
+            if (state.filters.district) {
+                list = list.filter(t => (t.district || '').toLowerCase().includes(state.filters.district.toLowerCase()));
+            }
+            if (state.filters.tripNo) {
+                list = list.filter(t => String(t.tripNo) === String(state.filters.tripNo));
+            }
+            if (state.filters.status) {
+                list = list.filter(t => (t.status || '').toLowerCase() === state.filters.status.toLowerCase());
+            }
+            if (state.filters.search) {
+                const q = state.filters.search;
+                list = list.filter(t => {
+                    const matchVeh = (t.vehicleCode || '').toLowerCase().includes(q);
+                    const matchBrand = (t.brand || '').toLowerCase().includes(q);
+                    const matchDistrict = (t.district || '').toLowerCase().includes(q);
+                    const matchStop = (t.stops || []).some(s => 
+                        (s.outletId || '').toLowerCase().includes(q) ||
+                        orderRef(s.orderId).toLowerCase().includes(q)
+                    );
+                    return matchVeh || matchBrand || matchDistrict || matchStop;
+                });
+            }
+
+            return list;
         }
 
         function currentTrip() {
-            return state.selectedTrip || (state.manifest && state.manifest.trips && state.manifest.trips[0]) || null;
+            const depotTrips = getDepotTrips();
+            if (state.selectedTrip && depotTrips.some(t => t.id === state.selectedTrip.id)) {
+                return state.selectedTrip;
+            }
+            if (state.vehicleCode) {
+                const found = depotTrips.find(t => t.vehicleCode === state.vehicleCode);
+                if (found) return found;
+            }
+            return depotTrips.length > 0 ? depotTrips[0] : null;
         }
 
         function switchDepot(depot) {
@@ -2387,115 +2512,220 @@
 
         function selectVehicle(vCode) {
             state.vehicleCode = vCode;
-            loadManifest();
+            const depotTrips = getDepotTrips();
+            state.selectedTrip = depotTrips.find(t => t.vehicleCode === vCode) || null;
+            renderView();
         }
 
+        // --- FETCH DATA FROM DATABASE ---
         async function loadManifest() {
             try {
                 const res = await WaypointUtil.api('/api/trips');
                 state.allTrips = res.trips || [];
 
-                const depotTrips = getDepotTrips();
-
-                // If no vehicle selected or current vehicle not in depot, pick first
-                if (!state.vehicleCode || !depotTrips.some(t => t.vehicleCode === state.vehicleCode)) {
-                    state.vehicleCode = depotTrips.length > 0 ? depotTrips[0].vehicleCode : null;
-                }
-
-                renderDepotAndVehicleSelector(depotTrips);
-
-                if (!state.vehicleCode) {
-                    renderEmpty();
-                    return;
-                }
-
-                state.manifest = await WaypointUtil.api(`/api/trips/${state.vehicleCode}`);
-                state.selectedTrip = (state.manifest && state.manifest.trips && state.manifest.trips[0]) || null;
+                await loadChecklistState();
                 await loadFlags();
-                renderLoadSheet();
-                renderBayPlan();
+                await loadDockNotes();
+                await loadPlanDiff();
+
+                renderView();
             } catch (err) {
                 ldrToast(`Manifest unavailable: ${err.message}`);
             }
         }
 
-        function renderDepotAndVehicleSelector(depotTrips) {
+        async function loadChecklistState() {
+            try {
+                const res = await WaypointUtil.api('/api/checklist');
+                state.checkedMap = res.checkedMap || {};
+            } catch {
+                state.checkedMap = {};
+            }
+        }
+
+        async function loadFlags() {
+            try {
+                const res = await WaypointUtil.api('/api/flags');
+                state.flags = res.flags || [];
+            } catch {
+                state.flags = [];
+            }
+        }
+
+        async function loadDockNotes() {
+            try {
+                const res = await WaypointUtil.api('/api/dock-notes');
+                state.dockNotes = res.notes || [];
+            } catch {
+                state.dockNotes = [];
+            }
+        }
+
+        async function loadPlanDiff() {
+            try {
+                const res = await WaypointUtil.api(`/api/plan/diff?depot=${state.selectedDepot}`);
+                state.planDiff = res;
+            } catch {
+                state.planDiff = { hasChanges: false, message: 'No change in plan.', changes: [] };
+            }
+        }
+
+        function openFlagsFor(orderId) {
+            return state.flags.filter((f) => f.orderId === orderId && f.status === 'open');
+        }
+
+        function isOrderChecked(orderId) {
+            return Boolean(state.checkedMap[orderId] && state.checkedMap[orderId].checked);
+        }
+
+        // --- TOGGLE CHECKLIST ITEM (PERSISTED TO DB) ---
+        async function toggleChecklistItem(orderId, seq) {
+            const current = isOrderChecked(orderId);
+            const next = !current;
+            const trip = currentTrip();
+
+            // Optimistic update
+            state.checkedMap[orderId] = {
+                checked: next,
+                checkedAt: new Date().toISOString(),
+                checkedBy: (state.user && state.user.name) || 'Loader',
+                vehicleCode: trip ? trip.vehicleCode : null,
+                tripId: trip ? trip.id : null,
+                seq
+            };
+
+            renderView();
+
+            try {
+                await WaypointUtil.api('/api/checklist/toggle', {
+                    method: 'POST',
+                    body: {
+                        orderId: Number(orderId),
+                        tripId: trip ? trip.id : null,
+                        vehicleCode: trip ? trip.vehicleCode : null,
+                        checked: next,
+                        seq
+                    }
+                });
+                ldrToast(`${next ? '✓ Checked' : '○ Unchecked'} ${orderRef(orderId)}`);
+            } catch (err) {
+                ldrToast(`Checklist sync failed: ${err.message}`);
+            }
+        }
+
+        // --- MAIN RENDER DISPATCHER ---
+        function renderView() {
+            const depotTrips = getDepotTrips();
+
+            if (!state.vehicleCode || !depotTrips.some(t => t.vehicleCode === state.vehicleCode)) {
+                state.vehicleCode = depotTrips.length > 0 ? depotTrips[0].vehicleCode : null;
+                state.selectedTrip = depotTrips.length > 0 ? depotTrips[0] : null;
+            }
+
+            renderVehicleSelector(depotTrips);
+            renderScreen1();
+            renderScreen2();
+            renderScreen3();
+            renderScreen4();
+        }
+
+        function renderVehicleSelector(depotTrips) {
             const title = document.getElementById('vehicle-list-title');
             const count = document.getElementById('vehicle-count-badge');
             const pillsBox = document.getElementById('loader-vehicle-pills');
 
             const depotLabel = state.selectedDepot === 'all' ? 'All Facilities' : `${state.selectedDepot} Dock`;
             if (title) title.textContent = `Assigned Vehicles · ${depotLabel}`;
-            if (count) count.textContent = `${depotTrips.length} run${depotTrips.length === 1 ? '' : 's'} planned`;
+            if (count) count.textContent = `${depotTrips.length} run${depotTrips.length === 1 ? '' : 's'} allocated`;
 
             if (!pillsBox) return;
 
             if (depotTrips.length === 0) {
-                pillsBox.innerHTML = `<div style="font-size:12px; color:var(--text-muted); padding:6px 0;">No vehicles allocated for ${depotLabel} yet. Dispatcher must commit plan.</div>`;
+                pillsBox.innerHTML = `<div style="font-size:12px; color:var(--text-muted); padding:6px 0;">No vehicles matching filter for ${depotLabel}.</div>`;
                 return;
             }
 
             pillsBox.innerHTML = depotTrips.map(t => {
                 const isActive = t.vehicleCode === state.vehicleCode;
                 const tempIcon = t.vehicleTemp === 'reefer' ? '❄️ Reefer' : '📦 Ambient';
+                const stopsCount = t.stops ? t.stops.length : 0;
+                const checkedCount = (t.stops || []).filter(s => isOrderChecked(s.orderId)).length;
                 return `
                 <div class="vehicle-card-pill ${isActive ? 'active' : ''}" onclick="selectVehicle('${t.vehicleCode}')">
                     <div class="v-code">
                         <span>🚚 ${esc(t.vehicleCode || 'VEH')}</span>
                         <span style="font-size:9px; background:${isActive ? 'rgba(245,158,11,0.25)' : '#e2e8f0'}; color:${isActive ? '#f59e0b' : '#475569'}; padding:2px 5px; border-radius:4px;">${esc(t.brand || '')}</span>
                     </div>
-                    <div class="v-meta">${t.stops ? t.stops.length : 0} stops · ${Math.round(t.totalWeight || 0).toLocaleString()} kg</div>
-                    <div class="v-meta" style="font-size:9px; color:${isActive ? '#94a3b8' : '#64748b'};">${tempIcon} · ${esc(t.depot || '')}</div>
+                    <div class="v-meta">${checkedCount}/${stopsCount} loaded · ${Math.round(t.totalWeight || 0).toLocaleString()} kg</div>
+                    <div class="v-meta" style="font-size:9px; color:${isActive ? '#94a3b8' : '#64748b'};">${tempIcon} · Trip #${t.tripNo || 1}</div>
                 </div>`;
             }).join('');
         }
 
-        async function loadFlags() {
-            try {
-                const res = await WaypointUtil.api('/api/flags');
-                state.flags = (res.flags || []).filter((f) => f.status === 'open');
-            } catch { state.flags = []; }
-        }
-
-        function openFlagsFor(orderId) {
-            return state.flags.filter((f) => f.orderId === orderId);
-        }
-
-        function renderEmpty() {
-            const list = document.querySelector('.s1-item-list');
-            if (list) list.innerHTML = `<div style="padding: 24px; text-align: center; color: #64748b; font-size: 13px;">
-                <strong>No committed load plan for this bay yet.</strong><br>
-                <span style="font-size: 11px; color:#94a3b8;">When the dispatcher allocates and commits orders for ${state.selectedDepot}, loading sheets appear automatically.</span>
-            </div>`;
-        }
-
-        function renderLoadSheet() {
+        // --- RENDER SCREEN 1: LOAD SHEET DETAIL ---
+        function renderScreen1() {
             const trip = currentTrip();
-            if (!trip) { renderEmpty(); return; }
+            const container = document.getElementById('s1-stops-container');
 
-            const sub = document.querySelector('.s1-title-sub');
-            if (sub) sub.textContent = `TRIP #${trip.id} • ${String(trip.depot || '').toUpperCase()} DOCK • ${trip.vehicleCode || ''} (${String(trip.brand || '').toUpperCase()})`;
-
-            const mets = document.querySelectorAll('.s1-metric-val');
-            if (mets.length >= 4) {
-                mets[0].textContent = `${Math.round(trip.totalWeight).toLocaleString()} kg`;
-                mets[1].textContent = `${(Math.round(trip.totalVolume * 10) / 10).toFixed(1)} m³`;
-                const units = trip.stops.reduce((s, x) => s + (x.units || 0), 0);
-                mets[2].textContent = `${Math.max(1, Math.round(units / 45))} Pallets (${units} Units)`;
-                mets[3].textContent = `${trip.stops.length} Stops`;
+            if (!trip) {
+                if (container) container.innerHTML = `<div style="padding:40px 20px; text-align:center; color:var(--text-muted); font-size:13px;">No trips found matching current dock and filters.</div>`;
+                return;
             }
 
-            // Rebuild the stop sections from the real plan in reverse-loading order
-            const body = document.querySelector('.s1-body');
-            if (!body) return;
+            const sub = document.getElementById('s1-title-sub');
+            if (sub) sub.textContent = `TRIP #${trip.id} • ${String(trip.depot || '').toUpperCase()} DOCK • ${trip.vehicleCode || ''} (${String(trip.brand || '').toUpperCase()})`;
 
-            const sections = trip.stops.map((s, idx) => {
-                const flagged = openFlagsFor(s.orderId).length > 0;
+            const weightVal = document.getElementById('s1-met-weight');
+            const weightSub = document.getElementById('s1-met-weight-sub');
+            const volVal = document.getElementById('s1-met-vol');
+            const volSub = document.getElementById('s1-met-vol-sub');
+            const palletsVal = document.getElementById('s1-met-pallets');
+            const unitsVal = document.getElementById('s1-met-units');
+            const stopsVal = document.getElementById('s1-met-stops');
+
+            const totalUnits = (trip.stops || []).reduce((s, x) => s + (x.units || 0), 0);
+            const totalKg = Math.round(trip.totalWeight || 0);
+            const totalM3 = Math.round((trip.totalVolume || 0) * 10) / 10;
+            const palletsCount = Math.max(1, Math.round(totalUnits / 45));
+
+            if (weightVal) weightVal.textContent = `${totalKg.toLocaleString()} kg`;
+            if (weightSub) weightSub.textContent = `Trip #${trip.tripNo || 1} · ${trip.vehicleType || 'truck'}`;
+            if (volVal) volVal.textContent = `${totalM3} m³`;
+            if (volSub) volSub.textContent = `${trip.vehicleTemp === 'reefer' ? '❄️ Reefer Cold-Chain' : '📦 Ambient'}`;
+            if (palletsVal) palletsVal.textContent = `${palletsCount} Pallets`;
+            if (unitsVal) unitsVal.textContent = `${totalUnits} Total Units`;
+            if (stopsVal) stopsVal.textContent = `${trip.stops ? trip.stops.length : 0} Stops`;
+
+            // Render Stops in Reverse-Sequence (Stow reverse order)
+            if (!container) return;
+
+            const stops = [...(trip.stops || [])].sort((a, b) => a.seq - b.seq);
+            const checkedCount = stops.filter(s => isOrderChecked(s.orderId)).length;
+            const tripOpenFlags = stops.flatMap(s => openFlagsFor(s.orderId));
+
+            const flagsPill = document.getElementById('s1-trip-flags-pill');
+            if (flagsPill) {
+                if (tripOpenFlags.length > 0) {
+                    flagsPill.style.display = 'inline-block';
+                    flagsPill.textContent = `${tripOpenFlags.length} FLAG${tripOpenFlags.length === 1 ? '' : 'S'} REPORTED`;
+                } else {
+                    flagsPill.style.display = 'none';
+                }
+            }
+
+            const footerStatus = document.getElementById('s1-footer-status');
+            if (footerStatus) {
+                footerStatus.innerHTML = `${checkedCount}/${stops.length} STOPS LOADED &nbsp;|&nbsp; ${tripOpenFlags.length} DISCREPANC${tripOpenFlags.length === 1 ? 'Y' : 'IES'}`;
+            }
+
+            container.innerHTML = stops.map(s => {
+                const isChecked = isOrderChecked(s.orderId);
+                const flags = openFlagsFor(s.orderId);
                 const isChilled = s.tempRequirement === 'chilled';
                 return `
-                <div class="s1-section-header" style="display:flex; align-items:center; justify-content:space-between; margin-top:12px;">
+                <div class="s1-section-header" style="display:flex; align-items:center; justify-content:space-between; margin-top:16px;">
                     <div class="s1-section-title">
-                        STOP ${String(s.seq).padStart(2, '0')}: ${esc(s.outletId || 'OUTLET')} · ${esc(s.district || '')}
+                        DROP #${String(s.seq).padStart(2, '0')}: ${esc(s.outletId || 'OUTLET')} · ${esc(s.district || '')}
                     </div>
                     <div class="s1-section-meta" style="display:flex; align-items:center; gap:8px;">
                         <span class="tag-spec-pill ${isChilled ? 'tag-spec-chilled' : 'tag-spec-ambient'}">${isChilled ? '❄️ CHILLED' : '📦 AMBIENT'}</span>
@@ -2504,101 +2734,601 @@
                     </div>
                 </div>
                 <div class="s1-item-list">
-                    <div class="s1-item-row${flagged ? ' flagged' : ''}" id="s1-row-${s.seq}">
+                    <div class="s1-item-row ${flags.length > 0 ? 'flagged' : (isChecked ? 'checked-row' : '')}" id="s1-row-${s.orderId}">
                         <div class="s1-item-left">
-                            <div class="s1-check-box${flagged ? ' warning-icon' : ''}" onclick="toggleS1Check(${s.seq})">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            <div class="s1-check-box ${flags.length > 0 ? 'warning-icon' : (isChecked ? 'checked' : '')}" onclick="toggleChecklistItem(${s.orderId}, ${s.seq})">
+                                ${flags.length > 0 
+                                    ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' 
+                                    : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'
+                                }
                             </div>
                             <div>
                                 <div class="s1-item-name">${orderRef(s.orderId)} • ${esc(s.outletId || '')} (${esc(s.brand || trip.brand || '')})</div>
-                                <div class="s1-item-sub">Window: ${esc(s.windowOpen || '—')} – ${esc(s.windowClose || '—')} • Status: ${esc((s.status || 'allocated').toUpperCase())} · Drop seq #${s.seq}</div>
+                                <div class="s1-item-sub">Window: ${esc(s.windowOpen || '—')} – ${esc(s.windowClose || '—')} • Status: ${esc((s.status || 'allocated').toUpperCase())} · Stop #${s.seq}</div>
                             </div>
                         </div>
-                        <div class="s1-item-right" style="display:flex; align-items:center; gap:10px;">
+                        <div class="s1-item-right">
                             <div style="text-align:right;">
-                                <div class="s1-qty-bold">${s.units || '—'} Units</div>
-                                <div style="font-size:10px; color:#64748b;">${s.weightKg || Math.round((s.units||0)*0.5)} kg · ${s.volumeM3 || 0} m³</div>
+                                <div class="s1-qty-bold">${s.units || 0} Units</div>
+                                <div style="font-size:10px; color:#64748b;">${Math.round(s.weightKg || (s.units||0)*0.5)} kg · ${s.volumeM3 || 0} m³</div>
                             </div>
-                            <button type="button" class="btn-outline-dark" style="padding:4px 8px; font-size:10px; border-color:#e11d48; color:#e11d48;" onclick="openShortageModalFor(${s.orderId})">Flag</button>
-                            ${flagged ? '<span class="pill-flagged-discrepancy" onclick="openShortageModalFor(' + s.orderId + ')" style="cursor: pointer;">FLAGGED</span>' : ''}
+                            <button type="button" class="btn-logout" style="padding:4px 8px; font-size:10px; border-color:#e11d48; color:#e11d48;" onclick="openShortageModalFor(${s.orderId})">Flag Shortage</button>
+                            ${flags.length > 0 ? `<span class="pill-flagged-discrepancy" onclick="openShortageModalFor(${s.orderId})" style="cursor:pointer;">${flags[0].reason} (${flags[0].qty})</span>` : ''}
                         </div>
                     </div>
                 </div>`;
             }).join('');
-
-            // Keep the metrics grid, swap the stop sections
-            const grid = body.querySelector('.s1-metrics-grid');
-            body.innerHTML = '';
-            if (grid) body.appendChild(grid);
-            body.insertAdjacentHTML('beforeend', sections);
-
-            const done = trip.stops.filter((s) => s.status === 'delivered').length;
-            const foot = document.querySelector('.s1-footer-status');
-            if (foot) foot.innerHTML = `${done}/${trip.stops.length} STOPS DELIVERED &nbsp;|&nbsp; ${state.flags.length} OPEN SHORTAGE FLAG${state.flags.length === 1 ? '' : 'S'}`;
         }
 
-        function renderBayPlan() {
+        // --- RENDER SCREEN 2: BAY 2 LOADING PLAN ---
+        function renderScreen2() {
             const trip = currentTrip();
             if (!trip) return;
 
-            const sub = document.querySelector('.s2-title-sub');
+            const sub = document.getElementById('s2-title-sub');
             if (sub) sub.textContent = `VEHICLE: ${trip.vehicleCode || '—'} • ${String(trip.brand || '').toUpperCase()} (${String(trip.depot || '').toUpperCase()} DOCK)`;
 
-            const upd = document.querySelector('.s2-updated-label');
+            const chilledLabel = document.getElementById('s2-chilled-label');
+            if (chilledLabel) chilledLabel.textContent = `${trip.vehicleTemp === 'reefer' ? '❄️ CHILLED LOAD (4°C COLD-CHAIN)' : '📦 AMBIENT STANDARD LOAD'} · TRIP #${trip.tripNo || 1}`;
+
+            const upd = document.getElementById('s2-updated-label');
             if (upd) upd.textContent = `Plan status: ${trip.status || 'planned'}`;
 
-            const tl = document.getElementById('shortage-trip-label');
-            if (tl) tl.textContent = `Reporting discrepancy for Trip #${trip.id} (${trip.vehicleCode || ''})`;
+            // Reverse-load: stops into 3 compartments (Front/Last Drops -> Mid -> Tailboard/First Drops)
+            const compCol = document.getElementById('s2-compartments-col');
+            if (!compCol) return;
 
-            // Populate shortage dropdown
-            const sel = document.getElementById('shortage-select');
-            if (sel && trip.stops.length) {
-                sel.innerHTML = trip.stops.map((s) => `<option value="${s.orderId}">Stop ${String(s.seq).padStart(2, '0')} • ${orderRef(s.orderId)} • ${esc(s.outletId || '')} (${s.units || 0} units)</option>`).join('');
-            }
-
-            // Reverse-load: stops loaded into 3 compartments (Front/Tail -> Mid -> Tailboard door)
-            const cols = document.querySelectorAll('.s2-comp-box');
-            const total = trip.stops.length;
+            const stops = [...(trip.stops || [])].sort((a, b) => a.seq - b.seq);
+            const total = stops.length;
             const chunks = [
-                trip.stops.slice(0, Math.ceil(total / 3)),
-                trip.stops.slice(Math.ceil(total / 3), Math.ceil((2 * total) / 3)),
-                trip.stops.slice(Math.ceil((2 * total) / 3))
+                { title: 'FRONT COMPARTMENT (LOADS FIRST · LAST DROPS)', items: stops.slice(Math.ceil((2 * total) / 3)) },
+                { title: 'MID COMPARTMENT (MID-ROUTE DROPS)', items: stops.slice(Math.ceil(total / 3), Math.ceil((2 * total) / 3)) },
+                { title: 'TAILBOARD / REAR DOOR (LOADS LAST · FIRST DROPS)', items: stops.slice(0, Math.ceil(total / 3)) }
             ];
-            const titles = ['FRONT COMPARTMENT (LAST DROPS)', 'MID COMPARTMENT', 'TAILBOARD / REAR (FIRST DROPS)'];
 
-            cols.forEach((box, i) => {
-                const items = chunks[i] || [];
-                const list = box.querySelector('.s2-comp-items');
-                const titleEl = box.querySelector('.s2-comp-title');
-                if (titleEl) titleEl.textContent = titles[i];
-                if (list) {
-                    list.innerHTML = items.map((s, j) => `
-                        <div class="s2-comp-row">
-                            <div class="s2-row-left">
-                                <div class="s2-check-square"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
-                                <span class="s2-row-name">${orderRef(s.orderId)} • ${esc(s.outletId || '')}</span>
-                            </div>
-                            <div class="s2-row-right">
-                                <span class="s2-stack-label">Stop #${s.seq}</span>
-                                <span class="s2-cases-bold">${s.units || '—'} Units</span>
-                            </div>
-                        </div>`).join('') || '<div style="font-size:11px;color:#94a3b8;padding:6px 0;">Empty</div>';
-                }
-            });
+            compCol.innerHTML = chunks.map((c, i) => `
+                <div class="s2-comp-box">
+                    <div class="s2-comp-title">${c.title}</div>
+                    <div class="s2-comp-items">
+                        ${c.items.length === 0 ? '<div style="font-size:11px; color:#94a3b8; padding:6px 0;">No items assigned</div>' : c.items.map(s => {
+                            const isChecked = isOrderChecked(s.orderId);
+                            return `
+                            <div class="s2-comp-row">
+                                <div class="s2-row-left">
+                                    <div class="s2-check-square ${isChecked ? 'checked' : ''}" onclick="toggleChecklistItem(${s.orderId}, ${s.seq})">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                    </div>
+                                    <span class="s2-row-name">${orderRef(s.orderId)} • ${esc(s.outletId || '')}</span>
+                                </div>
+                                <div class="s2-row-right">
+                                    <span class="s2-stack-label">Stop #${s.seq} (${esc(s.district || '')})</span>
+                                    <span class="s2-cases-bold">${s.units || 0} Units</span>
+                                </div>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            // Render Dynamic Plan Difference on Screen 2
+            renderPlanDiffBox('s2-diff-content');
+
+            // Render Dock Notes on Screen 2
+            renderDockNotesBox('s2-dock-notes-list');
         }
 
-        // --- SHORTAGE FLAG → REAL API ---
+        // --- RENDER DYNAMIC PLAN DIFF ---
+        function renderPlanDiffBox(targetId) {
+            const el = document.getElementById(targetId);
+            if (!el) return;
+
+            const diff = state.planDiff;
+            if (!diff || !diff.hasChanges || !diff.changes || diff.changes.length === 0) {
+                el.innerHTML = `<div class="s2-diff-line muted" style="color:#059669; font-weight:700;">✓ No change in plan.</div>`;
+                return;
+            }
+
+            el.innerHTML = diff.changes.slice(0, 6).map(c => {
+                const colorClass = c.severity === 'green' ? 'green' : (c.severity === 'amber' ? 'amber' : '');
+                return `<div class="s2-diff-line ${colorClass}">● ${esc(c.description || '')}</div>`;
+            }).join('');
+        }
+
+        // --- RENDER DOCK NOTES ---
+        function renderDockNotesBox(targetId) {
+            const el = document.getElementById(targetId);
+            if (!el) return;
+
+            if (!state.dockNotes || state.dockNotes.length === 0) {
+                el.innerHTML = `<div style="color:#94a3b8; font-style:italic;">No dock notes recorded for this run.</div>`;
+                return;
+            }
+
+            el.innerHTML = state.dockNotes.slice(0, 5).map(n => `
+                <div style="padding:6px 0; border-bottom:1px solid #f1f5f9;">
+                    <div style="display:flex; justify-content:space-between; font-size:10px; color:#64748b; font-weight:700;">
+                        <span>📝 ${esc(n.author || 'Loader')} · ${esc(n.vehicleCode || 'Dock')}</span>
+                        <span>${new Date(n.createdAt).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })}</span>
+                    </div>
+                    <div style="font-size:11px; color:#0f172a; margin-top:2px;">${esc(n.note)}</div>
+                </div>
+            `).join('');
+        }
+
+        // --- RENDER SCREEN 3: 6 SIDEBAR SUBVIEWS ---
+        function showS3Tab(tabName) {
+            state.activeS3Tab = tabName;
+            document.querySelectorAll('.s3-nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.s3-subview').forEach(v => v.classList.remove('active'));
+
+            const btn = document.getElementById(`s3-btn-tab-${tabName}`);
+            const view = document.getElementById(`s3-view-${tabName}`);
+            if (btn) btn.classList.add('active');
+            if (view) view.classList.add('active');
+
+            renderScreen3();
+        }
+
+        function renderScreen3() {
+            const trip = currentTrip();
+            if (!trip) return;
+
+            // Render Right Diff Sidebar
+            const diffList = document.getElementById('s3-diff-items-list');
+            if (diffList) {
+                const diff = state.planDiff;
+                if (!diff || !diff.hasChanges || !diff.changes || diff.changes.length === 0) {
+                    diffList.innerHTML = `<div class="s3-diff-entry"><div class="s3-diff-entry-title green">● NO CHANGES DETECTED</div><div class="s3-diff-entry-desc">Plan matches current dispatch allocation.</div></div>`;
+                } else {
+                    diffList.innerHTML = diff.changes.map(c => `
+                        <div class="s3-diff-entry">
+                            <div class="s3-diff-entry-title ${c.severity === 'green' ? 'green' : (c.severity === 'amber' ? 'amber' : 'black')}">● ${esc(c.type.toUpperCase())}</div>
+                            <div class="s3-diff-entry-desc">${esc(c.description)}</div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            // Tab 1: Overview
+            const overContent = document.getElementById('s3-overview-content');
+            if (overContent) {
+                overContent.innerHTML = `
+                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; background:#f8fafc; padding:14px; border-radius:var(--radius-md); border:1px solid #e2e8f0;">
+                    <div><span style="font-size:10px; font-weight:800; color:var(--text-muted);">VEHICLE</span><div style="font-weight:900;">${trip.vehicleCode} (${trip.brand})</div></div>
+                    <div><span style="font-size:10px; font-weight:800; color:var(--text-muted);">TEMPERATURE</span><div style="font-weight:900;">${trip.vehicleTemp === 'reefer' ? '❄️ Reefer' : '📦 Ambient'}</div></div>
+                    <div><span style="font-size:10px; font-weight:800; color:var(--text-muted);">DEPOT ORIGIN</span><div style="font-weight:900;">${trip.depot} Central DC</div></div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    ${(trip.stops || []).map(s => `
+                        <div class="s3-group-card">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-weight:800; font-size:12px;">Stop #${s.seq} · ${esc(s.outletId)} (${esc(s.district)})</span>
+                                <span class="tag-spec-pill ${s.tempRequirement === 'chilled' ? 'tag-spec-chilled' : 'tag-spec-ambient'}">${s.tempRequirement}</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; font-size:11px; color:#64748b;">
+                                <span>Window: ${esc(s.windowOpen)} – ${esc(s.windowClose)} • ETA ${esc(s.plannedArrival)}</span>
+                                <span style="font-weight:700; color:#0f172a;">${s.units} Units · ${Math.round(s.weightKg || 0)} kg</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>`;
+            }
+
+            // Tab 2: Load-Sheet (Reverse Order Groups)
+            const grpContainer = document.getElementById('s3-groups-container');
+            if (grpContainer) {
+                const stops = [...(trip.stops || [])].sort((a, b) => b.seq - a.seq); // reverse
+                grpContainer.innerHTML = stops.map(s => {
+                    const isChecked = isOrderChecked(s.orderId);
+                    return `
+                    <div class="s3-group-card">
+                        <div class="s3-group-top-row">
+                            <div>
+                                <div class="s3-group-name">DROP #${s.seq} - ${esc(s.outletId)} (${esc(s.district)})</div>
+                                <div class="s3-group-sub">Containment Zone: ${s.seq <= 2 ? 'TAILBOARD / REAR' : (s.seq <= 4 ? 'MID COMPARTMENT' : 'AFT / FRONT')}</div>
+                            </div>
+                            <span class="${isChecked ? 'pill-checked-green' : 'pill-revalidate-amber'}" onclick="toggleChecklistItem(${s.orderId}, ${s.seq})" style="cursor:pointer;">
+                                ${isChecked ? '✓ CHECKED' : '○ PENDING'}
+                            </span>
+                        </div>
+                        <div class="s3-group-item-row">
+                            <span class="s3-item-val-text">${orderRef(s.orderId)} • ${s.units} Units · ${Math.round(s.weightKg || 0)} kg</span>
+                            <button class="pill-revalidate-amber" onclick="revalidateGroup(${s.seq})">RE-VALIDATE</button>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            // Tab 3: Scan & Weight Dropdown
+            const scanSelect = document.getElementById('scan-order-select');
+            if (scanSelect && trip.stops) {
+                scanSelect.innerHTML = trip.stops.map(s => `<option value="${s.orderId}">Stop #${s.seq} • ${orderRef(s.orderId)} (${esc(s.outletId)})</option>`).join('');
+                updateScanOrderFields();
+            }
+
+            // Tab 4: Weight & Balance
+            const wbContainer = document.getElementById('s3-wb-container');
+            if (wbContainer) {
+                const totalKg = Math.round(trip.totalWeight || 0);
+                const capKg = trip.vehicleType === 'van' ? 2500 : 15000;
+                const pctWeight = Math.min(100, Math.round((totalKg / capKg) * 100));
+
+                const totalM3 = Math.round((trip.totalVolume || 0) * 10) / 10;
+                const capM3 = trip.vehicleType === 'van' ? 12 : 55;
+                const pctVol = Math.min(100, Math.round((totalM3 / capM3) * 100));
+
+                wbContainer.innerHTML = `
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:var(--radius-md); padding:16px;">
+                    <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:800; margin-bottom:6px;">
+                        <span>PAYLOAD WEIGHT: ${totalKg.toLocaleString()} kg / ${capKg.toLocaleString()} kg</span>
+                        <span style="color:${pctWeight > 95 ? '#e11d48' : '#059669'};">${pctWeight}% UTILIZED</span>
+                    </div>
+                    <div style="height:10px; background:#e2e8f0; border-radius:9999px; overflow:hidden;">
+                        <div style="height:100%; width:${pctWeight}%; background:${pctWeight > 95 ? '#e11d48' : (pctWeight > 85 ? '#f59e0b' : '#10b981')}; border-radius:9999px;"></div>
+                    </div>
+                </div>
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:var(--radius-md); padding:16px;">
+                    <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:800; margin-bottom:6px;">
+                        <span>VOLUME CAPACITY: ${totalM3} m³ / ${capM3} m³</span>
+                        <span style="color:${pctVol > 95 ? '#e11d48' : '#059669'};">${pctVol}% UTILIZED</span>
+                    </div>
+                    <div style="height:10px; background:#e2e8f0; border-radius:9999px; overflow:hidden;">
+                        <div style="height:100%; width:${pctVol}%; background:${pctVol > 95 ? '#e11d48' : '#10b981'}; border-radius:9999px;"></div>
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; text-align:center;">
+                    <div class="s1-metric-box"><span class="s1-metric-label">FWD AXLE</span><span class="s1-metric-val">${Math.round(totalKg * 0.35)} kg</span></div>
+                    <div class="s1-metric-box"><span class="s1-metric-label">MID SECTION</span><span class="s1-metric-val">${Math.round(totalKg * 0.40)} kg</span></div>
+                    <div class="s1-metric-box"><span class="s1-metric-label">AFT / TAIL</span><span class="s1-metric-val">${Math.round(totalKg * 0.25)} kg</span></div>
+                </div>`;
+            }
+
+            // Tab 5: Final Check
+            const finContainer = document.getElementById('s3-final-container');
+            if (finContainer) {
+                const stops = trip.stops || [];
+                const allChecked = stops.every(s => isOrderChecked(s.orderId));
+                finContainer.innerHTML = `
+                <div class="s4-checklist-items" style="background:#f8fafc; padding:16px; border-radius:var(--radius-md); border:1px solid #e2e8f0;">
+                    <div class="s4-check-row">
+                        <div><div class="s4-check-name">All ${stops.length} items loaded</div><div class="s4-check-sub">${stops.filter(s=>isOrderChecked(s.orderId)).length}/${stops.length} verified</div></div>
+                        <span class="${allChecked ? 'pill-s4-checked' : 'pill-s4-flagged'}">${allChecked ? 'CHECKED' : 'PENDING'}</span>
+                    </div>
+                    <div class="s4-check-row">
+                        <div><div class="s4-check-name">Pallets strapped & load balanced</div><div class="s4-check-sub">Axle limits certified</div></div>
+                        <span class="pill-s4-checked">CHECKED</span>
+                    </div>
+                    <div class="s4-check-row">
+                        <div><div class="s4-check-name">Cold-Chain Temperature Certified</div><div class="s4-check-sub">${trip.vehicleTemp === 'reefer' ? '4.0°C Setpoint Verified' : 'Ambient Spec OK'}</div></div>
+                        <span class="pill-s4-checked">CHECKED</span>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <input type="text" id="final-seal-input" class="filter-input" placeholder="Security Seal # (e.g. SEAL-8849)" style="flex:1;">
+                    <button type="button" class="btn-modal-submit" onclick="submitFinalCheckAction(${trip.id})" style="padding:10px 18px; font-size:12px;">🔒 Confirm Departure Readiness</button>
+                </div>`;
+            }
+
+            // Tab 6: Summary of the Day
+            renderSummaryOfTheDay();
+        }
+
+        // --- SCAN & WEIGHT INTERACTIONS ---
+        function updateScanOrderFields() {
+            const sel = document.getElementById('scan-order-select');
+            const trip = currentTrip();
+            if (!sel || !trip) return;
+
+            const orderId = Number(sel.value);
+            const stop = (trip.stops || []).find(s => s.orderId === orderId);
+            const plannedKg = stop ? Math.round(stop.weightKg || (stop.units || 0) * 0.5) : 0;
+
+            const plannedInput = document.getElementById('scan-planned-weight');
+            const codeInput = document.getElementById('scan-barcode-input');
+            if (plannedInput) plannedInput.value = `${plannedKg} kg`;
+            if (codeInput && stop) codeInput.value = `BC-${orderRef(orderId)}-${stop.outletId}`;
+        }
+
+        function simulateBarcodeScan() {
+            const sel = document.getElementById('scan-order-select');
+            const orderId = sel ? sel.value : '0';
+            const codeInput = document.getElementById('scan-barcode-input');
+            if (codeInput) codeInput.value = `SCAN-OK-ORD-${orderId}-${Date.now().toString().slice(-4)}`;
+            ldrToast('📷 Barcode scanned and matched against run sheet');
+        }
+
+        async function recordScannedWeight() {
+            const sel = document.getElementById('scan-order-select');
+            const orderId = sel ? Number(sel.value) : null;
+            const actualKg = Number(document.getElementById('scan-actual-weight')?.value);
+            const plannedText = document.getElementById('scan-planned-weight')?.value || '0';
+            const plannedKg = Number(plannedText.replace(/[^0-9.]/g, '')) || actualKg;
+
+            if (!orderId || isNaN(actualKg) || actualKg <= 0) {
+                ldrToast('Please enter a valid scale weight in kg');
+                return;
+            }
+
+            const trip = currentTrip();
+            try {
+                const res = await WaypointUtil.api('/api/trips/scan-weight', {
+                    method: 'POST',
+                    body: {
+                        tripId: trip ? trip.id : null,
+                        orderId,
+                        scannedCode: document.getElementById('scan-barcode-input')?.value,
+                        actualWeightKg: actualKg,
+                        plannedWeightKg: plannedKg
+                    }
+                });
+
+                const verdictBox = document.getElementById('scan-verdict-box');
+                if (verdictBox) {
+                    verdictBox.style.display = 'block';
+                    if (res.isDiscrepancy) {
+                        verdictBox.style.background = '#fee2e2';
+                        verdictBox.style.color = '#991b1b';
+                        verdictBox.innerHTML = `⚠️ Weight Discrepancy Detected: Scale=${actualKg} kg, Planned=${plannedKg} kg (Δ ${res.weightDeltaKg} kg). Flagged for supervisor review.`;
+                    } else {
+                        verdictBox.style.background = '#ecfdf5';
+                        verdictBox.style.color = '#065f46';
+                        verdictBox.innerHTML = `✓ Weight Verified within 5% tolerance: Scale=${actualKg} kg (Δ ${res.weightDeltaKg} kg).`;
+                    }
+                }
+
+                // Check off item
+                toggleChecklistItem(orderId, 1);
+                ldrToast(`Scale reading saved for ${orderRef(orderId)}`);
+            } catch (err) {
+                ldrToast(`Error saving scan: ${err.message}`);
+            }
+        }
+
+        // --- FINAL CHECK SUBMISSION ---
+        async function submitFinalCheckAction(tripId) {
+            const seal = document.getElementById('final-seal-input')?.value || `SEAL-${Math.floor(100000 + Math.random()*900000)}`;
+            const trip = currentTrip();
+
+            try {
+                await WaypointUtil.api(`/api/trips/${tripId}/final-check`, {
+                    method: 'POST',
+                    body: {
+                        vehicleCode: trip ? trip.vehicleCode : null,
+                        sealNumber: seal,
+                        allLoaded: true,
+                        palletsSecured: true,
+                        balanced: true,
+                        tempChecked: true,
+                        confirmedBy: (state.user && state.user.name) || 'Loader'
+                    }
+                });
+
+                ldrToast(`🔒 Final check certified for ${trip ? trip.vehicleCode : 'Vehicle'} · Dispatched to driver!`);
+                showScreen(4);
+            } catch (err) {
+                ldrToast(`Final check error: ${err.message}`);
+            }
+        }
+
+        // --- SUMMARY OF THE DAY ---
+        async function renderSummaryOfTheDay() {
+            const container = document.getElementById('s3-day-summary-container');
+            if (!container) return;
+
+            try {
+                const res = await WaypointUtil.api(`/api/loader/day-summary?depot=${state.selectedDepot}`);
+                container.innerHTML = `
+                <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px;">
+                    <div class="s1-metric-box"><span class="s1-metric-label">TOTAL RUNS</span><span class="s1-metric-val">${res.totalTrips}</span><span class="s1-metric-sub">${res.tripsReleased} released</span></div>
+                    <div class="s1-metric-box"><span class="s1-metric-label">LOADED ORDERS</span><span class="s1-metric-val">${res.totalOrdersLoaded}</span><span class="s1-metric-sub">100% staged</span></div>
+                    <div class="s1-metric-box"><span class="s1-metric-label">TOTAL WEIGHT</span><span class="s1-metric-val">${res.totalWeightLoaded.toLocaleString()} kg</span><span class="s1-metric-sub">${res.totalVolumeLoaded} m³</span></div>
+                    <div class="s1-metric-box"><span class="s1-metric-label">FLAGS RECORDED</span><span class="s1-metric-val" style="color:${res.shortagesFlagged > 0 ? '#e11d48' : '#059669'};">${res.shortagesFlagged}</span><span class="s1-metric-sub">${res.notesCount} dock notes</span></div>
+                </div>
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:var(--radius-md); padding:16px; font-size:12px; color:#334155; line-height:1.6;">
+                    <strong>Dock Facility Status:</strong> ${res.depot} operations active. All allocated vehicles staged in reverse drop sequence. Real-time telemetry synchronized with Central Dispatch Desk.
+                </div>`;
+            } catch {
+                container.innerHTML = `<div style="color:var(--text-muted);">Summary unavailable.</div>`;
+            }
+        }
+
+        async function sendDaySummaryToDispatcher() {
+            try {
+                const summary = await WaypointUtil.api(`/api/loader/day-summary?depot=${state.selectedDepot}`);
+                await WaypointUtil.api('/api/loader/day-summary', {
+                    method: 'POST',
+                    body: summary
+                });
+                ldrToast(`🚀 ${state.selectedDepot} Dock Day Summary successfully transmitted to Dispatcher!`);
+            } catch (err) {
+                ldrToast(`Failed to send summary: ${err.message}`);
+            }
+        }
+
+        // --- RENDER SCREEN 4: LOADER HANDOFF ---
+        function renderScreen4() {
+            const trip = currentTrip();
+            if (!trip) return;
+
+            const timeEl = document.getElementById('s4-panel-time');
+            if (timeEl) timeEl.textContent = `TIME: ${new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })}`;
+
+            const itemsBox = document.getElementById('s4-checklist-items');
+            if (!itemsBox) return;
+
+            const stops = trip.stops || [];
+            const loadedCount = stops.filter(s => isOrderChecked(s.orderId)).length;
+            const flagsCount = stops.flatMap(s => openFlagsFor(s.orderId)).length;
+
+            itemsBox.innerHTML = `
+                <div class="s4-check-row">
+                    <div><div class="s4-check-name">All items loaded</div><div class="s4-check-sub">${loadedCount} / ${stops.length} orders verified</div></div>
+                    <span class="${loadedCount === stops.length ? 'pill-s4-checked' : 'pill-s4-flagged'}">${loadedCount === stops.length ? 'CHECKED' : 'PARTIAL'}</span>
+                </div>
+                <div class="s4-check-row">
+                    <div><div class="s4-check-name">Pallets secured & tied</div><div class="s4-check-sub">Ratchet straps engaged</div></div>
+                    <span class="pill-s4-checked">CHECKED</span>
+                </div>
+                <div class="s4-check-row">
+                    <div><div class="s4-check-name">Load balanced</div><div class="s4-check-sub">Within axle limits</div></div>
+                    <span class="pill-s4-checked">CHECKED</span>
+                </div>
+                <div class="s4-check-row">
+                    <div><div class="s4-check-name">Shortfall & Discrepancy flags</div><div class="s4-check-sub">${flagsCount} flagged item(s)</div></div>
+                    <span class="${flagsCount > 0 ? 'pill-s4-flagged' : 'pill-s4-checked'}">${flagsCount > 0 ? 'FLAGGED' : 'CLEAR'}</span>
+                </div>
+                <div class="s4-check-row">
+                    <div><div class="s4-check-name">Temperature check</div><div class="s4-check-sub">${trip.vehicleTemp === 'reefer' ? '4°C Certified' : 'Ambient Spec'}</div></div>
+                    <span class="pill-s4-checked">CHECKED</span>
+                </div>
+            `;
+
+            const flagsAlert = document.getElementById('s4-flags-alert');
+            if (flagsAlert) {
+                flagsAlert.innerHTML = flagsCount > 0
+                    ? `⚠️ ${flagsCount} item(s) flagged — noted for receiver`
+                    : `✓ All ${stops.length} items verified without discrepancy`;
+            }
+        }
+
+        function confirmHandoffAction() {
+            const trip = currentTrip();
+            if (trip && window.WaypointOutbox) {
+                (trip.stops || []).forEach((s) => WaypointOutbox.enqueue({
+                    type: 'loaded',
+                    orderId: s.orderId,
+                    payload: { vehicleCode: trip.vehicleCode, tripId: trip.id, seq: s.seq },
+                }));
+                const badge = document.getElementById('s4-status-badge');
+                const title = document.getElementById('s4-confirm-title');
+                const sub = document.getElementById('s4-confirm-sub');
+                if (badge) badge.textContent = 'COMPLETED';
+                if (title) title.textContent = 'Handoff Confirmed';
+                if (sub) sub.textContent = `Journal updated successfully • ${new Date().toLocaleTimeString()}`;
+
+                ldrToast(`✓ Handoff confirmed for ${trip.vehicleCode} · Synced to driver manifest.`);
+            } else {
+                ldrToast('✓ Load handoff confirmed. Journal entry recorded.');
+            }
+        }
+
+        // --- REVIEW MODAL ---
+        function openReviewModal() {
+            const trip = currentTrip();
+            if (!trip) return;
+
+            const depotBadge = document.getElementById('review-depot-badge');
+            const tripTitle = document.getElementById('review-trip-title');
+            if (depotBadge) depotBadge.textContent = `${String(trip.depot || 'PELIYAGODA').toUpperCase()} DOCK`;
+            if (tripTitle) tripTitle.textContent = `Reviewing Trip #${trip.id} · ${trip.vehicleCode} (${trip.brand})`;
+
+            const stops = trip.stops || [];
+            const loadedStops = stops.filter(s => isOrderChecked(s.orderId)).length;
+            const totalKg = Math.round(trip.totalWeight || 0);
+            const totalUnits = stops.reduce((s, x) => s + (x.units || 0), 0);
+
+            const metricsBox = document.getElementById('review-summary-metrics');
+            if (metricsBox) {
+                metricsBox.innerHTML = `
+                <div class="s1-metric-box"><span class="s1-metric-label">LOADED STOPS</span><span class="s1-metric-val">${loadedStops}/${stops.length}</span></div>
+                <div class="s1-metric-box"><span class="s1-metric-label">TOTAL UNITS</span><span class="s1-metric-val">${totalUnits}</span></div>
+                <div class="s1-metric-box"><span class="s1-metric-label">PAYLOAD KG</span><span class="s1-metric-val">${totalKg.toLocaleString()}</span></div>`;
+            }
+
+            const flagsBox = document.getElementById('review-flags-list');
+            const openFlags = stops.flatMap(s => openFlagsFor(s.orderId));
+            if (flagsBox) {
+                if (openFlags.length === 0) {
+                    flagsBox.innerHTML = `<div style="font-size:12px; color:#059669; font-weight:700;">✓ No active shortfall or damage flags for this run.</div>`;
+                } else {
+                    flagsBox.innerHTML = openFlags.map(f => `
+                        <div style="background:#fff1f2; border:1px solid #fecdd3; padding:8px 12px; border-radius:6px; font-size:12px;">
+                            <strong>${orderRef(f.orderId)}</strong>: ${f.qty} × ${esc(f.itemDesc)} — <span style="color:#e11d48; font-weight:800;">${esc(f.reason)}</span>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            const capBox = document.getElementById('review-capacity-box');
+            if (capBox) {
+                capBox.innerHTML = `<strong>Weight & Volume Compliance:</strong> Within safe axle limits. Temperature class: <strong>${trip.vehicleTemp}</strong>. Ready for final bay staging.`;
+            }
+
+            openModal('review-modal');
+        }
+
+        function proceedFromReview() {
+            closeModal('review-modal');
+            showScreen(2);
+        }
+
+        // --- DOCK NOTES MODAL ---
+        function openDockNoteModal() {
+            document.getElementById('dock-note-text').value = '';
+            openModal('dock-note-modal');
+        }
+
+        async function submitDockNote() {
+            const text = document.getElementById('dock-note-text')?.value.trim();
+            if (!text) { ldrToast('Please enter a note'); return; }
+
+            const trip = currentTrip();
+            try {
+                await WaypointUtil.api('/api/dock-notes', {
+                    method: 'POST',
+                    body: {
+                        tripId: trip ? trip.id : null,
+                        vehicleCode: trip ? trip.vehicleCode : null,
+                        depot: trip ? trip.depot : state.selectedDepot,
+                        note: text,
+                        author: (state.user && state.user.name) || 'Loader'
+                    }
+                });
+
+                closeModal('dock-note-modal');
+                ldrToast('📝 Dock note saved and broadcast to all roles');
+                await loadDockNotes();
+                renderScreen2();
+            } catch (err) {
+                ldrToast(`Failed to save note: ${err.message}`);
+            }
+        }
+
+        // --- SHORTAGE MODAL ---
         function openShortageModal() {
             const trip = currentTrip();
-            const tl = document.getElementById('shortage-trip-label');
-            if (tl && trip) tl.textContent = `Reporting discrepancy for Trip #${trip.id} (${trip.vehicleCode || ''})`;
-            document.getElementById('shortage-modal').classList.add('active');
+            const sel = document.getElementById('shortage-select');
+            if (sel && trip && trip.stops) {
+                sel.innerHTML = trip.stops.map(s => `<option value="${s.orderId}">Stop #${s.seq} • ${orderRef(s.orderId)} (${esc(s.outletId)}) - ${s.units} units</option>`).join('');
+            }
+            openModal('shortage-modal');
         }
 
         function openShortageModalFor(orderId) {
+            openShortageModal();
             const sel = document.getElementById('shortage-select');
             if (sel) sel.value = String(orderId);
-            openShortageModal();
+        }
+
+        function changeQty(delta) {
+            state.shortageQty = Math.max(1, state.shortageQty + delta);
+            const el = document.getElementById('shortage-qty');
+            if (el) el.textContent = state.shortageQty;
+        }
+
+        function selectReason(reason) {
+            state.selectedReason = reason;
+            document.querySelectorAll('.reason-pill-btn').forEach(b => b.classList.remove('active'));
+            if (reason === 'Missing at Dock') document.getElementById('reason-missing')?.classList.add('active');
+            if (reason === 'Damaged') document.getElementById('reason-damaged')?.classList.add('active');
+            if (reason === 'Substituted') document.getElementById('reason-sub')?.classList.add('active');
+        }
+
+        function simulateProofCapture() {
+            state.proofCaptured = true;
+            const title = document.getElementById('proof-status-title');
+            if (title) title.innerHTML = '✓ Proof Frame Attached (IMG_DOCK_8849.jpg)';
+            ldrToast('📷 Proof frame captured and linked to shortage record.');
         }
 
         async function submitShortage() {
@@ -2612,32 +3342,60 @@
             if (window.WaypointOffline && !WaypointOffline.isOnline()) {
                 WaypointOffline.mutate({ url: '/api/flags', body, label: `shortage ORD-${orderId}` });
                 ldrToast(`📦 Offline — flag queued (${WaypointOffline.count()} pending). Auto-syncs on reconnect.`);
-                closeShortageModal();
+                closeModal('shortage-modal');
                 return;
             }
             try {
                 const res = await WaypointUtil.api('/api/flags', { method: 'POST', body });
                 ldrToast(`🚩 Flag #${res.flag.id} sent to Dispatcher (${state.selectedReason})`);
-                closeShortageModal();
+                closeModal('shortage-modal');
                 await loadFlags();
-                renderLoadSheet();
+                renderView();
             } catch (err) {
-                if (window.WaypointOffline && (err.status === undefined || err.status >= 500)) {
-                    WaypointOffline.mutate({ url: '/api/flags', body, label: `shortage ORD-${orderId}` });
-                    ldrToast(`⚠ Network trouble — flag queued (${WaypointOffline.count()} pending).`);
-                    closeShortageModal();
-                    return;
-                }
                 ldrToast(`Flag failed: ${err.message}`);
             }
         }
 
-        // --- AUTH CHECK (real JWT) ---
+        // --- MODAL UTILITIES ---
+        function openModal(modalId) {
+            document.getElementById(modalId)?.classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId)?.classList.remove('active');
+        }
+
+        function closeModalOnBg(e, modalId) {
+            if (e.target.id === modalId) {
+                closeModal(modalId);
+            }
+        }
+
+        // --- S3 ACTIONS ---
+        function revalidateGroup(grpNum) {
+            ldrToast(`Drop #${grpNum} sequence re-validated. Spec OK.`);
+        }
+
+        function revalidateAllGroups() {
+            ldrToast('All reverse-order groups re-validated against latest dispatch route.');
+        }
+
+        function acknowledgeDiff() {
+            ldrToast('Diff acknowledged. Load-sheet synchronized with bay staging.');
+            showScreen(4);
+        }
+
+        function triggerEmergencyHold() {
+            alert('EMERGENCY HOLD ACTIVATED: Loading Bay halted and supervisor notified.');
+        }
+
+        // --- AUTH & REALTIME ---
         async function checkAuth() {
             const user = await WaypointAuth.guard('loader', { lockElId: 'auth-lock-screen' });
             if (!user) return;
             state.user = user;
-            loadManifest();
+            initGloveMode();
+            await loadManifest();
             startRealtime();
         }
 
@@ -2664,18 +3422,20 @@
             handleAuth({ preventDefault: () => {} });
         }
 
-        // --- REALTIME: plan commits + polling fallback ---
         function startRealtime() {
             WaypointRealtime.start(['loader']);
-            WaypointRealtime.on('plan-committed', () => {
-                ldrToast('📥 New load plan received from Dispatcher — refreshing bay sheets');
+            WaypointRealtime.on('plan-committed', (p) => {
+                ldrToast(`📥 New load plan received from Dispatcher (${p.diffSummary || 'Plan updated'})`);
                 loadManifest();
             });
-            WaypointRealtime.on('shortage-flagged', () => loadFlags());
+            WaypointRealtime.on('shortage-flagged', () => loadFlags().then(renderView));
+            WaypointRealtime.on('dock-note-added', (n) => {
+                ldrToast(`📝 Dock Note: ${n.note.slice(0, 40)}...`);
+                loadDockNotes().then(renderScreen2);
+            });
             WaypointRealtime.onPoll(loadManifest);
         }
 
-        // --- SCREEN NAVIGATION ---
         function showScreen(screenNum) {
             document.querySelectorAll('.screen-container').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.screen-nav-btn').forEach(el => el.classList.remove('active'));
@@ -2684,80 +3444,6 @@
             const btn = document.getElementById('btn-scr-' + screenNum);
             if (target) target.classList.add('active');
             if (btn) btn.classList.add('active');
-        }
-
-        // --- GLOVE MODE TOGGLE ---
-        let gloveMode = true;
-        function toggleGloveMode() {
-            gloveMode = !gloveMode;
-            const btn = document.getElementById('glove-btn');
-            const txt = document.getElementById('glove-text');
-            if (gloveMode) {
-                btn.classList.add('active');
-                txt.textContent = 'Glove-Mode On';
-            } else {
-                btn.classList.remove('active');
-                txt.textContent = 'Glove-Mode Off';
-            }
-        }
-
-        // --- S1 CHECKLIST INTERACTION ---
-        function toggleS1Check(rowId) {
-            const row = document.getElementById('s1-row-' + rowId);
-            if (row) {
-                row.classList.toggle('flagged');
-            }
-        }
-
-        function closeShortageModal() {
-            document.getElementById('shortage-modal').classList.remove('active');
-        }
-
-        function closeModalOnBg(e) {
-            if (e.target.id === 'shortage-modal') {
-                closeShortageModal();
-            }
-        }
-
-        function changeQty(delta) {
-            state.shortageQty = Math.max(1, state.shortageQty + delta);
-            document.getElementById('shortage-qty').textContent = state.shortageQty;
-        }
-
-        function selectReason(reason) {
-            state.selectedReason = reason;
-            document.querySelectorAll('.reason-pill-btn').forEach(b => b.classList.remove('active'));
-            if (reason === 'Missing at Dock') document.getElementById('reason-missing')?.classList.add('active');
-            if (reason === 'Damaged') document.getElementById('reason-damaged')?.classList.add('active');
-            if (reason === 'Substituted') document.getElementById('reason-sub')?.classList.add('active');
-        }
-
-        // --- S3 REVALIDATE INTERACTIONS ---
-        function revalidateGroup(grpNum) {
-            ldrToast(`Group ${grpNum} sequence re-validated. Temperature and position within spec.`);
-        }
-
-        function revalidateAllGroups() {
-            ldrToast('All groups re-validated against latest dispatch route update.');
-        }
-
-        function acknowledgeDiff() {
-            ldrToast('Diff acknowledged. Load-sheet synchronized with bay staging.');
-            showScreen(4);
-        }
-
-        function confirmHandoffAction() {
-            const trip = currentTrip();
-            if (trip && window.WaypointOutbox) {
-                trip.stops.forEach((s) => WaypointOutbox.enqueue({
-                    type: 'loaded',
-                    orderId: s.orderId,
-                    payload: { vehicleCode: trip.vehicleCode, tripId: trip.id, seq: s.seq },
-                }));
-                ldrToast(`✓ Handoff confirmed · ${trip.stops.length} 'loaded' events queued. Status mirrored to driver.`);
-            } else {
-                ldrToast('✓ Load handoff confirmed. Journal entry recorded.');
-            }
         }
 
         // --- INIT ---

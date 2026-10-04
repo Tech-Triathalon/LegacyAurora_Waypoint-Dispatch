@@ -3895,6 +3895,21 @@
                 showToast(`🧾 Receipt confirmed for ${orderRef(r.orderId)} · ${r.matchedFlags} flag(s) matched`);
                 loadFlagsDesk();
             });
+            WaypointRealtime.on('loader-check', (c) => {
+                showToast(`📦 Loading Progress: ${c.orderRef || orderRef(c.orderId)} checked on ${c.vehicleCode || 'vehicle'} (${c.totalChecked} items)`);
+                loadTripsBoard();
+            });
+            WaypointRealtime.on('dock-note-added', (n) => {
+                showToast(`📝 Dock Note (${n.author}): ${n.note.slice(0, 50)}...`);
+            });
+            WaypointRealtime.on('loader-day-summary', (s) => {
+                showToast(`📋 ${s.depot} Dock Day Summary: ${s.tripsReleased}/${s.totalTrips} trips released, ${s.totalOrdersLoaded} items loaded (${s.shortagesFlagged} shortages)`);
+                loadTripsBoard();
+            });
+            WaypointRealtime.on('final-check-completed', (f) => {
+                showToast(`🔒 ${f.vehicleCode || 'Vehicle'} Final Check Completed by ${f.confirmedBy} — Ready for Departure`);
+                loadTripsBoard();
+            });
             WaypointRealtime.onPoll(() => { loadTripsBoard(); loadFlagsDesk(); });
         }
 

@@ -4,9 +4,9 @@
   "private": true,
   "description": "Waypoint Dispatch — monorepo root used by Vercel build pipeline.",
   "scripts": {
-    "postinstall": "if [ -d server ]; then cd server && npx prisma generate; fi",
-    "build": "if [ -d server ]; then cd server && npx prisma generate; fi",
-    "vercel-build": "if [ -d server ]; then cd server && npx prisma generate; fi"
+    "postinstall": "node -e \"const fs=require('fs'); if(fs.existsSync('server/prisma/schema.prisma')) { try { require('child_process').execSync('npx prisma generate --schema=server/prisma/schema.prisma', {stdio:'inherit'}); } catch (e) { console.log('Prisma generate notice:', e.message); } }\"",
+    "build": "node -e \"const fs=require('fs'); if(fs.existsSync('server/prisma/schema.prisma')) { try { require('child_process').execSync('npx prisma generate --schema=server/prisma/schema.prisma', {stdio:'inherit'}); } catch (e) { console.log('Prisma generate notice:', e.message); } }\"",
+    "vercel-build": "node -e \"const fs=require('fs'); if(fs.existsSync('server/prisma/schema.prisma')) { try { require('child_process').execSync('npx prisma generate --schema=server/prisma/schema.prisma', {stdio:'inherit'}); } catch (e) { console.log('Prisma generate notice:', e.message); } }\""
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",

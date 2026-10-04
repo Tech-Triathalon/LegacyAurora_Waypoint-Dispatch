@@ -168,6 +168,155 @@ router.post('/plan/allocate', requireAuth, requireRole('dispatcher'), writeLimit
   return res.json({ date, ...result, planCheck });
 });
 
+// Plan difference state tracking across commits
+let lastPlanSnapshots = {};
+let lastPlanDiffs = {};
+
+function computePlanDiff(prevTrips, newTrips, newDeferred, depot) {
+  if (!prevTrips || prevTrips.length === 0) {
+    return {
+      hasChanges: false,
+      message: 'Initial plan baseline established. No prior changes recorded.',
+      timestamp: new Date().toISOString(),
+      changes: [
+        { type: 'baseline', description: `Initial baseline loaded: ${newTrips.length} runs allocated for ${depot || 'all depots'}.`, severity: 'green' }
+      ]
+    };
+  }
+
+  const changes = [];
+  const prevOrderMap = new Map(); // orderId -> { vehicleCode, tripNo, seq, weight, brand, depot }
+  const prevVehicleWeight = new Map();
+
+  for (const t of prevTrips) {
+    if (depot && depot !== 'all' && t.depot !== depot) continue;
+    const vCode = t.vehicle ? t.vehicle.vehicleId : `VEH-${t.vehicleId}`;
+    prevVehicleWeight.set(vCode, (prevVehicleWeight.get(vCode) || 0) + (t.totalWeight || 0));
+    for (const s of (t.stops || [])) {
+      prevOrderMap.set(s.orderId, {
+        vehicleCode: vCode,
+        tripNo: t.tripNo,
+        seq: s.seq,
+        weight: (s.order && s.order.weightKg) || 0,
+        brand: (s.order && s.order.brand) || t.brand,
+        outletId: (s.order && s.order.outletId) || null,
+        depot: t.depot,
+      });
+    }
+  }
+
+  const newOrderMap = new Map();
+  const newVehicleWeight = new Map();
+
+  for (const t of newTrips) {
+    if (depot && depot !== 'all' && t.depot !== depot) continue;
+    const vCode = t.vehicleId;
+    newVehicleWeight.set(vCode, (newVehicleWeight.get(vCode) || 0) + (t.totalWeight || 0));
+    for (const s of (t.plannedStops || [])) {
+      newOrderMap.set(s.orderId, {
+        vehicleCode: vCode,
+        tripNo: t.tripNo,
+        seq: s.seq || 1,
+        weight: s.weightKg || 0,
+        brand: t.brand,
+        outletId: s.outletId,
+        depot: t.depot,
+      });
+    }
+  }
+
+  // 1. Check for newly added orders
+  for (const [orderId, info] of newOrderMap.entries()) {
+    if (!prevOrderMap.has(orderId)) {
+      changes.push({
+        type: 'added',
+        orderId,
+        orderRef: `ORD-${String(orderId).padStart(4, '0')}`,
+        vehicleCode: info.vehicleCode,
+        description: `Order ORD-${String(orderId).padStart(4, '0')} (${info.outletId || ''}) added to ${info.vehicleCode}`,
+        severity: 'green'
+      });
+    } else {
+      const prev = prevOrderMap.get(orderId);
+      if (prev.vehicleCode !== info.vehicleCode) {
+        changes.push({
+          type: 'reassigned',
+          orderId,
+          orderRef: `ORD-${String(orderId).padStart(4, '0')}`,
+          fromVehicle: prev.vehicleCode,
+          toVehicle: info.vehicleCode,
+          description: `Order ORD-${String(orderId).padStart(4, '0')} reassigned: ${prev.vehicleCode} ➔ ${info.vehicleCode}`,
+          severity: 'amber'
+        });
+      } else if (prev.seq !== info.seq) {
+        changes.push({
+          type: 'sequence_shift',
+          orderId,
+          orderRef: `ORD-${String(orderId).padStart(4, '0')}`,
+          vehicleCode: info.vehicleCode,
+          description: `Drop sequence updated on ${info.vehicleCode}: Stop #${prev.seq} ➔ #${info.seq}`,
+          severity: 'amber'
+        });
+      }
+    }
+  }
+
+  // 2. Check for removed orders
+  for (const [orderId, info] of prevOrderMap.entries()) {
+    if (!newOrderMap.has(orderId)) {
+      const isDef = (newDeferred || []).some(d => d.order && d.order.id === orderId);
+      changes.push({
+        type: isDef ? 'deferred' : 'removed',
+        orderId,
+        orderRef: `ORD-${String(orderId).padStart(4, '0')}`,
+        vehicleCode: info.vehicleCode,
+        description: isDef 
+          ? `Order ORD-${String(orderId).padStart(4, '0')} deferred to next cycle`
+          : `Order ORD-${String(orderId).padStart(4, '0')} removed from ${info.vehicleCode}`,
+        severity: isDef ? 'amber' : 'black'
+      });
+    }
+  }
+
+  // 3. Check for vehicle weight changes
+  for (const [vCode, newW] of newVehicleWeight.entries()) {
+    const oldW = prevVehicleWeight.get(vCode) || 0;
+    const delta = Math.round(newW - oldW);
+    if (Math.abs(delta) > 5) {
+      changes.push({
+        type: 'weight_adj',
+        vehicleCode: vCode,
+        deltaKg: delta,
+        description: `${vCode} payload weight adjusted: ${delta > 0 ? '+' : ''}${delta} kg (New: ${Math.round(newW)} kg)`,
+        severity: delta > 0 ? 'green' : 'black'
+      });
+    }
+  }
+
+  const hasChanges = changes.length > 0;
+  return {
+    hasChanges,
+    message: hasChanges ? `${changes.length} change(s) detected since last dispatch plan` : 'No change in plan.',
+    timestamp: new Date().toISOString(),
+    changes
+  };
+}
+
+// GET /api/plan/diff?depot=Peliyagoda|Kandy|all — returns dynamic plan diff
+router.get('/plan/diff', requireAuth, readLimiter, async (req, res) => {
+  const depot = req.query.depot || 'Peliyagoda';
+  const diff = lastPlanDiffs[depot] || lastPlanDiffs['all'];
+  if (diff) {
+    return res.json(diff);
+  }
+  return res.json({
+    hasChanges: false,
+    message: 'No change in plan.',
+    timestamp: new Date().toISOString(),
+    changes: []
+  });
+});
+
 // POST /api/plan/commit — validate then persist trips + stops; orders become allocated.
 // Idempotent by design (delete + recreate); clientRef replay-safety on top.
 router.post('/plan/commit', requireAuth, requireRole('dispatcher'), writeLimiter, idempotency.middleware, async (req, res) => {
@@ -183,8 +332,18 @@ router.post('/plan/commit', requireAuth, requireRole('dispatcher'), writeLimiter
     return res.status(422).json({ error: 'plan failed hard validation', violations: check.violations });
   }
 
+  // Capture previous plan snapshot before deleting for dynamic diffing
+  const prevTrips = await prisma.trip.findMany({
+    include: { stops: { include: { order: true } }, vehicle: true },
+  });
+
   const vehicleRows = await prisma.vehicle.findMany();
   const vIdMap = Object.fromEntries(vehicleRows.map((v) => [v.vehicleId, v.id]));
+
+  // Compute real plan diffs
+  lastPlanDiffs['all'] = computePlanDiff(prevTrips, proposal.trips, proposal.deferred, 'all');
+  lastPlanDiffs['Peliyagoda'] = computePlanDiff(prevTrips, proposal.trips, proposal.deferred, 'Peliyagoda');
+  lastPlanDiffs['Kandy'] = computePlanDiff(prevTrips, proposal.trips, proposal.deferred, 'Kandy');
 
   // Sequential writes instead of an interactive transaction: Supabase production runs through
   // the transaction-mode pooler (PgBouncer/Supavisor), which does not support session-pinned
@@ -237,13 +396,18 @@ router.post('/plan/commit', requireAuth, requireRole('dispatcher'), writeLimiter
 
   // Realtime fan-out: every vehicle with a fresh plan wakes its driver and loader;
   // the dispatcher board and any open hub refresh too.
-  publishAll(['dispatcher', 'loader'], 'plan-committed', { date, trips: trips.length });
+  publishAll(['dispatcher', 'loader'], 'plan-committed', { date, trips: trips.length, diffSummary: lastPlanDiffs['all'].message });
   for (const t of trips) {
     publish(`driver:${t.vehicleId}`, 'plan-committed', { date, tripId: t.id, tripNo: t.tripNo });
     publish(`loader:${t.vehicleId}`, 'plan-committed', { date, tripId: t.id, tripNo: t.tripNo });
   }
 
-  return res.json({ committed: true, trips: trips.length, deferred: Array.isArray(proposal.deferred) ? proposal.deferred.length : 0 });
+  return res.json({
+    committed: true,
+    trips: trips.length,
+    deferred: Array.isArray(proposal.deferred) ? proposal.deferred.length : 0,
+    planDiff: lastPlanDiffs['all']
+  });
 });
 
 function nextOperatingDay(date) {
