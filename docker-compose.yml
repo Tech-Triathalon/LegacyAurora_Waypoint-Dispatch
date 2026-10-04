@@ -19,7 +19,9 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   app:
-    build: ./server
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
       DATABASE_URL: postgresql://waypoint:waypoint@db:5432/waypoint
       JWT_SECRET: waypoint-demo-secret-change-me

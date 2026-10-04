@@ -83,7 +83,10 @@ Browser (5 vanilla pages, untouched Day-5 design)
 4. **Cross-district leg times** approximate via depot distances (trips are brand+district homogeneous, so this rarely triggers).
 5. Demo day is fixed at **2026-06-25** (dataset calendar/road coverage ends 2026-06-28; chosen as an operating, monsoon, payday Thursday).
 
-## Docs
+## Documentation & Deliverables
 
-- `docs/` — architecture diagram, data model, AI disclosure, original planning doc.
-- `server/src/data/raw/` — competition datasets, unmodified.
+- [Architecture Document](docs/architecture.md)
+- [AI Tool Disclosure](docs/AI_DISCLOSURE.md)
+- [Architecture Diagram (SVG)](docs/architecture.svg)
+- [Data Model & ER Diagram (SVG)](docs/data-model.svg)
+- [Competition Datasets (`server/src/data/raw/`)](server/src/data/raw/)
