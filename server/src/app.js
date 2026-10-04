@@ -85,7 +85,7 @@ function createApp() {
   });
 
   // JSON 404 for unknown API routes (HTML 404 otherwise via static).
-  app.use(['/api', '/api/*'], (req, res) => res.status(404).json({ error: 'not found' }));
+  app.use('/api', (req, res) => res.status(404).json({ error: 'not found' }));
 
   // JSON error handler — DB outages surface as 503, never an HTML stack trace.
   // eslint-disable-next-line no-unused-vars
