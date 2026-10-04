@@ -6,8 +6,15 @@
 (function () {
   // ---------- helpers ----------
   async function api(path, opts = {}) {
+    const headers = opts.body ? { 'Content-Type': 'application/json' } : {};
+    try {
+      const token = typeof localStorage !== 'undefined' ? localStorage.getItem('waypoint_token') : null;
+      if (token && !headers['Authorization']) headers['Authorization'] = `Bearer ${token}`;
+    } catch {}
+    if (opts.headers) Object.assign(headers, opts.headers);
+
     const res = await fetch(path, {
-      headers: opts.body ? { 'Content-Type': 'application/json' } : {},
+      headers,
       method: opts.method || 'GET',
       body: opts.body ? JSON.stringify(opts.body) : undefined,
       credentials: 'same-origin',
@@ -54,12 +61,16 @@
     },
     async login(username, password) {
       const user = await api('/api/auth/login', { method: 'POST', body: { username, password } });
-      try { localStorage.setItem(AUTH_MIRROR, JSON.stringify(user)); } catch {}
+      try {
+        if (user && user.token) localStorage.setItem('waypoint_token', user.token);
+        localStorage.setItem(AUTH_MIRROR, JSON.stringify(user));
+      } catch {}
       return user;
     },
     async logout() {
       try { await api('/api/auth/logout', { method: 'POST' }); } catch {}
       try {
+        localStorage.removeItem('waypoint_token');
         sessionStorage.removeItem(AUTH_MIRROR);
         localStorage.removeItem(AUTH_MIRROR);
       } catch {}

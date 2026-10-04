@@ -81,6 +81,88 @@
         .quick-row button { flex: 1; padding: 8px; background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; }
         .quick-row button:hover { color: var(--accent); border-color: var(--accent); }
 
+
+        /* One-click Judge Demo Tour floating helper */
+        .tour-helper {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 100000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
+        }
+        .tour-helper-btn {
+            background: var(--accent);
+            color: #121212;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-weight: 800;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(0,0,0,.35);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        .tour-helper-btn:hover { filter: brightness(1.06); }
+        .tour-steps {
+            background: rgba(13,14,16,.92);
+            color: #f2f3f5;
+            border-radius: 10px;
+            padding: 12px 16px;
+            min-width: 220px;
+            max-width: 260px;
+            border: 1px solid rgba(245,158,11,.45);
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .tour-steps.open { display: flex; }
+        .tour-steps-title {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+        .tour-step {
+            font-size: 11px;
+            color: var(--text-main);
+            line-height: 1.35;
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tour-step:hover { background: var(--bg-subtle); color: var(--text-main); }
+        .tour-step .n {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #121212;
+            font-size: 9px;
+            font-weight: 800;
+        }
+        .tour-close {
+            align-self: flex-start;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 14px;
+            cursor: pointer;
+            padding: 0 2px;
+        }
+
         /* PWA system status panel */
         .sys-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 30px; }
         .sys-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
@@ -94,6 +176,19 @@
     </style>
 </head>
 <body>
+    <div class="tour-helper" id="tour-helper">
+        <button class="tour-helper-btn" id="tour-toggle">Judge Demo Tour</button>
+        <div class="tour-steps" id="tour-steps">
+            <div class="tour-steps-title">Step 1/6</div>
+            <div class="tour-step" data-step="1"><span class="n">1</span> Dispatcher: login · queue · reefer shortfall</div>
+            <div class="tour-step" data-step="2"><span class="n">2</span> Auto-allocate → Commit Plan</div>
+            <div class="tour-step" data-step="3"><span class="n">3</span> Loader: shortage flag on order</div>
+            <div class="tour-step" data-step="4"><span class="n">4</span> Driver: off &amp; POD capture → replay</div>
+            <div class="tour-step" data-step="5"><span class="n">5</span> Manager: receipt + auto flag match</div>
+            <div class="tour-step" data-step="6"><span class="n">6</span> Deferral ledger + telemetry outage</div>
+            <button class="tour-close" id="tour-close">✕</button>
+        </div>
+    </div>
     <div class="wrap">
         <header>
             <div class="brand">
@@ -310,6 +405,35 @@
             refreshPwaPanel();
         }
 
+
+        // ---- One-click Judge Demo Tour ----
+        (function () {
+            const btn = document.getElementById('tour-toggle');
+            const stepsEl = document.getElementById('tour-steps');
+            const steps = Array.from(document.querySelectorAll('.tour-step'));
+            let visible = false;
+            btn.addEventListener('click', () => {
+                visible = !visible;
+                stepsEl.classList.toggle('open', visible);
+            });
+            document.getElementById('tour-close').addEventListener('click', () => {
+                visible = false;
+                stepsEl.classList.remove('open');
+            });
+            steps.forEach(function (s) {
+                s.addEventListener('click', function () {
+                    const num = parseInt(s.dataset.step, 10);
+                    if (num === 1) window.location.href = 'dispatcher.html';
+                    else if (num === 2) window.location.href = 'dispatcher.html';
+                    else if (num === 3) window.location.href = 'loader.html';
+                    else if (num === 4) window.location.href = 'driver.html';
+                    else if (num === 5) window.location.href = 'store.html';
+                    else if (num === 6) window.location.href = 'dispatcher.html';
+                    visible = false;
+                    stepsEl.classList.remove('open');
+                });
+            });
+        })();
         document.addEventListener('wp-installable', refreshPwaPanel);
         if (window.WaypointOffline) WaypointOffline.onChange(() => refreshPwaPanel());
 

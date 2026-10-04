@@ -333,15 +333,19 @@
             const user = usernameInput.value.trim();
             const pass = passwordInput.value.trim();
 
-            // Authenticate against the real API (JWT in httpOnly cookie).
+            // Authenticate against the real API (JWT in httpOnly cookie + response payload).
             fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
                 body: JSON.stringify({ username: user, password: pass })
             }).then(async (res) => {
                 if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Invalid username or password.');
                 return res.json();
             }).then((session) => {
+                if (session.token) {
+                    try { localStorage.setItem('waypoint_token', session.token); } catch {}
+                }
                 // Keep the same sessionStorage shape the role pages already check.
                 localStorage.setItem('delivery_auth_user', JSON.stringify({
                     username: session.username,

@@ -1,12 +1,17 @@
-// Singleton PrismaClient — one connection pool per process.
-// Every module imports this instead of constructing its own client
-// (previously auth.js, routes/orders.js, routes/ops.js and realtime.js
-// each spawned one, exhausting Supabase pooler connections under load).
+const { loadEnv } = require('./env');
+loadEnv();
+
 const { PrismaClient } = require('@prisma/client');
 
-const prisma = new PrismaClient({
+// Singleton PrismaClient — one connection pool per process.
+// Global cache for serverless environments (e.g. Vercel) to reuse client across lambdas.
+const prisma = globalThis.__waypoint_prisma__ || new PrismaClient({
   log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
 });
+
+if (process.env.NODE_ENV !== 'production' || process.env.VERCEL) {
+  globalThis.__waypoint_prisma__ = prisma;
+}
 
 // Surface async pool failures without crashing the process; /api/health stays truthful.
 process.on('unhandledRejection', (err) => {
@@ -26,3 +31,4 @@ async function dbHealth() {
 module.exports = prisma;
 module.exports.dbHealth = dbHealth;
 module.exports.default = prisma;
+

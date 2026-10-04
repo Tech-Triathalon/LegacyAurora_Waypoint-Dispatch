@@ -1501,6 +1501,18 @@
             padding: 32px;
             text-align: center;
         }
+
+        /* Printable manifest (dock clipboard): hide interactive chrome, flatten to one page */
+        @media print {
+            body { background: #ffffff; color: #000000; padding: 12mm 14mm; }
+            .top-screen-nav-bar, .btn-logout, .screen-nav-pill-group, .glove-toggle-btn { display: none !important; }
+            .loader-viewport-container { max-width: 100%; padding: 0; }
+            .s1-footer-bar, .s1-btn-review, .s1-back-btn { display: none !important; }
+            .s1-card, .s2-card, .s3-layout-card, .s4-card { box-shadow: none !important; border: 1px solid #cccccc !important; break-inside: avoid; }
+            .s1-item-row { break-inside: avoid; }
+            .modal-overlay { display: none !important; }
+            @page { size: A4; margin: 12mm 14mm; }
+        }
     </style>
 </head>
 <body>

@@ -10,8 +10,12 @@
           "server/src/**",
           "server/prisma/**",
           "server/prisma.config.ts",
+          "server/package.json",
+          "server/package-lock.json",
+          "server/node_modules/**",
           "server/node_modules/.prisma/**",
-          "server/node_modules/@prisma/client/**"
+          "server/node_modules/@prisma/client/**",
+          "server/node_modules/@prisma/client/node_modules/**"
         ]
       }
     },
@@ -22,7 +26,7 @@
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/index.js" },
-    { "src": "/(.*\\.(js|css|html|webmanifest|png|ico|svg|jpg|jpeg|gif|woff2?))", "dest": "/client/$1" },
+    { "src": "/(.*\\.(js|css|html|webmanifest|png|ico|svg|jpg|jpeg|gif|woff2?|json))", "dest": "/client/$1" },
     { "src": "/(.*)", "dest": "/client/$1" }
   ]
 }

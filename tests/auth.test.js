@@ -125,3 +125,23 @@ test('rbac: requireRole blocks requests without req.user with 403', () => {
   assert.equal(nextCalled, false);
   assert.equal(res.statusCode, 403);
 });
+
+test('auth: Bearer authorization header allows access through requireAuth', () => {
+  const token = jwt.sign({ sub: 22, username: 'driver_john', role: 'driver', name: 'John Driver' }, JWT_SECRET, { expiresIn: '1h' });
+  const req = {
+    cookies: {},
+    headers: { authorization: `Bearer ${token}` },
+  };
+  const res = createMockRes();
+  let nextCalled = false;
+
+  requireAuth(req, res, () => {
+    nextCalled = true;
+  });
+
+  assert.equal(nextCalled, true, 'next() should be called on valid Bearer header');
+  assert.ok(req.user, 'req.user should be populated from Bearer JWT');
+  assert.equal(req.user.username, 'driver_john');
+  assert.equal(req.user.role, 'driver');
+});
+
