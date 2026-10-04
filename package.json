@@ -4,7 +4,19 @@
   "private": true,
   "description": "Waypoint Dispatch — monorepo root used by Vercel build pipeline.",
   "scripts": {
-    "build": "if [ -d server ]; then cd server && npm ci && npx prisma generate; else npm ci && npx prisma generate; fi",
-    "vercel-build": "if [ -d server ]; then cd server && npm ci && npx prisma generate; else npm ci && npx prisma generate; fi"
+    "postinstall": "if [ -d server ]; then cd server && npx prisma generate; fi",
+    "build": "if [ -d server ]; then cd server && npx prisma generate; fi",
+    "vercel-build": "if [ -d server ]; then cd server && npx prisma generate; fi"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.5.0",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "prisma": "^6.5.0"
   }
 }
+

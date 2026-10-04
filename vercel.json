@@ -8,6 +8,7 @@
       "config": {
         "includeFiles": [
           "server/src/**",
+          "server/src/data/raw/**",
           "server/prisma/**",
           "server/prisma.config.ts",
           "server/package.json",
@@ -15,7 +16,10 @@
           "server/node_modules/**",
           "server/node_modules/.prisma/**",
           "server/node_modules/@prisma/client/**",
-          "server/node_modules/@prisma/client/node_modules/**"
+          "server/node_modules/@prisma/client/node_modules/**",
+          "node_modules/**",
+          "node_modules/.prisma/**",
+          "node_modules/@prisma/client/**"
         ]
       }
     },
