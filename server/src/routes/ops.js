@@ -61,12 +61,16 @@ async function vehicleForUser(user) {
 }
 
 function shapeTrip(t) {
+  const driverName = t.vehicle && t.vehicle.user ? t.vehicle.user.name : (t.vehicle ? `Driver (${t.vehicle.vehicleId})` : 'Fleet Driver');
   return {
     id: t.id,
     vehicleId: t.vehicleId,
     vehicleCode: t.vehicle ? t.vehicle.vehicleId : null,
     vehicleType: t.vehicle ? t.vehicle.type : 'truck',
     vehicleTemp: t.vehicle ? t.vehicle.temp : 'ambient',
+    driverName,
+    telemetryStale: t.vehicle ? t.vehicle.telemetryStale : false,
+    vehicleStatus: t.vehicle ? t.vehicle.status : 'assigned',
     tripNo: t.tripNo,
     brand: t.brand,
     district: t.district,
@@ -108,7 +112,13 @@ router.get('/trips', requireAuth, readLimiter, async (req, res) => {
   if (req.query.depot && req.query.depot !== 'all') {
     where.depot = req.query.depot;
   }
-  const trips = await prisma.trip.findMany({ where, include: { stops: { include: { order: { include: { outlet: true } } } }, vehicle: true } });
+  const trips = await prisma.trip.findMany({
+    where,
+    include: {
+      stops: { include: { order: { include: { outlet: true } } } },
+      vehicle: { include: { user: true } },
+    },
+  });
   trips.sort((a, b) => String(a.vehicle ? a.vehicle.vehicleId : '').localeCompare(String(b.vehicle ? b.vehicle.vehicleId : '')) || a.tripNo - b.tripNo);
   return res.json({ trips: trips.map(shapeTrip) });
 });

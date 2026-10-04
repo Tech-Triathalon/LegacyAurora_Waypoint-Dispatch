@@ -3818,35 +3818,108 @@
         function renderLiveRuns() {
             const tbody = document.querySelector('#live-runs-table tbody');
             if (!tbody) return;
-            if (dps.trips.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:18px;font-size:12px;">No committed plan yet — allocate and commit from the Fleet Board.</td></tr>';
+            if (!dps.trips || dps.trips.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px;font-size:13px;">No committed runs yet. Use <strong>Auto-allocate</strong> & <strong>Commit Plan</strong> on the Fleet Board to generate live runs.</td></tr>';
+                const badge = document.getElementById('sidebar-live-runs-badge');
+                if (badge) badge.textContent = '0';
                 return;
             }
+
+            const activeTrips = dps.trips.filter(t => t.status === 'departed' || t.status === 'loading');
+            const completedTrips = dps.trips.filter(t => t.status === 'completed');
+            const plannedTrips = dps.trips.filter(t => t.status === 'planned');
+
+            // Update sidebar & filter badges
+            const sideBadge = document.getElementById('sidebar-live-runs-badge');
+            if (sideBadge) sideBadge.textContent = String(dps.trips.length);
+
+            const filterSel = document.getElementById('live-runs-state-filter');
+            if (filterSel) {
+                filterSel.options[0].text = `All Runs (${dps.trips.length})`;
+                filterSel.options[1].text = `Active / En Route (${activeTrips.length})`;
+                if (filterSel.options[2]) filterSel.options[2].text = `Exceptions (${dps.flags ? dps.flags.filter(f => f.status === 'open').length : 0})`;
+                if (filterSel.options[3]) filterSel.options[3].text = `Completed (${completedTrips.length})`;
+            }
+
             tbody.innerHTML = dps.trips.map((t) => {
-                const total = t.stops.length;
-                const done = t.stops.filter((s) => s.status === 'delivered').length;
-                const stateCls = t.status === 'completed' ? 'completed' : t.status === 'departed' ? 'en-route' : 'waiting';
-                const stateTxt = t.status === 'completed' ? 'COMPLETED' : t.status === 'departed' ? 'EN ROUTE' : 'LOADED';
-                const pills = t.stops.map((s, i) => {
-                    const st = stopStateFor(t, s.seq);
-                    return `<span class="stop-pill ${st.cls}" onclick="openStopModal('${esc(t.vehicleCode)}', 'S${s.seq}', '${st.cls === 'completed' ? 'Completed' : st.cls === 'current' ? 'En Route' : 'Planned'}')">${st.label || `S${s.seq}`}</span>`;
+                const totalStops = t.stops ? t.stops.length : 0;
+                const deliveredStops = t.stops ? t.stops.filter((s) => s.status === 'delivered').length : 0;
+                const isReefer = t.vehicleTemp === 'reefer';
+                const isVan = t.vehicleType === 'van';
+                const vehTypeIcon = isReefer ? '❄️' : (isVan ? '🚐' : '🚚');
+
+                // Determine state classes and labels
+                let stateCls = 'waiting';
+                let stateTxt = 'PLANNED';
+                let rowStatus = 'planned';
+
+                if (t.telemetryStale) {
+                    stateCls = 'offline';
+                    stateTxt = 'OFFLINE';
+                    rowStatus = 'offline';
+                } else if (t.status === 'completed' || (totalStops > 0 && deliveredStops === totalStops)) {
+                    stateCls = 'completed';
+                    stateTxt = 'COMPLETED';
+                    rowStatus = 'completed';
+                } else if (t.status === 'departed') {
+                    stateCls = 'en-route';
+                    stateTxt = 'EN ROUTE';
+                    rowStatus = 'active';
+                } else if (t.status === 'loading') {
+                    stateCls = 'waiting';
+                    stateTxt = 'LOADING';
+                    rowStatus = 'active';
+                } else {
+                    stateCls = 'waiting';
+                    stateTxt = 'PLANNED';
+                    rowStatus = 'active';
+                }
+
+                // Check if any stop has open shortage flags
+                const tripOrderIds = (t.stops || []).map(s => s.orderId);
+                const hasFlag = dps.flags && dps.flags.some(f => f.status === 'open' && tripOrderIds.includes(f.orderId));
+                if (hasFlag) {
+                    stateCls = 'exception';
+                    stateTxt = 'EXCEPTION';
+                    rowStatus = 'exception';
+                }
+
+                const pills = (t.stops || []).map((s) => {
+                    const isDelivered = s.status === 'delivered';
+                    const isCurrent = !isDelivered && (t.status === 'departed' || t.status === 'loading') && s.seq === (deliveredStops + 1);
+                    const pillCls = isDelivered ? 'completed' : (isCurrent ? 'current' : '');
+                    const pillLabel = isDelivered ? `S${s.seq}✓` : (isCurrent ? `S${s.seq} en route` : `S${s.seq}`);
+                    const stopStatus = isDelivered ? 'Completed' : (isCurrent ? 'En Route' : 'Planned');
+
+                    return `<span class="stop-pill ${pillCls}" onclick="openStopModal('${esc(t.vehicleCode)}', 'S${s.seq}', '${stopStatus}')" title="${esc(s.outletId || '')} · Arr: ${esc(s.plannedArrival || '')}">${pillLabel}</span>`;
                 }).join('');
+
+                const driverLabel = t.driverName || `Driver (${t.vehicleCode})`;
+                const brandDepot = `${esc(t.brand)} · ${esc(t.district)} (${esc(t.depot)})`;
+                const progressSub = `${deliveredStops}/${totalStops} stops · ${Math.round(t.totalWeight || 0)} kg · ${t.distanceKm ? Math.round(t.distanceKm) + ' km' : ''}`;
+
                 return `
-                <tr data-status="${t.status === 'departed' ? 'active' : t.status === 'completed' ? 'completed' : 'planned'}" data-trip="T${t.tripNo}">
+                <tr data-status="${rowStatus}" data-trip="T${t.tripNo}">
                     <td>
-                        <div class="vehicle-cell">
-                            <span class="vehicle-id">${esc(t.vehicleCode)}</span>
-                            <span class="driver-name">${esc(t.brand)} · ${esc(t.district)}</span>
+                        <div class="vehicle-cell" style="cursor: pointer;" onclick="openStopModal('${esc(t.vehicleCode)}', 'S1', '${stateTxt}')">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span>${vehTypeIcon}</span>
+                                <span class="vehicle-id" style="font-weight: 800; font-family: monospace;">${esc(t.vehicleCode)}</span>
+                            </div>
+                            <span class="driver-name" style="font-size: 11px; color: var(--text-muted);">${esc(driverLabel)}</span>
+                            <span style="font-size: 10px; color: var(--text-light);">${brandDepot}</span>
                         </div>
                     </td>
-                    <td><span class="trip-badge">T${t.tripNo}</span></td>
+                    <td><span class="trip-badge" style="font-weight: 800; font-size: 11px;">T${t.tripNo}</span></td>
                     <td>
-                        <div class="stop-timeline-track">${pills}</div>
+                        <div class="stop-timeline-track" style="display: flex; gap: 4px; flex-wrap: wrap;">
+                            ${pills || '<span style="font-size: 11px; color: var(--text-muted);">No stops</span>'}
+                        </div>
                     </td>
                     <td>
                         <div class="state-cell">
                             <span class="status-pill ${stateCls}">${stateTxt}</span>
-                            <span class="state-subtext">${done}/${total} stops delivered</span>
+                            <span class="state-subtext" style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">${progressSub}</span>
                         </div>
                     </td>
                 </tr>`;
@@ -4802,33 +4875,76 @@
             const titleEl = document.getElementById('stop-modal-title');
             const bodyEl = document.getElementById('stop-modal-body');
             
-            titleEl.textContent = `${vehicle} · Stop ${stop} Details`;
-            bodyEl.innerHTML = `
-                <div style="background: var(--bg-subtle); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border);">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="font-size: 11px; font-weight: 700; color: var(--text-muted);">CURRENT STOP STATUS</span>
-                        <span class="status-pill ${status.includes('Error') ? 'exception' : (status.includes('Completed') ? 'completed' : 'en-route')}">${status}</span>
-                    </div>
-                    <h3 style="font-size: 15px; font-weight: 800; color: var(--text-main);">Oakwood Supercenter, Bay 04</h3>
-                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">42 Colombo - Kandy Expressway, District LK-Central</p>
-                </div>
-                
-                <div style="font-size: 13px; font-weight: 700; color: var(--text-main);">Manifest Cargo Breakdown:</div>
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-main);">
-                        <span>Fresh Dairy & Chilled Crates (18 cases)</span>
-                        <strong>180 kg</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-main);">
-                        <span>Ambient Grocery Packs (24 units)</span>
-                        <strong>140 kg</strong>
-                    </div>
-                </div>
+            titleEl.textContent = `${vehicle} · Stop ${stop} Inspection`;
 
-                <div style="font-size: 11px; color: var(--text-muted);">
-                    Telemetry timestamp: <strong>${new Date().toLocaleTimeString()}</strong> · Geofence match confirmed · Driver: On-Schedule
-                </div>
-            `;
+            const trip = dps.trips && dps.trips.find(t => t.vehicleCode === vehicle);
+            const stopNum = parseInt(String(stop).replace(/\D/g, '')) || 1;
+            const stopData = trip && trip.stops ? trip.stops.find(s => s.seq === stopNum) : null;
+
+            if (trip && stopData) {
+                const isDelivered = stopData.status === 'delivered';
+                const isChilled = stopData.tempRequirement === 'chilled';
+                const statusBadgeCls = isDelivered ? 'completed' : (trip.status === 'departed' ? 'en-route' : 'waiting');
+                const statusText = isDelivered ? 'DELIVERED (POD Verified)' : (trip.status === 'departed' ? 'EN ROUTE' : 'COMMITTED');
+
+                bodyEl.innerHTML = `
+                    <div style="background: var(--bg-subtle); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-size: 11px; font-weight: 700; color: var(--text-muted);">CURRENT STOP STATUS</span>
+                            <span class="status-pill ${statusBadgeCls}">${statusText}</span>
+                        </div>
+                        <h3 style="font-size: 15px; font-weight: 800; color: var(--text-main);">${esc(stopData.outletId || 'Outlet')} · ${esc(stopData.orderRef || '')}</h3>
+                        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">District: <strong>${esc(stopData.district || trip.district)}</strong> · Brand: <strong>${esc(stopData.brand || trip.brand)}</strong> · Depot: <strong>${esc(trip.depot)}</strong></p>
+                    </div>
+                    
+                    <div style="font-size: 13px; font-weight: 700; color: var(--text-main);">Manifest Order & Cargo Specs:</div>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-main);">
+                            <span>📦 Quantity & Temperature</span>
+                            <strong>${stopData.units || 0} Units · <span style="color:${isChilled ? '#3b82f6' : '#f59e0b'};">${(stopData.tempRequirement || 'ambient').toUpperCase()}</span></strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-main);">
+                            <span>⚖️ Payload Weight & Volume</span>
+                            <strong>${stopData.weightKg} kg · ${stopData.volumeM3} m³</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-main);">
+                            <span>⏰ Delivery Window & Arrival</span>
+                            <strong>${stopData.windowOpen || '05:00'} - ${stopData.windowClose || '08:00'} · ETA ${stopData.plannedArrival || '06:30'}</strong>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-subtle); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                        🚚 <strong>Assigned Fleet:</strong> ${esc(trip.vehicleCode)} (${esc(trip.vehicleType.toUpperCase())} · ${esc(trip.vehicleTemp)}) · <strong>Driver:</strong> ${esc(trip.driverName || 'Assigned Driver')}
+                    </div>
+                `;
+            } else {
+                bodyEl.innerHTML = `
+                    <div style="background: var(--bg-subtle); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-size: 11px; font-weight: 700; color: var(--text-muted);">CURRENT STOP STATUS</span>
+                            <span class="status-pill ${status.includes('Error') ? 'exception' : (status.includes('Completed') ? 'completed' : 'en-route')}">${status}</span>
+                        </div>
+                        <h3 style="font-size: 15px; font-weight: 800; color: var(--text-main);">${vehicle} · Stop ${stop}</h3>
+                        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Logistics Network Run · Realtime Tracking Active</p>
+                    </div>
+                    
+                    <div style="font-size: 13px; font-weight: 700; color: var(--text-main);">Manifest Cargo Breakdown:</div>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-main);">
+                            <span>Fresh Goods & Chilled Containers</span>
+                            <strong>180 kg</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-main);">
+                            <span>Ambient Grocery Deliveries</span>
+                            <strong>140 kg</strong>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 11px; color: var(--text-muted);">
+                        Telemetry timestamp: <strong>${new Date().toLocaleTimeString()}</strong> · Geofence match confirmed · Driver: On-Schedule
+                    </div>
+                `;
+            }
             openModal('stop-inspect-modal');
         }
 
