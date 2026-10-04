@@ -371,12 +371,18 @@ router.post('/plan/commit', requireAuth, requireRole('dispatcher'), writeLimiter
   // the transaction-mode pooler (PgBouncer/Supavisor), which does not support session-pinned
   // interactive transactions. Commit is a single dispatcher action and re-commits reset the
   // plan, so per-statement idempotency (below) is sufficient here.
-  await prisma.trip.deleteMany({});
   await prisma.tripStop.deleteMany({});
+  await prisma.trip.deleteMany({});
+
+  const allStopsToCreate = [];
+  const allocatedOrderIds = [];
+
   for (const trip of proposal.trips) {
+    const vNumericId = vIdMap[trip.vehicleId];
+    if (!vNumericId) continue;
     const created = await prisma.trip.create({
       data: {
-        vehicleId: vIdMap[trip.vehicleId],
+        vehicleId: vNumericId,
         tripNo: trip.tripNo,
         brand: trip.brand,
         district: trip.district,
@@ -391,25 +397,46 @@ router.post('/plan/commit', requireAuth, requireRole('dispatcher'), writeLimiter
       },
     });
     let seq = 1;
-    for (const stop of trip.plannedStops) {
-      await prisma.tripStop.create({ data: { tripId: created.id, seq: seq++, orderId: stop.orderId, plannedArrival: stop.plannedArrival } });
-      await prisma.order.update({ where: { id: stop.orderId }, data: { status: 'allocated' } });
+    for (const stop of (trip.plannedStops || [])) {
+      if (stop.orderId) {
+        allStopsToCreate.push({
+          tripId: created.id,
+          seq: seq++,
+          orderId: stop.orderId,
+          plannedArrival: stop.plannedArrival || '08:00',
+        });
+        allocatedOrderIds.push(stop.orderId);
+      }
     }
   }
+
+  if (allStopsToCreate.length > 0) {
+    await prisma.tripStop.createMany({ data: allStopsToCreate });
+  }
+
+  if (allocatedOrderIds.length > 0) {
+    await prisma.order.updateMany({
+      where: { id: { in: allocatedOrderIds } },
+      data: { status: 'allocated' },
+    });
+  }
+
   // Deferred orders from the proposal are persisted with reason + promise date.
-  if (Array.isArray(proposal.deferred)) {
+  if (Array.isArray(proposal.deferred) && proposal.deferred.length > 0) {
+    const promiseIso = nextOperatingDay(date);
+    const promiseDate = new Date(`${promiseIso}T00:00:00.000Z`);
     for (const d of proposal.deferred) {
-      const promise = nextOperatingDay(date);
-      await prisma.order.update({
-        where: { id: d.order.id },
-        data: { status: 'deferred', deferralReason: d.reason, promiseDate: new Date(`${promise}T00:00:00.000Z`) },
-      });
-      // Guard so re-commits never duplicate ledger rows for the same order+reason.
-      const existing = await prisma.deferralLedger.count({ where: { orderId: d.order.id, reason: d.reason, kept: null } });
-      if (existing === 0) {
-        await prisma.deferralLedger.create({
-          data: { orderId: d.order.id, reason: d.reason, detail: d.detail || '', promiseDate: new Date(`${promise}T00:00:00.000Z`) },
+      if (d.order && d.order.id) {
+        await prisma.order.update({
+          where: { id: d.order.id },
+          data: { status: 'deferred', deferralReason: d.reason, promiseDate },
         });
+        const existing = await prisma.deferralLedger.count({ where: { orderId: d.order.id, reason: d.reason, kept: null } });
+        if (existing === 0) {
+          await prisma.deferralLedger.create({
+            data: { orderId: d.order.id, reason: d.reason, detail: d.detail || '', promiseDate },
+          });
+        }
       }
     }
   }
