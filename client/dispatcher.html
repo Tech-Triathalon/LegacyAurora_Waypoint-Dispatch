@@ -3930,8 +3930,8 @@
                     </td>
                     <td>
                         <div style="display: flex; gap: 6px;">
-                            <button class="btn-primary-yellow" style="padding: 3px 8px; font-size: 11px; background: #10b981; color: #fff;" onclick="openAllocateModal(${o.id}, '${esc(o.orderRef || orderRef(o.id))}', '${esc(o.outletId)}', '${esc(o.brand)}', '${esc(o.district)}', ${o.weightKg}, ${o.volumeM3}, '${esc(o.tempRequirement)}')">Allocate</button>
-                            <button class="btn-outline-dark" style="padding: 3px 8px; font-size: 11px;" onclick="openDeferModal('${esc(o.orderRef || orderRef(o.id))}', 'Capacity Constraint', ${o.id})">Defer</button>
+                            <button class="btn-primary-yellow" style="padding: 3px 8px; font-size: 11px; background: #10b981; color: #fff; cursor: pointer;" onclick="openAllocateModal(${o.id})">Allocate</button>
+                            <button class="btn-outline-dark" style="padding: 3px 8px; font-size: 11px; cursor: pointer;" onclick="openDeferModal('${esc(o.orderRef || orderRef(o.id))}', 'Capacity Constraint', ${o.id})">Defer</button>
                         </div>
                     </td>
                 </tr>
@@ -4010,7 +4010,7 @@
 
         let activeAllocOrderId = null;
 
-        async function openAllocateModal(orderId, ref, outletId, brand, district, weightKg, volumeM3, temp) {
+        function openAllocateModal(orderId, ref, outletId, brand, district, weightKg, volumeM3, temp) {
             const numId = Number(orderId);
             activeAllocOrderId = numId;
             let order = (dps.queue && dps.queue.orders && dps.queue.orders.find(o => o.id === numId)) || null;
@@ -4023,19 +4023,24 @@
             const oVol = (order && order.volumeM3) || volumeM3 || 0;
             const oTemp = (order && order.tempRequirement) || temp || 'ambient';
 
-            document.getElementById('alloc-order-ref-title').textContent = oRef;
-            document.getElementById('alloc-outlet-val').textContent = oOutlet;
-            document.getElementById('alloc-brand-dist-val').textContent = `${oBrand} · ${oDist}`;
-            document.getElementById('alloc-payload-val').textContent = `${oWeight} kg · ${oVol} m³`;
-            document.getElementById('alloc-temp-val').textContent = oTemp.toUpperCase();
+            const titleEl = document.getElementById('alloc-order-ref-title');
+            if (titleEl) titleEl.textContent = oRef;
+            const outEl = document.getElementById('alloc-outlet-val');
+            if (outEl) outEl.textContent = oOutlet;
+            const bdEl = document.getElementById('alloc-brand-dist-val');
+            if (bdEl) bdEl.textContent = `${oBrand} · ${oDist}`;
+            const plEl = document.getElementById('alloc-payload-val');
+            if (plEl) plEl.textContent = `${oWeight} kg · ${oVol} m³`;
+            const tmpEl = document.getElementById('alloc-temp-val');
+            if (tmpEl) tmpEl.textContent = oTemp.toUpperCase();
 
             const dateInput = document.getElementById('alloc-date-input');
             if (dateInput) {
                 dateInput.value = (dps.queue && dps.queue.date) || new Date().toISOString().slice(0, 10);
             }
 
-            await populateAllocVehicleSelect(oTemp);
             openModal('allocate-order-modal');
+            populateAllocVehicleSelect(oTemp);
         }
 
         async function populateAllocVehicleSelect(tempReq) {
@@ -4137,8 +4142,8 @@
                         <td><span class="${statusCls}">${esc((o.status || 'queued').toUpperCase())}</span></td>
                         <td>
                             <div style="display:flex;gap:4px;">
-                                <button class="btn-primary-yellow" style="padding:3px 8px;font-size:11px;background:#10b981;color:#fff;" onclick="closeModal('all-orders-modal'); openAllocateModal(${o.id}, '${esc(o.orderRef || orderRef(o.id))}', '${esc(o.outletId)}', '${esc(o.brand)}', '${esc(o.district)}', ${o.weightKg}, ${o.volumeM3}, '${esc(o.tempRequirement)}')">Allocate</button>
-                                <button class="btn-outline-dark" style="padding:3px 8px;font-size:11px;" onclick="closeModal('all-orders-modal'); openDeferModal('${esc(o.orderRef || orderRef(o.id))}', 'Capacity Constraint', ${o.id})">Defer</button>
+                                <button class="btn-primary-yellow" style="padding:3px 8px;font-size:11px;background:#10b981;color:#fff;cursor:pointer;" onclick="closeModal('all-orders-modal'); openAllocateModal(${o.id})">Allocate</button>
+                                <button class="btn-outline-dark" style="padding:3px 8px;font-size:11px;cursor:pointer;" onclick="closeModal('all-orders-modal'); openDeferModal('${esc(o.orderRef || orderRef(o.id))}', 'Capacity Constraint', ${o.id})">Defer</button>
                             </div>
                         </td>
                     </tr>
