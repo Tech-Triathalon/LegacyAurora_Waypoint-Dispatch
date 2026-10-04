@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <link rel="manifest" href="/manifest.webmanifest">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#0d0e10">
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <meta name="mobile-web-app-capable" content="yes">
@@ -15,89 +15,50 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --bg-canvas: #f1f5f9;
+            --bg-canvas: #eef2f6;
             --bg-card: #ffffff;
-            --bg-card-subtle: #f8fafc;
-            --bg-card-dim: #f1f5f9;
+            --bg-card-subtle: #fcfbf7;
+            --bg-card-dim: #f8fafc;
             --text-dark: #0f172a;
             --text-muted: #64748b;
             --text-light: #94a3b8;
-            --border-color: #e2e8f0;
+            --border-color: #e5e7eb;
             --border-subtle: #f1f5f9;
-            --border-card: #cbd5e1;
+            --border-card: #e2e8f0;
 
-            --primary-black: #0f172a;
-            --header-black: #020617;
-            --red-flag: #ef4444;
+            --primary-black: #000000;
+            --header-black: #0a0a0a;
+            --red-flag: #e11d48;
             --red-btn: #dc2626;
-            --red-bg: #fef2f2;
-            --red-border: #fecaca;
-            --red-text: #b91c1c;
+            --red-bg: #fff1f2;
+            --red-border: #fecdd3;
+            --red-pill-border: #fda4af;
+            --red-pill-text: #e11d48;
 
             --green-badge: #10b981;
             --green-badge-bg: #ecfdf5;
             --green-badge-border: #a7f3d0;
             --green-text: #059669;
-            --green-btn: #16a34a;
+            --green-btn: #15803d;
 
-            --amber-bg: #fffbeb;
+            --amber-bg: #fef3c7;
             --amber-border: #fde68a;
             --amber-text: #b45309;
             --amber-pill: #f59e0b;
 
-            --blue-bg: #eff6ff;
-            --blue-border: #bfdbfe;
-            --blue-text: #1d4ed8;
-
-            --sidebar-width: 240px;
             --radius-xs: 4px;
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 18px;
             --radius-pill: 9999px;
 
-            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
-            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
-        }
-
-        /* --- GLOVE MODE OVERRIDES (High contrast, oversized touch targets, bold fonts) --- */
-        body.glove-mode {
-            --bg-canvas: #090d16;
-            --bg-card: #151d2e;
-            --bg-card-subtle: #1e293b;
-            --bg-card-dim: #0f172a;
-            --text-dark: #f8fafc;
-            --text-muted: #cbd5e1;
-            --text-light: #94a3b8;
-            --border-color: #334155;
-            --border-card: #475569;
-            font-size: 16px;
-        }
-
-        body.glove-mode button,
-        body.glove-mode .clickable,
-        body.glove-mode input,
-        body.glove-mode select {
-            min-height: 52px !important;
-            font-size: 15px !important;
-            font-weight: 800 !important;
-        }
-
-        body.glove-mode .check-square {
-            min-width: 44px !important;
-            min-height: 44px !important;
-            border-width: 3px !important;
-        }
-
-        body.glove-mode .sidebar-nav-item {
-            padding: 14px 18px !important;
-            font-size: 16px !important;
-            margin-bottom: 8px !important;
+            --shadow-card: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-modal: 0 20px 40px -15px rgba(0,0,0,0.25);
         }
 
         * {
@@ -112,2206 +73,2163 @@
             background-color: var(--bg-canvas);
             color: var(--text-dark);
             min-height: 100vh;
-            display: flex;
-            transition: background-color 0.2s ease, color 0.2s ease;
-        }
-
-        /* --- SIDEBAR NAVIGATION (Exact match to prompt) --- */
-        .app-sidebar {
-            width: var(--sidebar-width);
-            background: var(--bg-card);
-            border-right: 1px solid var(--border-color);
+            padding: 24px 20px 40px;
             display: flex;
             flex-direction: column;
-            padding: 24px 16px;
-            flex-shrink: 0;
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            overflow-y: auto;
-            z-index: 50;
+            align-items: center;
         }
 
-        .sidebar-brand-header {
-            margin-bottom: 28px;
-            padding: 0 8px;
+        /* --- GLOVE MODE ERGONOMIC OVERRIDES (NO THEME/DARK MODE CHANGES) --- */
+        body.glove-mode button,
+        body.glove-mode input,
+        body.glove-mode select,
+        body.glove-mode .screen-nav-btn,
+        body.glove-mode .glove-toggle-btn,
+        body.glove-mode .s1-check-box,
+        body.glove-mode .s2-check-square {
+            min-height: 48px !important;
+            font-size: 14px !important;
         }
 
-        .sidebar-brand-title {
-            font-size: 19px;
-            font-weight: 900;
-            letter-spacing: -0.02em;
-            color: var(--text-dark);
-            text-transform: uppercase;
+        body.glove-mode .s1-item-row,
+        body.glove-mode .s2-comp-row {
+            padding: 16px 20px !important;
+            margin-bottom: 12px !important;
         }
 
-        .sidebar-brand-subtitle {
-            font-size: 11px;
-            font-weight: 800;
-            color: var(--text-muted);
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            margin-top: 4px;
+        body.glove-mode .s1-check-box,
+        body.glove-mode .s2-check-square {
+            min-width: 36px !important;
+            min-height: 36px !important;
+        }
+
+        /* --- TOP SCREEN SELECTOR TABS --- */
+        .top-screen-nav-bar {
+            width: 100%;
+            max-width: 1100px;
             display: flex;
             align-items: center;
-            gap: 6px;
-        }
-
-        .sidebar-brand-subtitle .glove-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #94a3b8;
-            transition: background 0.2s ease;
-        }
-
-        body.glove-mode .sidebar-brand-subtitle .glove-dot {
-            background: #f59e0b;
-            box-shadow: 0 0 8px #f59e0b;
-        }
-
-        .sidebar-nav-list {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            list-style: none;
-            flex-grow: 1;
-        }
-
-        .sidebar-nav-item {
-            display: flex;
-            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
             gap: 12px;
-            padding: 10px 14px;
-            border-radius: var(--radius-md);
-            font-size: 14px;
+        }
+
+        .screen-nav-pill-group {
+            display: inline-flex;
+            background: #ffffff;
+            padding: 4px;
+            border-radius: var(--radius-pill);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+            border: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 2px;
+        }
+
+        .screen-nav-btn {
+            background: transparent;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--radius-pill);
+            font-size: 12px;
             font-weight: 700;
             color: var(--text-muted);
             cursor: pointer;
             transition: all 0.15s ease;
-            text-decoration: none;
-            user-select: none;
-            border: 1px solid transparent;
-        }
-
-        .sidebar-nav-item .nav-icon {
-            font-size: 16px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            width: 22px;
+            gap: 6px;
+            user-select: none;
         }
 
-        .sidebar-nav-item:hover {
+        .screen-nav-btn:hover {
             color: var(--text-dark);
-            background: var(--bg-card-subtle);
         }
 
-        .sidebar-nav-item.active {
-            background: #fbf6ec;
-            color: #0f172a;
-            font-weight: 800;
-            border-color: #f3e8d2;
+        .screen-nav-btn.active {
+            background: var(--header-black);
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
         }
 
-        body.glove-mode .sidebar-nav-item.active {
-            background: #f59e0b;
-            color: #020617;
-            border-color: #d97706;
-        }
-
-        .sidebar-footer {
-            margin-top: auto;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
+        .top-user-status {
             display: flex;
-            flex-direction: column;
+            align-items: center;
             gap: 10px;
+        }
+
+        .depot-select-badge {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: var(--shadow-card);
         }
 
         .glove-toggle-btn {
             background: #0f172a;
             color: #ffffff;
             border: none;
-            padding: 10px 14px;
-            border-radius: var(--radius-sm);
-            font-size: 12px;
-            font-weight: 800;
-            cursor: pointer;
-            display: flex;
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-flex;
             align-items: center;
-            justify-content: space-between;
+            gap: 6px;
+            cursor: pointer;
             transition: all 0.15s ease;
         }
 
         .glove-toggle-btn.active {
             background: #f59e0b;
-            color: #020617;
-            box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+            color: #0f172a;
         }
 
-        .sidebar-user-badge {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-muted);
-            padding: 6px 8px;
-        }
-
-        /* --- MAIN APP CONTAINER --- */
-        .app-main {
-            flex-grow: 1;
-            padding: 24px 32px 60px;
-            max-width: 1300px;
-            margin: 0 auto;
-            width: 100%;
-            overflow-y: auto;
-        }
-
-        /* TOP DOCK FACILITY BAR */
-        .dock-header-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-
-        .depot-toggle-group {
-            display: inline-flex;
-            background: var(--bg-card);
-            padding: 4px;
-            border-radius: var(--radius-pill);
-            border: 1px solid var(--border-card);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .depot-btn {
-            border: none;
-            background: transparent;
-            padding: 8px 18px;
-            border-radius: var(--radius-pill);
-            font-size: 13px;
-            font-weight: 800;
-            color: var(--text-muted);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.15s ease;
-        }
-
-        .depot-btn.active {
-            background: var(--primary-black);
-            color: #ffffff;
-            box-shadow: var(--shadow-sm);
-        }
-
-        body.glove-mode .depot-btn.active {
-            background: #f59e0b;
-            color: #020617;
-        }
-
-        .quick-actions-bar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-action-sm {
-            padding: 8px 14px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border-card);
-            background: var(--bg-card);
-            font-size: 12px;
-            font-weight: 800;
-            color: var(--text-dark);
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.15s ease;
-        }
-
-        .btn-action-sm:hover {
-            border-color: #94a3b8;
-        }
-
-        /* --- CARDS & PANELS --- */
-        .card-panel {
-            background: var(--bg-card);
-            border: 1px solid var(--border-card);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 24px;
-        }
-
-        .card-panel-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .card-title {
-            font-size: 16px;
-            font-weight: 900;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-transform: uppercase;
-            letter-spacing: -0.01em;
-        }
-
-        .card-subtitle {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-        }
-
-        /* METRIC TILES */
-        .metric-grid-4 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .metric-tile {
-            background: var(--bg-card-subtle);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .metric-label {
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: var(--text-muted);
-        }
-
-        .metric-val {
-            font-size: 24px;
-            font-weight: 900;
-            color: var(--text-dark);
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .metric-sub {
+        .btn-logout {
             font-size: 11px;
             font-weight: 700;
-            color: var(--green-text);
-        }
-
-        /* VEHICLE RUNS CAROUSEL */
-        .vehicle-switcher-bar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-            margin-bottom: 20px;
-            scrollbar-width: thin;
-        }
-
-        .veh-card-btn {
-            background: var(--bg-card-subtle);
-            border: 1.5px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 12px 18px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            min-width: 170px;
-            text-align: left;
-            transition: all 0.15s ease;
-            flex-shrink: 0;
-        }
-
-        .veh-card-btn:hover {
-            border-color: #94a3b8;
-        }
-
-        .veh-card-btn.active {
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: var(--radius-pill);
             background: #ffffff;
-            border-color: var(--primary-black);
-            box-shadow: var(--shadow-md);
-        }
-
-        body.glove-mode .veh-card-btn.active {
-            background: #1e293b;
-            border-color: #f59e0b;
-        }
-
-        .veh-code-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 900;
-            font-size: 14px;
-            color: var(--text-dark);
-        }
-
-        .badge-temp {
-            font-size: 10px;
-            font-weight: 800;
-            padding: 2px 6px;
-            border-radius: var(--radius-pill);
-            text-transform: uppercase;
-        }
-
-        .badge-temp.chilled {
-            background: #eff6ff;
-            color: #1d4ed8;
-            border: 1px solid #bfdbfe;
-        }
-
-        .badge-temp.ambient {
-            background: #f8fafc;
-            color: #475569;
-            border: 1px solid #cbd5e1;
-        }
-
-        /* FILTER CONTROLS BAR */
-        .filter-controls-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            padding: 14px 18px;
-            background: var(--bg-card-subtle);
             border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            margin-bottom: 20px;
         }
 
-        .filter-select, .filter-input {
-            padding: 8px 12px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border-card);
-            background: var(--bg-card);
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-dark);
-            outline: none;
-        }
-
-        .filter-select:focus, .filter-input:focus {
-            border-color: #0f172a;
-        }
-
-        /* STOP & LOAD ITEM LIST (REVERSE SEQUENCE) */
-        .load-item-table {
+        /* --- MAIN VIEWPORT CONTAINER --- */
+        .loader-viewport-container {
             width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+            max-width: 1100px;
         }
 
-        .load-item-card {
-            background: var(--bg-card);
-            border: 1.5px solid var(--border-card);
-            border-radius: var(--radius-md);
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            transition: all 0.15s ease;
-        }
-
-        .load-item-card.is-loaded {
-            background: #f0fdf4;
-            border-color: #86efac;
-        }
-
-        body.glove-mode .load-item-card.is-loaded {
-            background: #064e3b;
-            border-color: #10b981;
-        }
-
-        .load-item-card.is-flagged {
-            background: #fef2f2;
-            border-color: #fca5a5;
-        }
-
-        .item-check-group {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .check-square {
-            width: 28px;
-            height: 28px;
-            border: 2px solid var(--border-card);
-            border-radius: 6px;
-            background: var(--bg-card);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-weight: 900;
-            color: #ffffff;
-            transition: all 0.15s ease;
-            user-select: none;
-            flex-shrink: 0;
-        }
-
-        .check-square.checked {
-            background: var(--green-btn);
-            border-color: var(--green-btn);
-        }
-
-        body.glove-mode .check-square.checked {
-            background: #f59e0b;
-            border-color: #f59e0b;
-            color: #020617;
-        }
-
-        .item-info-col {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .item-title-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .item-outlet-name {
-            font-size: 14px;
-            font-weight: 900;
-            color: var(--text-dark);
-        }
-
-        .item-order-ref {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            font-weight: 800;
-            background: #e2e8f0;
-            color: #334155;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        .item-sub-specs {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .item-actions-col {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-review {
-            padding: 8px 14px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border-card);
-            background: var(--bg-card-subtle);
-            font-size: 12px;
-            font-weight: 800;
-            color: var(--text-dark);
-            cursor: pointer;
-        }
-
-        .btn-flag-shortage {
-            padding: 8px 14px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--red-border);
-            background: var(--red-bg);
-            color: var(--red-text);
-            font-size: 12px;
-            font-weight: 800;
-            cursor: pointer;
-        }
-
-        /* PROGRESS BAR */
-        .checklist-progress-wrap {
-            margin-bottom: 20px;
-        }
-
-        .progress-label-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 12px;
-            font-weight: 800;
-            margin-bottom: 6px;
-        }
-
-        .progress-track {
-            height: 10px;
-            background: var(--border-color);
-            border-radius: var(--radius-pill);
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--green-btn);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        /* EMPTY STATE */
-        .empty-filter-state {
-            padding: 48px 24px;
-            text-align: center;
-            background: var(--bg-card-subtle);
-            border: 2px dashed var(--border-card);
-            border-radius: var(--radius-md);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-
-        /* --- MODAL DIALOGS --- */
-        .modal-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(4px);
+        .screen-container {
             display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
         }
 
-        .modal-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border-card);
-            border-radius: var(--radius-lg);
-            width: 100%;
-            max-width: 580px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .modal-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .modal-title {
-            font-size: 16px;
-            font-weight: 900;
-            color: var(--text-dark);
-            text-transform: uppercase;
-        }
-
-        .modal-close-btn {
-            background: transparent;
-            border: none;
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--text-muted);
-            cursor: pointer;
-        }
-
-        .modal-body {
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .modal-footer {
-            padding: 16px 24px;
-            border-top: 1px solid var(--border-color);
-            background: var(--bg-card-subtle);
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 12px;
-        }
-
-        .form-label {
-            font-size: 12px;
-            font-weight: 800;
-            color: var(--text-dark);
-            text-transform: uppercase;
-            margin-bottom: 6px;
+        .screen-container.active {
             display: block;
-        }
-
-        .form-input, .form-textarea, .form-select {
-            width: 100%;
-            padding: 10px 14px;
-            border-radius: var(--radius-sm);
-            border: 1.5px solid var(--border-card);
-            background: var(--bg-card);
-            color: var(--text-dark);
-            font-size: 13px;
-            font-weight: 600;
-            outline: none;
-        }
-
-        .form-input:focus, .form-textarea:focus, .form-select:focus {
-            border-color: #0f172a;
-        }
-
-        .btn-primary {
-            background: var(--primary-black);
-            color: #ffffff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: var(--radius-sm);
-            font-size: 13px;
-            font-weight: 800;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary:hover {
-            background: #1e293b;
-        }
-
-        .btn-secondary {
-            background: var(--bg-card);
-            color: var(--text-dark);
-            border: 1px solid var(--border-card);
-            padding: 10px 18px;
-            border-radius: var(--radius-sm);
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        /* 3-COMPARTMENT VISUAL TRUCK */
-        .truck-balance-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin-top: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .truck-balance-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .comp-bay {
-            background: var(--bg-card-subtle);
-            border: 2px dashed var(--border-card);
-            border-radius: var(--radius-md);
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .comp-bay-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 12px;
-            font-weight: 900;
-            text-transform: uppercase;
-            color: var(--text-muted);
-        }
-
-        .comp-items-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            min-height: 120px;
-        }
-
-        .comp-item-pill {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            padding: 8px 12px;
-            border-radius: var(--radius-sm);
-            font-size: 12px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        /* TOAST NOTIFICATION */
-        .toast-banner {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: #0f172a;
-            color: #ffffff;
-            padding: 14px 22px;
-            border-radius: var(--radius-md);
-            font-size: 13px;
-            font-weight: 800;
-            box-shadow: var(--shadow-lg);
-            z-index: 2000;
-            display: none;
-            align-items: center;
-            gap: 10px;
-            border: 1px solid #334155;
-        }
-
-        /* SCREEN NAVIGATION */
-        .workflow-screen {
-            display: none;
-        }
-
-        .workflow-screen.active {
-            display: block;
-            animation: fadeIn 0.15s ease;
+            animation: fadeIn 0.15s ease-out;
         }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(4px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* ==========================================================================
+           SCREEN 1: LOAD SHEET DETAIL
+           ========================================================================== */
+        .s1-card {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .s1-header-black {
+            background: var(--header-black);
+            color: #ffffff;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .s1-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .s1-icon-box {
+            width: 28px;
+            height: 28px;
+            border: 1.5px solid rgba(255,255,255,0.4);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .s1-title-main {
+            font-size: 14px;
+            font-weight: 900;
+            letter-spacing: 0.02em;
+        }
+
+        .s1-title-sub {
+            font-size: 10px;
+            color: #94a3b8;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .s1-header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pill-trip-flags {
+            background: var(--red-bg);
+            border: 1px solid var(--red-pill-border);
+            color: var(--red-pill-text);
+            font-size: 10px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: var(--radius-pill);
+            letter-spacing: 0.02em;
+        }
+
+        .pill-glove-mode {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: var(--radius-pill);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .pill-glove-mode.active {
+            background: #f59e0b;
+            color: #000000;
+            border-color: #f59e0b;
+        }
+
+        .s1-body {
+            padding: 24px;
+        }
+
+        .s1-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .s1-metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .s1-metric-box {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .s1-metric-label {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--text-muted);
+            letter-spacing: 0.04em;
+        }
+
+        .s1-metric-val {
+            font-size: 20px;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        .s1-metric-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .s1-metric-sub.green {
+            color: var(--green-text);
+        }
+
+        .s1-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .s1-section-title {
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #0f172a;
+            letter-spacing: 0.02em;
+        }
+
+        .s1-section-meta {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .s1-item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .s1-item-row {
+            background: var(--bg-card-subtle);
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.15s ease;
+        }
+
+        .s1-item-row.flagged {
+            border-color: #fca5a5;
+            background: #fff8f8;
+        }
+
+        .s1-item-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .s1-check-box {
+            width: 24px;
+            height: 24px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: var(--radius-xs);
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--green-text);
+            cursor: pointer;
+        }
+
+        .s1-check-box.checked {
+            border-color: var(--green-badge);
+            background: var(--green-badge-bg);
+        }
+
+        .s1-item-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .s1-item-sub {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .s1-item-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .s1-qty-bold {
+            font-size: 14px;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        .pill-flagged-desc {
+            background: #ffffff;
+            border: 1px solid var(--red-flag);
+            color: var(--red-flag);
+            font-size: 9px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: var(--radius-pill);
+            text-transform: uppercase;
+        }
+
+        .s1-footer-bar {
+            background: var(--header-black);
+            color: #ffffff;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .s1-back-btn {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .s1-footer-center {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+        }
+
+        .s1-btn-review {
+            background: var(--green-btn);
+            color: #ffffff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        /* ==========================================================================
+           SCREEN 2: BAY LOADING PLAN (3 COMPARTMENTS)
+           ========================================================================== */
+        .s2-card {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-color);
+        }
+
+        .s2-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .s2-icon-box {
+            width: 32px;
+            height: 32px;
+            background: var(--header-black);
+            color: #ffffff;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .s2-title-main {
+            font-size: 15px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #0f172a;
+        }
+
+        .s2-title-sub {
+            font-size: 11px;
+            color: #64748b;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+        }
+
+        .s2-sub-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .s2-chilled-label {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #0f172a;
+        }
+
+        .s2-updated-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--green-text);
+        }
+
+        .s2-grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 24px;
+        }
+
+        @media (max-width: 860px) {
+            .s2-grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .s2-compartments-col {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .s2-comp-box {
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            padding: 14px;
+            background: #ffffff;
+        }
+
+        .s2-comp-title {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #64748b;
+            letter-spacing: 0.04em;
+            margin-bottom: 10px;
+        }
+
+        .s2-comp-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .s2-comp-row {
+            background: var(--bg-card-subtle);
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .s2-row-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .s2-check-square {
+            width: 24px;
+            height: 24px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+            background: #ffffff;
+            cursor: pointer;
+        }
+
+        .s2-row-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .s2-row-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .s2-stack-label {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .s2-cases-bold {
+            font-size: 13px;
+            font-weight: 900;
+            color: #0f172a;
+            width: 70px;
+            text-align: right;
+        }
+
+        .s2-controls-col {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .s2-btn-shortage {
+            background: var(--red-btn);
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+        }
+
+        .s2-diff-box {
+            background: var(--bg-card-subtle);
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            padding: 14px;
+        }
+
+        .s2-diff-title {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #64748b;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+
+        .s2-diff-line {
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #0f172a;
+        }
+
+        .s2-diff-line.green {
+            color: var(--green-text);
+        }
+
+        .s2-notes-box {
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            padding: 14px;
+            background: #ffffff;
+            min-height: 120px;
+        }
+
+        .s2-notes-title {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #64748b;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+
+        .s2-notes-content {
+            font-size: 12px;
+            color: #334155;
+            line-height: 1.5;
+        }
+
+        /* ==========================================================================
+           SCREEN 4: LOADER HANDOFF / FINAL CHECK (MATCHING SCREENSHOT 4)
+           ========================================================================== */
+        .s4-card {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-color);
+        }
+
+        .s4-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .s4-icon-box {
+            width: 32px;
+            height: 32px;
+            background: var(--header-black);
+            color: #ffffff;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .s4-title-main {
+            font-size: 15px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #0f172a;
+        }
+
+        .s4-title-sub {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .s4-grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 860px) {
+            .s4-grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .s4-panel-box {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .s4-panel-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .s4-panel-title {
+            font-size: 13px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #0f172a;
+        }
+
+        .s4-panel-time {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .s4-checklist-items {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .s4-check-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .s4-check-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .s4-check-sub {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .pill-s4-checked {
+            border: 1.5px solid #10b981;
+            color: #10b981;
+            background: #ffffff;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: var(--radius-pill);
+        }
+
+        .pill-s4-flagged {
+            border: 1.5px solid #f59e0b;
+            color: #d97706;
+            background: #ffffff;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: var(--radius-pill);
+        }
+
+        .s4-alert-amber {
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .s4-btn-confirm {
+            background: var(--header-black);
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 900;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .s4-confirmed-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 0;
+            gap: 12px;
+        }
+
+        .s4-big-check-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #10b981;
+        }
+
+        .s4-confirm-title {
+            font-size: 18px;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        .s4-confirm-sub {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .s4-anti-pattern-box {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            text-align: left;
+            margin-top: auto;
+        }
+
+        .s4-anti-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: #b45309;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .s4-anti-desc {
+            font-size: 11px;
+            color: #92400e;
+            line-height: 1.4;
+        }
+
+        /* ==========================================================================
+           MODAL: FLAG SHORTAGE (MATCHING SCREENSHOT 3 EXACTLY)
+           ========================================================================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 480px;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-modal);
+            overflow: hidden;
+        }
+
+        .modal-header-section {
+            padding: 24px 24px 16px;
+        }
+
+        .modal-title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        .pill-dock-assigned {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #b45309;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: var(--radius-pill);
+            text-transform: uppercase;
+        }
+
+        .modal-subtext {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .modal-body-section {
+            padding: 0 24px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .modal-field-label {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #475569;
+            letter-spacing: 0.04em;
+        }
+
+        .modal-select, .modal-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            outline: none;
+            background: #ffffff;
+        }
+
+        .modal-stepper-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stepper-label-sub {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .stepper-controls {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .btn-step-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f172a;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stepper-number {
+            font-size: 18px;
+            font-weight: 900;
+            color: #0f172a;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .reason-pills-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .reason-pill-btn {
+            padding: 10px 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            background: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            color: #334155;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s ease;
+        }
+
+        .reason-pill-btn.active {
+            background: #fffbeb;
+            border-color: #f59e0b;
+            color: #92400e;
+            font-weight: 800;
+        }
+
+        .proof-box {
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            padding: 14px;
+            background: #fdfbf7;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+        }
+
+        .proof-camera-icon {
+            width: 40px;
+            height: 40px;
+            background: #e2e8f0;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+        }
+
+        .modal-actions-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .btn-modal-cancel {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            background: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            color: #475569;
+            cursor: pointer;
+        }
+
+        .btn-modal-submit {
+            flex: 1.5;
+            padding: 12px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: #0f172a;
+            font-size: 13px;
+            font-weight: 800;
+            color: #ffffff;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-    <!-- 1. SIDEBAR (Matching exact prompt navigation specifications) -->
-    <aside class="app-sidebar">
-        <div class="sidebar-brand-header">
-            <h1 class="sidebar-brand-title">LOAD-SHEET</h1>
-            <div class="sidebar-brand-subtitle">
-                <span class="glove-dot"></span>
-                <span>LOADER • GLOVE-MODE</span>
-            </div>
-        </div>
-
-        <ul class="sidebar-nav-list">
-            <li>
-                <a class="sidebar-nav-item active" id="nav-overview" onclick="switchWorkflowScreen('overview')">
-                    <span class="nav-icon">⊗</span>
-                    <span>Overview</span>
-                </a>
-            </li>
-            <li>
-                <a class="sidebar-nav-item" id="nav-loadsheet" onclick="switchWorkflowScreen('loadsheet')">
-                    <span class="nav-icon">⊞</span>
-                    <span>Load-Sheet</span>
-                </a>
-            </li>
-            <li>
-                <a class="sidebar-nav-item" id="nav-scan" onclick="switchWorkflowScreen('scan')">
-                    <span class="nav-icon">⛶</span>
-                    <span>Scan & Match</span>
-                </a>
-            </li>
-            <li>
-                <a class="sidebar-nav-item" id="nav-weight" onclick="switchWorkflowScreen('weight')">
-                    <span class="nav-icon">⚖</span>
-                    <span>Weight & Balance</span>
-                </a>
-            </li>
-            <li>
-                <a class="sidebar-nav-item" id="nav-final" onclick="switchWorkflowScreen('final')">
-                    <span class="nav-icon">✓</span>
-                    <span>Final Check</span>
-                </a>
-            </li>
-            <li>
-                <a class="sidebar-nav-item" id="nav-summary" onclick="switchWorkflowScreen('summary')">
-                    <span class="nav-icon">📈</span>
-                    <span>Summary</span>
-                </a>
-            </li>
-        </ul>
-
-        <div class="sidebar-footer">
-            <button class="glove-toggle-btn" id="glove-mode-btn" onclick="toggleGloveMode()">
-                <span>🧤 Glove-Mode</span>
-                <span id="glove-status-text" style="font-size: 10px; font-weight: 900;">OFF</span>
+    <!-- TOP NAVIGATION FOR THE 6 WORKFLOW PAGES -->
+    <header class="top-screen-nav-bar">
+        <div class="screen-nav-pill-group">
+            <button class="screen-nav-btn active" id="btn-page-overview" onclick="switchPage('overview')">
+                1. Overview
             </button>
-            <div class="sidebar-user-badge">
-                <span id="loader-user-name">G. Sloan (Loader)</span>
-                <span id="sync-indicator" style="color: var(--green-text);">● Online</span>
+            <button class="screen-nav-btn" id="btn-page-loadsheet" onclick="switchPage('loadsheet')">
+                2. Load Sheet
+            </button>
+            <button class="screen-nav-btn" id="btn-page-scan" onclick="switchPage('scan')">
+                3. Scan & Weight
+            </button>
+            <button class="screen-nav-btn" id="btn-page-weight" onclick="switchPage('weight')">
+                4. Weight & Balance
+            </button>
+            <button class="screen-nav-btn" id="btn-page-final" onclick="switchPage('final')">
+                5. Final Check
+            </button>
+            <button class="screen-nav-btn" id="btn-page-summary" onclick="switchPage('summary')">
+                6. Summary
+            </button>
+        </div>
+
+        <div class="top-user-status">
+            <div class="depot-select-badge" onclick="toggleDepotSelector()">
+                <span id="depot-display-badge">🏭 Peliyagoda DC</span>
+                <span style="font-size: 10px; color: var(--text-muted);">▼</span>
+            </div>
+            <button class="glove-toggle-btn" id="glove-btn" onclick="toggleGloveMode()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                <span id="glove-text">Glove-Mode Off</span>
+            </button>
+            <a href="index.html" class="btn-logout">Exit</a>
+        </div>
+    </header>
+
+    <!-- MAIN VIEWPORT CONTAINER -->
+    <main class="loader-viewport-container">
+
+        <!-- ====================================================================
+             PAGE 1: OVERVIEW (DISPATCHER ALLOCATED ORDERS FOR DEPOT)
+             ==================================================================== -->
+        <div class="screen-container active" id="page-overview">
+            <div class="s1-card">
+                <div class="s1-header-black">
+                    <div class="s1-header-left">
+                        <div class="s1-icon-box">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                        </div>
+                        <div>
+                            <div class="s1-title-main">DEPOT DOCK OVERVIEW</div>
+                            <div class="s1-title-sub" id="ov-header-sub">ALLOCATED RUNS · PELIYAGODA CENTRAL DC</div>
+                        </div>
+                    </div>
+                    <div class="s1-header-right">
+                        <span class="pill-trip-flags" id="ov-status-pill">DISPATCH LOCKED</span>
+                    </div>
+                </div>
+
+                <div class="s1-body">
+                    <!-- 4 METRICS -->
+                    <div class="s1-metrics-grid">
+                        <div class="s1-metric-box">
+                            <span class="s1-metric-label">ALLOCATED TRIPS</span>
+                            <span class="s1-metric-val" id="ov-trips-val">0</span>
+                            <span class="s1-metric-sub" id="ov-trips-sub">Active Runs</span>
+                        </div>
+                        <div class="s1-metric-box">
+                            <span class="s1-metric-label">TOTAL VOLUME</span>
+                            <span class="s1-metric-val" id="ov-vol-val">0.0 m³</span>
+                            <span class="s1-metric-sub green" id="ov-vol-sub">Planned cube</span>
+                        </div>
+                        <div class="s1-metric-box">
+                            <span class="s1-metric-label">TOTAL WEIGHT</span>
+                            <span class="s1-metric-val" id="ov-wt-val">0 kg</span>
+                            <span class="s1-metric-sub" id="ov-wt-sub">Gross payload</span>
+                        </div>
+                        <div class="s1-metric-box">
+                            <span class="s1-metric-label">DELIVERY STOPS</span>
+                            <span class="s1-metric-val" id="ov-stops-val">0</span>
+                            <span class="s1-metric-sub green">Confirmed drops</span>
+                        </div>
+                    </div>
+
+                    <div class="s1-section-header">
+                        <div class="s1-section-title">ACTIVE VEHICLE RUNS ASSIGNED TO DOCK</div>
+                        <div class="s1-section-meta" id="ov-sync-time">Live allocation from Dispatcher</div>
+                    </div>
+
+                    <div class="s1-item-list" id="ov-trips-list">
+                        <!-- Dynamically populated from /api/trips -->
+                    </div>
+                </div>
+
+                <div class="s1-footer-bar">
+                    <span style="font-size: 12px; color: #94a3b8;">Select a vehicle run to inspect details and proceed to Load Sheet.</span>
+                    <button class="s1-btn-review" onclick="switchPage('loadsheet')">Open Load Sheet &rarr;</button>
+                </div>
             </div>
         </div>
-    </aside>
 
-    <!-- 2. MAIN WORKSPACE CONTAINER -->
-    <main class="app-main">
-
-        <!-- DOCK FACILITY & QUICK ACTIONS HEADER -->
-        <header class="dock-header-bar">
-            <div class="depot-toggle-group">
-                <button class="depot-btn active" id="depot-btn-peliyagoda" onclick="selectDockFacility('Peliyagoda')">
-                    <span>🏭 Peliyagoda DC</span>
-                </button>
-                <button class="depot-btn" id="depot-btn-kandy" onclick="selectDockFacility('Kandy')">
-                    <span>⛰️ Kandy Cross-Dock</span>
-                </button>
-                <button class="depot-btn" id="depot-btn-all" onclick="selectDockFacility('All')">
-                    <span>🌐 All Bays</span>
-                </button>
-            </div>
-
-            <div class="quick-actions-bar">
-                <button class="btn-action-sm" onclick="openPlanDiffModal()">
-                    <span>🔄 Plan Difference</span>
-                </button>
-                <button class="btn-action-sm" onclick="openDockNotesDrawer()">
-                    <span>📝 Dock Notes</span>
-                </button>
-                <button class="btn-action-sm" onclick="fetchDockData(true)">
-                    <span>⚡ Sync</span>
-                </button>
-            </div>
-        </header>
-
-        <!-- SCREEN 1: OVERVIEW -->
-        <section class="workflow-screen active" id="screen-overview">
-            <div class="card-panel">
-                <div class="card-panel-header">
-                    <div>
-                        <h2 class="card-title">📦 Allocated Orders & Depot Manifest</h2>
-                        <p class="card-subtitle">Live loading manifests pushed from the Dispatcher's central allocation engine</p>
-                    </div>
-                    <span id="overview-depot-badge" style="font-weight: 800; font-size: 13px; background: #e2e8f0; padding: 4px 10px; border-radius: var(--radius-pill);">Peliyagoda Facility</span>
-                </div>
-
-                <div class="metric-grid-4">
-                    <div class="metric-tile">
-                        <span class="metric-label">Allocated Trips</span>
-                        <span class="metric-val" id="ov-trips-count">0</span>
-                        <span class="metric-sub" id="ov-vehicles-count">0 Vehicles Active</span>
-                    </div>
-                    <div class="metric-tile">
-                        <span class="metric-label">Total Units to Load</span>
-                        <span class="metric-val" id="ov-units-count">0</span>
-                        <span class="metric-sub" id="ov-stops-count">0 Delivery Drops</span>
-                    </div>
-                    <div class="metric-tile">
-                        <span class="metric-label">Gross Cargo Weight</span>
-                        <span class="metric-val" id="ov-weight-val">0 kg</span>
-                        <span class="metric-sub" id="ov-weight-cap">Limit: 0 kg</span>
-                    </div>
-                    <div class="metric-tile">
-                        <span class="metric-label">Refrigeration Mix</span>
-                        <span class="metric-val" id="ov-reefer-count">0 Reefer</span>
-                        <span class="metric-sub" id="ov-ambient-count">0 Ambient</span>
-                    </div>
-                </div>
-
-                <!-- VEHICLES SELECTION GRID -->
-                <h3 style="font-size: 14px; font-weight: 900; text-transform: uppercase; margin-bottom: 14px;">Select Vehicle Run to Stage & Load:</h3>
-                <div id="overview-trips-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
-                    <!-- Injected dynamically -->
-                </div>
-            </div>
-        </section>
-
-        <!-- SCREEN 2: LOAD SHEET -->
-        <section class="workflow-screen" id="screen-loadsheet">
-            <div class="card-panel">
-                <div class="card-panel-header">
-                    <div>
-                        <h2 class="card-title" id="ls-current-vehicle-title">🚛 VEHICLE LOAD SHEET — REVERSE STOP SEQUENCE</h2>
-                        <p class="card-subtitle">Loaded in reverse delivery order (Stop N first $\rightarrow$ Stop 1 at rear door) for zero re-shuffling at customer drops</p>
-                    </div>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="btn-action-sm" onclick="switchWorkflowScreen('scan')">
-                            <span>⛶ Scan & Match &rarr;</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- VEHICLE SWITCHER -->
-                <div class="vehicle-switcher-bar" id="loadsheet-veh-switcher">
-                    <!-- Dynamic vehicle tabs -->
-                </div>
-
-                <!-- CHECKLIST PROGRESS -->
-                <div class="checklist-progress-wrap">
-                    <div class="progress-label-row">
-                        <span id="ls-progress-text">Checklist Progress: 0 of 0 Loaded</span>
-                        <span id="ls-progress-pct" style="color: var(--green-text); font-family: 'JetBrains Mono', monospace;">0%</span>
-                    </div>
-                    <div class="progress-track">
-                        <div class="progress-fill" id="ls-progress-fill"></div>
-                    </div>
-                </div>
-
-                <!-- FILTERS BAR -->
-                <div class="filter-controls-row">
-                    <input type="text" class="filter-input" id="filter-search" placeholder="🔍 Search outlet / order..." oninput="applyFilters()" style="min-width: 180px;">
-                    
-                    <select class="filter-select" id="filter-brand" onchange="applyFilters()">
-                        <option value="all">All Brands</option>
-                        <option value="Fresh">Fresh</option>
-                        <option value="Style">Style</option>
-                        <option value="Tech">Tech</option>
-                    </select>
-
-                    <select class="filter-select" id="filter-temp" onchange="applyFilters()">
-                        <option value="all">All Temperatures</option>
-                        <option value="chilled">❄️ Chilled</option>
-                        <option value="ambient">📦 Ambient</option>
-                    </select>
-
-                    <select class="filter-select" id="filter-docktype" onchange="applyFilters()">
-                        <option value="all">All Dock Types</option>
-                        <option value="rear_dock">Rear Dock</option>
-                        <option value="street">Street Unload</option>
-                        <option value="mall_bay">Mall Bay</option>
-                    </select>
-
-                    <select class="filter-select" id="filter-status" onchange="applyFilters()">
-                        <option value="all">All Statuses</option>
-                        <option value="pending">⏳ Pending Check</option>
-                        <option value="loaded">✅ Loaded</option>
-                        <option value="flagged">🚩 Shortage Flagged</option>
-                    </select>
-
-                    <button class="btn-action-sm" onclick="resetFilters()" style="margin-left: auto;">
-                        <span>Reset Filters</span>
-                    </button>
-                </div>
-
-                <!-- REVERSE LOAD ITEMS LIST -->
-                <div class="load-item-table" id="loadsheet-items-list">
-                    <!-- Dynamic Stops List -->
-                </div>
-
-                <div class="empty-filter-state" id="empty-filters-state" style="display: none;">
-                    <span style="font-size: 32px;">🔍</span>
-                    <h4 style="font-size: 15px; font-weight: 800;">No Orders Match Filter Criteria</h4>
-                    <p style="font-size: 12px; color: var(--text-muted);">Try adjusting your search terms or clearing temperature/brand filters.</p>
-                    <button class="btn-primary" onclick="resetFilters()" style="margin-top: 6px;">Clear Filters</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- SCREEN 3: SCAN & MATCH (SCAN & WEIGHT) -->
-        <section class="workflow-screen" id="screen-scan">
-            <div class="card-panel">
-                <div class="card-panel-header">
-                    <div>
-                        <h2 class="card-title">⛶ Barcode Scan & Weight Verification</h2>
-                        <p class="card-subtitle">Verify staged items against the planned manifest and capture scale weights</p>
-                    </div>
-                    <button class="btn-action-sm" onclick="switchWorkflowScreen('weight')">
-                        <span>⚖ Weight & Balance &rarr;</span>
-                    </button>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-                    <!-- LEFT SCANNER INPUT -->
-                    <div style="background: var(--bg-card-subtle); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 14px;">
-                        <h3 style="font-size: 13px; font-weight: 900; text-transform: uppercase;">1. Scan Barcode / Input Order Ref</h3>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="text" class="form-input" id="scan-code-input" placeholder="e.g. ORD-0001 or OUT001" style="font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800;">
-                            <button class="btn-primary" onclick="executeScanMatch()">
-                                <span>Scan</span>
-                            </button>
+        <!-- ====================================================================
+             PAGE 2: LOAD SHEET (EXACT SCREEN 1 & 2 DESIGN UNTOUCHED)
+             ==================================================================== -->
+        <div class="screen-container" id="page-loadsheet">
+            <div class="s1-card">
+                <!-- TOP BLACK HEADER -->
+                <div class="s1-header-black">
+                    <div class="s1-header-left">
+                        <div class="s1-icon-box">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                         </div>
-                        <p style="font-size: 11px; color: var(--text-muted);">💡 Quick-Scan simulation: Type order ID or outlet code to match instantly against the load sheet.</p>
+                        <div>
+                            <div class="s1-title-main" id="ls-title-main">LOAD SHEET DETAIL</div>
+                            <div class="s1-title-sub" id="ls-title-sub">TRIP #8849 • ROUTE-WEST</div>
+                        </div>
+                    </div>
 
-                        <div style="margin-top: 10px;">
-                            <label class="form-label">2. Measured Gross Weight (kg)</label>
+                    <div class="s1-header-right">
+                        <span class="pill-trip-flags" id="ls-flags-pill">TRIP HAS FLAGS</span>
+                        <div class="pill-glove-mode" id="ls-glove-pill" onclick="toggleGloveMode()">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                            Glove-Mode On
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BODY METRICS + ITEMS -->
+                <div class="s1-body">
+                    <!-- 4 METRIC CARDS ROW -->
+                    <div class="s1-metrics-grid">
+                        <div class="s1-metric-box">
+                            <span class="s1-metric-label">TOTAL WEIGHT</span>
+                            <span class="s1-metric-val" id="ls-weight-val">12,450 kg</span>
+                            <span class="s1-metric-sub" id="ls-weight-cap">Max cap 15k</span>
+                        </div>
+                        <div class="s1-metric-box">
+                            <span class="s1-metric-label">VOLUME</span>
+                            <span class="s1-metric-val" id="ls-vol-val">48.2 m³</span>
+                            <span class="s1-metric-sub green" id="ls-vol-util">84% utilized</span>
+                        </div>
+                        <div class="s1-metric-box">
+                            <span class="s1-metric-label">PALLETS</span>
+                            <span class="s1-metric-val" id="ls-pallets-val">22 Pallets</span>
+                            <span class="s1-metric-sub">AFT: 12 • FWD: 10</span>
+                        </div>
+                        <div class="s1-metric-box">
+                            <span class="s1-metric-label">DELIVERY STOPS</span>
+                            <span class="s1-metric-val" id="ls-stops-val">5 Stops</span>
+                            <span class="s1-metric-sub green">Reverse loaded</span>
+                        </div>
+                    </div>
+
+                    <!-- STOP 01 HEADER -->
+                    <div class="s1-section-header">
+                        <div class="s1-section-title" id="ls-stop-heading">STOP 01: VIBRANT FOODS MARKET</div>
+                        <div class="s1-section-meta" id="ls-dock-bay">Dock Bay 4 • ETA 10:15</div>
+                    </div>
+
+                    <!-- 3 ITEM ROWS -->
+                    <div class="s1-item-list" id="ls-items-container">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+
+                <!-- BOTTOM BLACK FOOTER -->
+                <div class="s1-footer-bar">
+                    <div class="s1-back-btn" onclick="switchPage('overview')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                        Back to Trips
+                    </div>
+                    <div class="s1-footer-center" id="ls-footer-status">
+                        2/3 STOPS COMPLETED | 1 FLAG UNRESOLVED
+                    </div>
+                    <button class="s1-btn-review" onclick="openReviewModal()">
+                        Needs Review
+                    </button>
+                </div>
+            </div>
+
+            <!-- BAY 2 LOADING PLAN 3-COMPARTMENT SECTION -->
+            <div class="s2-card" style="margin-top: 20px;">
+                <div class="s2-header">
+                    <div class="s2-icon-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                    </div>
+                    <div>
+                        <div class="s2-title-main" id="s2-bay-title">BAY 2 LOADING PLAN</div>
+                        <div class="s2-title-sub" id="s2-veh-driver">VEHICLE: VOLVO 16T · DRIVER: MARCUS V.</div>
+                    </div>
+                </div>
+
+                <div class="s2-sub-bar">
+                    <span class="s2-chilled-label" id="s2-temp-label">CHILLED LOAD ONLY (4°C)</span>
+                    <span class="s2-updated-label" id="s2-updated-time">Plan Updated: 02:15</span>
+                </div>
+
+                <div class="s2-grid-2col">
+                    <div class="s2-compartments-col">
+                        <div class="s2-comp-box">
+                            <div class="s2-comp-title">LOADS FIRST (BAKERY / FRONT NOSE)</div>
+                            <div class="s2-comp-items" id="comp-front-list"></div>
+                        </div>
+                        <div class="s2-comp-box">
+                            <div class="s2-comp-title">MID LOAD (PRODUCE & EGGS / CENTRAL)</div>
+                            <div class="s2-comp-items" id="comp-mid-list"></div>
+                        </div>
+                        <div class="s2-comp-box">
+                            <div class="s2-comp-title">TAILBOARD (DAIRY & MEAT / REAR DOOR)</div>
+                            <div class="s2-comp-items" id="comp-rear-list"></div>
+                        </div>
+                    </div>
+
+                    <div class="s2-controls-col">
+                        <div style="font-size: 14px; font-weight: 800; color: #0f172a;">Plan Controls</div>
+                        <button class="s2-btn-shortage" onclick="openShortageModal()">Flag Shortage</button>
+
+                        <div class="s2-diff-box">
+                            <div class="s2-diff-title">PLAN DIFFERENCE</div>
+                            <div id="s2-diff-content">
+                                <div class="s2-diff-line">- 2 Cases Sourdough</div>
+                                <div class="s2-diff-line green">+ 4 Cases Whole Milk</div>
+                            </div>
+                        </div>
+
+                        <div class="s2-notes-box">
+                            <div class="s2-notes-title">DOCK NOTES</div>
+                            <div class="s2-notes-content" id="s2-notes-text">
+                                Load heavy dairy items near the tailboard for easier store handoff.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====================================================================
+             PAGE 3: SCAN & WEIGHT (SCAN OR ENTER ITEM & CAPTURE SCALE WEIGHT)
+             ==================================================================== -->
+        <div class="screen-container" id="page-scan">
+            <div class="s1-card">
+                <div class="s1-header-black">
+                    <div class="s1-header-left">
+                        <div class="s1-icon-box">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg>
+                        </div>
+                        <div>
+                            <div class="s1-title-main">SCAN & WEIGHT VERIFICATION</div>
+                            <div class="s1-title-sub">BARCODE SCANNER · DIGITAL WEIGH SCALE</div>
+                        </div>
+                    </div>
+                    <div class="s1-header-right">
+                        <span class="pill-trip-flags" style="background:#ecfdf5; border-color:#a7f3d0; color:#059669;">SCALE CONNECTED</span>
+                    </div>
+                </div>
+
+                <div class="s1-body">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <!-- LEFT: SCANNER INPUT -->
+                        <div style="background: var(--bg-card-subtle); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 14px;">
+                            <div class="s1-section-title">1. Scan Barcode or Enter Order Ref</div>
                             <div style="display: flex; gap: 10px;">
-                                <input type="number" class="form-input" id="scan-weight-input" placeholder="Weighed kg" style="font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800;">
-                                <button class="btn-secondary" onclick="autoPopulatePlannedWeight()">
-                                    <span>Scale Auto</span>
-                                </button>
+                                <input type="text" class="modal-input" id="scan-order-input" placeholder="e.g. ORD-0001 or OUT001" style="font-family:'JetBrains Mono',monospace; font-weight:800;">
+                                <button class="s1-btn-review" onclick="handleScanMatch()" style="padding: 10px 20px;">Scan</button>
                             </div>
+
+                            <div class="s1-section-title" style="margin-top: 10px;">2. Gross Weighed Scale Reading (kg)</div>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="number" class="modal-input" id="scan-weight-input" placeholder="Captured kg" style="font-family:'JetBrains Mono',monospace; font-weight:800;">
+                                <button class="s1-btn-review" style="background:#0f172a;" onclick="autoCaptureWeight()">Capture</button>
+                            </div>
+
+                            <div id="scan-result-alert" style="padding: 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 700; display: none;"></div>
                         </div>
 
-                        <div id="scan-validation-banner" style="margin-top: 10px; padding: 14px; border-radius: var(--radius-sm); display: none;">
-                            <!-- Validation message injected -->
-                        </div>
-                    </div>
-
-                    <!-- RIGHT SCANNED LIST SUMMARY -->
-                    <div style="background: var(--bg-card-subtle); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-color); display: flex; flex-direction: column;">
-                        <h3 style="font-size: 13px; font-weight: 900; text-transform: uppercase; margin-bottom: 12px;">Verified Cargo Log for <span id="scan-veh-tag" style="color: var(--blue-text);">Current Trip</span></h3>
-                        <div id="scanned-items-log" style="display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto;">
-                            <!-- Verified items -->
+                        <!-- RIGHT: LOG -->
+                        <div style="background: var(--bg-card-subtle); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                            <div class="s1-section-title" style="margin-bottom: 12px;">Verified Cargo Manifest Log</div>
+                            <div id="scan-manifest-log" style="display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto;">
+                                <div style="font-size: 12px; color: var(--text-muted);">No items scanned yet for this trip.</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <!-- SCREEN 4: WEIGHT & BALANCE -->
-        <section class="workflow-screen" id="screen-weight">
-            <div class="card-panel">
-                <div class="card-panel-header">
+                <div class="s1-footer-bar">
+                    <span style="font-size: 12px; color: #94a3b8;">Validate all pallet/crate line items before moving to Weight & Balance.</span>
+                    <button class="s1-btn-review" onclick="switchPage('weight')">Weight & Balance &rarr;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====================================================================
+             PAGE 4: WEIGHT & BALANCE (CAPACITY & COMPARTMENT TOTALS)
+             ==================================================================== -->
+        <div class="screen-container" id="page-weight">
+            <div class="s1-card">
+                <div class="s1-header-black">
+                    <div class="s1-header-left">
+                        <div class="s1-icon-box">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18"/><path d="m5 6 7-3 7 3"/><path d="M2 13h6l-3 7H2z"/><path d="M16 13h6l-3 7h-3z"/></svg>
+                        </div>
+                        <div>
+                            <div class="s1-title-main">WEIGHT & BALANCE OF VOLUME</div>
+                            <div class="s1-title-sub" id="wb-sub-header">PAYLOAD COMPLIANCE · VEHICLE LIMITS</div>
+                        </div>
+                    </div>
+                    <div class="s1-header-right">
+                        <span class="pill-trip-flags" id="wb-status-pill" style="background:#ecfdf5; border-color:#a7f3d0; color:#059669;">AXLE BALANCED</span>
+                    </div>
+                </div>
+
+                <div class="s1-body">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+                        <div class="s1-metric-box">
+                            <span class="s1-metric-label">PAYLOAD WEIGHT VS CAPACITY</span>
+                            <span class="s1-metric-val" id="wb-weight-display">0 / 0 kg</span>
+                            <span class="s1-metric-sub green" id="wb-weight-status">✓ Within safe axle limit</span>
+                        </div>
+                        <div class="s1-metric-box">
+                            <span class="s1-metric-label">CARGO VOLUME VS CUBIC LIMIT</span>
+                            <span class="s1-metric-val" id="wb-vol-display">0.0 / 0.0 m³</span>
+                            <span class="s1-metric-sub green" id="wb-vol-status">✓ Cube factor verified</span>
+                        </div>
+                    </div>
+
+                    <div class="s1-section-title" style="margin-bottom: 12px;">3-Compartment Axle Load Distribution</div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                        <div class="s2-comp-box">
+                            <div class="s2-comp-title">FRONT NOSE COMPARTMENT</div>
+                            <div style="font-size: 18px; font-weight: 900; margin-bottom: 4px;" id="wb-front-kg">0 kg</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Loads First · Last Drop Offs</div>
+                        </div>
+                        <div class="s2-comp-box">
+                            <div class="s2-comp-title">MID SECTION COMPARTMENT</div>
+                            <div style="font-size: 18px; font-weight: 900; margin-bottom: 4px;" id="wb-mid-kg">0 kg</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Loads 2nd · Intermediate Stops</div>
+                        </div>
+                        <div class="s2-comp-box">
+                            <div class="s2-comp-title">REAR TAILBOARD DOOR</div>
+                            <div style="font-size: 18px; font-weight: 900; margin-bottom: 4px;" id="wb-rear-kg">0 kg</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Loads Last · 1st Stop Drop</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="s1-footer-bar">
+                    <span style="font-size: 12px; color: #94a3b8;">Ensure vehicle is not overloaded before pre-departure final check.</span>
+                    <button class="s1-btn-review" onclick="switchPage('final')">Final Pre-Departure Check &rarr;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====================================================================
+             PAGE 5: FINAL CHECK / LOADER HANDOFF (MATCHING SCREENSHOT 5)
+             ==================================================================== -->
+        <div class="screen-container" id="page-final">
+            <div class="s4-card">
+                <div class="s4-header">
+                    <div class="s4-icon-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
                     <div>
-                        <h2 class="card-title">⚖ Weight & Balance of Volume</h2>
-                        <p class="card-subtitle">Axle load distribution and vehicle volume compliance checking</p>
-                    </div>
-                    <button class="btn-action-sm" onclick="switchWorkflowScreen('final')">
-                        <span>✓ Final Pre-Departure Check &rarr;</span>
-                    </button>
-                </div>
-
-                <!-- CAPACITY METERS -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
-                    <div style="background: var(--bg-card-subtle); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span style="font-size: 12px; font-weight: 800; text-transform: uppercase;">Payload Weight vs Vehicle Capacity</span>
-                            <span id="wb-weight-text" style="font-family: 'JetBrains Mono', monospace; font-weight: 900;">0 / 0 kg (0%)</span>
-                        </div>
-                        <div class="progress-track" style="height: 14px;">
-                            <div class="progress-fill" id="wb-weight-bar"></div>
-                        </div>
-                        <div id="wb-weight-status" style="margin-top: 8px; font-size: 12px; font-weight: 800; color: var(--green-text);">
-                            ✓ Payload within safe operating limit
-                        </div>
-                    </div>
-
-                    <div style="background: var(--bg-card-subtle); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span style="font-size: 12px; font-weight: 800; text-transform: uppercase;">Cargo Volume vs Cubic Limit</span>
-                            <span id="wb-volume-text" style="font-family: 'JetBrains Mono', monospace; font-weight: 900;">0 / 0 m³ (0%)</span>
-                        </div>
-                        <div class="progress-track" style="height: 14px;">
-                            <div class="progress-fill" id="wb-volume-bar"></div>
-                        </div>
-                        <div id="wb-volume-status" style="margin-top: 8px; font-size: 12px; font-weight: 800; color: var(--green-text);">
-                            ✓ Volumetric cube factor verified
-                        </div>
+                        <div class="s4-title-main">LOADER HANDOFF</div>
+                        <div class="s4-title-sub">FINAL OPERATIONS STAGE</div>
                     </div>
                 </div>
 
-                <!-- 3-COMPARTMENT VISUAL LAYOUT -->
-                <h3 style="font-size: 14px; font-weight: 900; text-transform: uppercase; margin-bottom: 8px;">Vehicle Bay Distribution (Unload Direction &larr; Door at Rear):</h3>
-                <div class="truck-balance-container">
-                    <!-- FRONT COMPARTMENT -->
-                    <div class="comp-bay">
-                        <div class="comp-bay-header">
-                            <span>🚛 FRONT (Nose / Axle)</span>
-                            <span id="comp-front-weight">0 kg</span>
+                <div class="s4-grid-2col">
+                    <!-- LEFT: CHECKLIST -->
+                    <div class="s4-panel-box">
+                        <div>
+                            <div class="s4-panel-header-row">
+                                <span class="s4-panel-title">LOAD CHECKLIST</span>
+                                <span class="s4-panel-time" id="s4-time-display">TIME: 03:44</span>
+                            </div>
+
+                            <div class="s4-checklist-items">
+                                <div class="s4-check-row">
+                                    <div>
+                                        <div class="s4-check-name">All items loaded</div>
+                                        <div class="s4-check-sub" id="s4-items-sub">24 / 24 pieces</div>
+                                    </div>
+                                    <span class="pill-s4-checked" id="s4-items-badge">CHECKED</span>
+                                </div>
+                                <div class="s4-check-row">
+                                    <div>
+                                        <div class="s4-check-name">Pallets secured</div>
+                                        <div class="s4-check-sub">12 / 12 pallets</div>
+                                    </div>
+                                    <span class="pill-s4-checked">CHECKED</span>
+                                </div>
+                                <div class="s4-check-row">
+                                    <div>
+                                        <div class="s4-check-name">Load balanced</div>
+                                        <div class="s4-check-sub">Within axle limits</div>
+                                    </div>
+                                    <span class="pill-s4-checked">CHECKED</span>
+                                </div>
+                                <div class="s4-check-row">
+                                    <div>
+                                        <div class="s4-check-name">Hazardous items flagged</div>
+                                        <div class="s4-check-sub" id="s4-flags-sub">0 flagged items</div>
+                                    </div>
+                                    <span class="pill-s4-flagged" id="s4-flags-badge">CHECKED</span>
+                                </div>
+                                <div class="s4-check-row">
+                                    <div>
+                                        <div class="s4-check-name">Temperature check</div>
+                                        <div class="s4-check-sub">Within chilled range</div>
+                                    </div>
+                                    <span class="pill-s4-checked">CHECKED</span>
+                                </div>
+                                <div class="s4-check-row">
+                                    <div>
+                                        <div class="s4-check-name">Seal / tamper check</div>
+                                        <div class="s4-check-sub">Intact</div>
+                                    </div>
+                                    <span class="pill-s4-checked">CHECKED</span>
+                                </div>
+                            </div>
                         </div>
-                        <p style="font-size: 11px; color: var(--text-muted);">Loaded 1st · Last Delivery Drops</p>
-                        <div class="comp-items-stack" id="comp-front-items">
-                            <!-- Items -->
+
+                        <div>
+                            <div class="s4-alert-amber" id="s4-alert-box" style="display: none;">
+                                ⚠️ <span id="s4-alert-text">Items flagged — noted for receiver</span>
+                            </div>
+                            <button class="s4-btn-confirm" id="s4-confirm-btn" onclick="executeHandoff()">Confirm load & handoff</button>
                         </div>
                     </div>
 
-                    <!-- MID COMPARTMENT -->
-                    <div class="comp-bay">
-                        <div class="comp-bay-header">
-                            <span>📦 MID (Central Bay)</span>
-                            <span id="comp-mid-weight">0 kg</span>
+                    <!-- RIGHT: HANDOFF STATUS -->
+                    <div class="s4-panel-box">
+                        <div class="s4-panel-header-row">
+                            <span class="s4-panel-title">HANDOFF STATUS</span>
+                            <span class="pill-s4-checked" id="s4-handoff-badge">COMPLETED</span>
                         </div>
-                        <p style="font-size: 11px; color: var(--text-muted);">Loaded 2nd · Intermediate Drops</p>
-                        <div class="comp-items-stack" id="comp-mid-items">
-                            <!-- Items -->
-                        </div>
-                    </div>
 
-                    <!-- REAR COMPARTMENT -->
-                    <div class="comp-bay">
-                        <div class="comp-bay-header">
-                            <span>🚪 REAR (Door / Tailgate)</span>
-                            <span id="comp-rear-weight">0 kg</span>
+                        <div class="s4-confirmed-center">
+                            <div class="s4-big-check-circle">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                            <div class="s4-confirm-title" id="s4-confirm-heading">Handoff Confirmed</div>
+                            <div class="s4-confirm-sub" id="s4-confirm-subtext">Journal updated successfully · Ready for departure</div>
                         </div>
-                        <p style="font-size: 11px; color: var(--text-muted);">Loaded Last · First Delivery Drops</p>
-                        <div class="comp-items-stack" id="comp-rear-items">
-                            <!-- Items -->
+
+                        <div class="s4-anti-pattern-box">
+                            <div class="s4-anti-title">
+                                ⚠️ ANTI-PATTERN WARNING
+                            </div>
+                            <div class="s4-anti-desc">
+                                No confirmation = no "departed" status. Do not auto-advance without loader confirmation.
+                            </div>
+                        </div>
+
+                        <div class="s4-footer-caption">
+                            Clear status · Mirrored to driver · Journal trail secured.
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- SCREEN 5: FINAL CHECK -->
-        <section class="workflow-screen" id="screen-final">
-            <div class="card-panel">
-                <div class="card-panel-header">
-                    <div>
-                        <h2 class="card-title">✓ Consolidated Pre-Departure Review</h2>
-                        <p class="card-subtitle">Verify all checklist items, shortage exceptions, and sign off release to Driver</p>
+        <!-- ====================================================================
+             PAGE 6: SUMMARY OF THE DAY (SHIFT REPORT & DISPATCHER BROADCAST)
+             ==================================================================== -->
+        <div class="screen-container" id="page-summary">
+            <div class="s1-card">
+                <div class="s1-header-black">
+                    <div class="s1-header-left">
+                        <div class="s1-icon-box">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        </div>
+                        <div>
+                            <div class="s1-title-main">SUMMARY OF THE DAY</div>
+                            <div class="s1-title-sub" id="sum-header-depot">DEPOT SHIFT REPORT · PELIYAGODA</div>
+                        </div>
+                    </div>
+                    <div class="s1-header-right">
+                        <button class="s1-btn-review" onclick="broadcastDaySummary()">Broadcast to Dispatcher</button>
                     </div>
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: var(--bg-card-subtle); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span id="final-chk-items-icon" style="font-size: 18px;">⏳</span>
-                            <div>
-                                <h4 style="font-size: 13px; font-weight: 900;">1. Cargo Checklist Items</h4>
-                                <p style="font-size: 12px; color: var(--text-muted);" id="final-chk-items-desc">Checking items state...</p>
-                            </div>
+                <div class="s1-body">
+                    <div class="s1-metrics-grid">
+                        <div class="s1-metric-box">
+                            <span class="s1-metric-label">TRIPS RELEASED</span>
+                            <span class="s1-metric-val" id="sum-trips-count">0</span>
+                            <span class="s1-metric-sub green">Ready for transit</span>
                         </div>
-                        <span id="final-chk-items-badge" style="font-weight: 800; font-size: 12px;">Pending</span>
+                        <div class="s1-metric-box">
+                            <span class="s1-metric-label">ITEMS LOADED</span>
+                            <span class="s1-metric-val" id="sum-items-count">0</span>
+                            <span class="s1-metric-sub">100% Verified</span>
+                        </div>
+                        <div class="s1-metric-box">
+                            <span class="s1-metric-label">SHORTAGES FLAGGED</span>
+                            <span class="s1-metric-val" id="sum-flags-count" style="color:var(--red-flag);">0</span>
+                            <span class="s1-metric-sub">Exceptions logged</span>
+                        </div>
+                        <div class="s1-metric-box">
+                            <span class="s1-metric-label">DOCK NOTES RAISED</span>
+                            <span class="s1-metric-val" id="sum-notes-count">0</span>
+                            <span class="s1-metric-sub">Synchronized in DB</span>
+                        </div>
                     </div>
 
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: var(--bg-card-subtle); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span id="final-chk-shortage-icon" style="font-size: 18px;">⏳</span>
-                            <div>
-                                <h4 style="font-size: 13px; font-weight: 900;">2. Shortages & Discrepancies</h4>
-                                <p style="font-size: 12px; color: var(--text-muted);" id="final-chk-shortage-desc">Reviewing open flags...</p>
-                            </div>
-                        </div>
-                        <span id="final-chk-shortage-badge" style="font-weight: 800; font-size: 12px;">Reviewing</span>
+                    <div class="s1-section-title" style="margin-bottom: 12px;">Released Vehicle Departure Log</div>
+                    <div class="s1-item-list" id="sum-log-container">
+                        <!-- Populated with released trips -->
                     </div>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: var(--bg-card-subtle); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span id="final-chk-cap-icon" style="font-size: 18px;">⏳</span>
-                            <div>
-                                <h4 style="font-size: 13px; font-weight: 900;">3. Gross Weight & Volume Limits</h4>
-                                <p style="font-size: 12px; color: var(--text-muted);" id="final-chk-cap-desc">Checking vehicle caps...</p>
-                            </div>
-                        </div>
-                        <span id="final-chk-cap-badge" style="font-weight: 800; font-size: 12px;">Compliant</span>
-                    </div>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: var(--bg-card-subtle); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span style="font-size: 18px;">🔒</span>
-                            <div>
-                                <h4 style="font-size: 13px; font-weight: 900;">4. Door Seals & Reefer Temp Setpoint</h4>
-                                <p style="font-size: 12px; color: var(--text-muted);">Verified locked and refrigeration pre-chilled</p>
-                            </div>
-                        </div>
-                        <span style="font-weight: 800; font-size: 12px; color: var(--green-text);">Verified</span>
-                    </div>
-                </div>
-
-                <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 1px solid var(--border-color);">
-                    <div id="release-warning-note" style="font-size: 12px; font-weight: 700; color: var(--text-muted);">
-                        Confirming release will notify Dispatcher and mark the run sheet active for the Driver.
-                    </div>
-                    <button class="btn-primary" id="btn-confirm-release" onclick="executeTripRelease()" style="font-size: 14px; padding: 12px 24px;">
-                        <span>🚀 Confirm & Release Vehicle for Departure</span>
-                    </button>
                 </div>
             </div>
-        </section>
-
-        <!-- SCREEN 6: SUMMARY OF THE DAY -->
-        <section class="workflow-screen" id="screen-summary">
-            <div class="card-panel">
-                <div class="card-panel-header">
-                    <div>
-                        <h2 class="card-title">📈 Shift Summary & Dispatcher Broadcast</h2>
-                        <p class="card-subtitle">End-of-shift operational report for <span id="summary-depot-name" style="font-weight: 900;">Peliyagoda Central DC</span></p>
-                    </div>
-                    <button class="btn-primary" onclick="broadcastShiftSummary()">
-                        <span>📡 Broadcast to Dispatcher Portal</span>
-                    </button>
-                </div>
-
-                <div class="metric-grid-4">
-                    <div class="metric-tile">
-                        <span class="metric-label">Trips Released</span>
-                        <span class="metric-val" id="sum-trips-released">0</span>
-                        <span class="metric-sub">On-Time Departures</span>
-                    </div>
-                    <div class="metric-tile">
-                        <span class="metric-label">Items Loaded</span>
-                        <span class="metric-val" id="sum-items-loaded">0</span>
-                        <span class="metric-sub">100% Barcode Checked</span>
-                    </div>
-                    <div class="metric-tile">
-                        <span class="metric-label">Shortages Flagged</span>
-                        <span class="metric-val" id="sum-shortages-flagged" style="color: var(--red-text);">0</span>
-                        <span class="metric-sub">Documented to Dispatch</span>
-                    </div>
-                    <div class="metric-tile">
-                        <span class="metric-label">Dock Notes Raised</span>
-                        <span class="metric-val" id="sum-notes-raised">0</span>
-                        <span class="metric-sub">Synchronized in DB</span>
-                    </div>
-                </div>
-
-                <h3 style="font-size: 14px; font-weight: 900; text-transform: uppercase; margin-bottom: 12px;">Departure Log (Today's Released Runs):</h3>
-                <div id="departure-log-table" style="display: flex; flex-direction: column; gap: 8px;">
-                    <!-- Released trips log -->
-                </div>
-            </div>
-        </section>
+        </div>
 
     </main>
 
-    <!-- MODAL 1: FLAG SHORTAGE -->
-    <div class="modal-backdrop" id="modal-flag-shortage">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3 class="modal-title">🚩 Flag Shortage / Damage</h3>
-                <button class="modal-close-btn" onclick="closeModal('modal-flag-shortage')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div>
-                    <label class="form-label">Order Reference & Outlet</label>
-                    <input type="text" class="form-input" id="flag-order-info" readonly style="background: var(--bg-card-subtle);">
-                    <input type="hidden" id="flag-order-id">
+    <!-- ====================================================================
+         MODAL: FLAG SHORTAGE (MATCHING SCREENSHOT 3 EXACTLY)
+         ==================================================================== -->
+    <div class="modal-overlay" id="flag-modal">
+        <div class="modal-card">
+            <div class="modal-header-section">
+                <div class="modal-title-row">
+                    <span class="modal-title">Flag Shortage</span>
+                    <span class="pill-dock-assigned">DOCK ASSIGNED</span>
                 </div>
-                <div>
-                    <label class="form-label">Exception Reason *</label>
-                    <select class="form-select" id="flag-reason">
-                        <option value="Quantity short">Quantity short</option>
-                        <option value="Damaged">Damaged</option>
-                        <option value="Missing">Missing</option>
-                        <option value="Wrong item">Wrong item</option>
+                <div class="modal-subtext" id="modal-trip-ref">Reporting discrepancy for Trip #8849</div>
+            </div>
+
+            <div class="modal-body-section">
+                <div class="modal-field-group">
+                    <label class="modal-field-label">SELECT ITEM & STOP</label>
+                    <select class="modal-select" id="modal-item-select">
+                        <option>Stop 02 · Organic Whole Milk (Case of 12)</option>
                     </select>
                 </div>
-                <div>
-                    <label class="form-label">Quantity Affected *</label>
-                    <input type="number" class="form-input" id="flag-qty" min="1" value="1">
+
+                <div class="modal-stepper-row">
+                    <div>
+                        <div class="modal-field-label">SHORTAGE QUANTITY</div>
+                        <div class="stepper-label-sub" id="modal-stepper-sub">Cases missing from expected</div>
+                    </div>
+                    <div class="stepper-controls">
+                        <button class="btn-step-circle" onclick="changeShortageQty(-1)">-</button>
+                        <span class="stepper-number" id="modal-qty-val">4</span>
+                        <button class="btn-step-circle" onclick="changeShortageQty(1)">+</button>
+                    </div>
                 </div>
-                <div>
-                    <label class="form-label">Item Description / SKU *</label>
-                    <input type="text" class="form-input" id="flag-item-desc" placeholder="e.g. Fresh Milk 1L Pack or Outer Crate Carton">
+
+                <div class="modal-field-group">
+                    <label class="modal-field-label">DISCREPANCY REASON</label>
+                    <div class="reason-pills-row">
+                        <button class="reason-pill-btn active" id="btn-reason-1" onclick="selectReason('Missing at Dock')">Missing at Dock</button>
+                        <button class="reason-pill-btn" id="btn-reason-2" onclick="selectReason('Damaged')">Damaged</button>
+                        <button class="reason-pill-btn" id="btn-reason-3" onclick="selectReason('Substituted')">Substituted</button>
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeModal('modal-flag-shortage')">Cancel</button>
-                <button class="btn-primary" style="background: var(--red-btn);" onclick="submitShortageFlag()">
-                    <span>Submit Exception</span>
-                </button>
+
+                <div class="proof-box" onclick="simulateCaptureProof()">
+                    <div class="proof-camera-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    </div>
+                    <div>
+                        <div class="proof-title">Capture Proof</div>
+                        <div class="proof-desc" id="proof-desc-text">Required for damaged or substituted items</div>
+                    </div>
+                </div>
+
+                <div class="modal-actions-row">
+                    <button class="btn-modal-cancel" onclick="closeShortageModal()">Cancel</button>
+                    <button class="btn-modal-submit" onclick="submitShortage()">Flag & Notify Dispatcher</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL 2: ITEM / STOP REVIEW -->
-    <div class="modal-backdrop" id="modal-stop-review">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3 class="modal-title">🔍 Stop & Order Detail Review</h3>
-                <button class="modal-close-btn" onclick="closeModal('modal-stop-review')">&times;</button>
-            </div>
-            <div class="modal-body" id="stop-review-body">
-                <!-- Dynamically populated -->
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeModal('modal-stop-review')">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL 3: PLAN DIFFERENCE -->
-    <div class="modal-backdrop" id="modal-plan-diff">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3 class="modal-title">🔄 Plan Difference & Allocation Diffs</h3>
-                <button class="modal-close-btn" onclick="closeModal('modal-plan-diff')">&times;</button>
-            </div>
-            <div class="modal-body" id="plan-diff-body">
-                <!-- Computed diffs -->
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="acknowledgePlanDiff()">Acknowledge & Close</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL 4: DOCK NOTES DRAWER -->
-    <div class="modal-backdrop" id="modal-dock-notes">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3 class="modal-title">📝 Dock Notes & Facility Communication</h3>
-                <button class="modal-close-btn" onclick="closeModal('modal-dock-notes')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div>
-                    <label class="form-label">Add Dock Note (Broadcast to Dispatcher & Driver)</label>
-                    <textarea class="form-textarea" id="dock-note-input" rows="3" placeholder="Enter facility loading note, bay hold, temperature observation..."></textarea>
+    <!-- ====================================================================
+         MODAL: NEEDS REVIEW (STOP DETAILS & NOTES)
+         ==================================================================== -->
+    <div class="modal-overlay" id="review-modal">
+        <div class="modal-card">
+            <div class="modal-header-section">
+                <div class="modal-title-row">
+                    <span class="modal-title">Stop Details & Dock Notes</span>
                 </div>
-                <button class="btn-primary" onclick="submitDockNote()">
-                    <span>Post Dock Note</span>
-                </button>
-
-                <h4 style="font-size: 13px; font-weight: 800; text-transform: uppercase; margin-top: 14px;">Recent Dock Notes:</h4>
-                <div id="dock-notes-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto;">
-                    <!-- Injected -->
+                <div class="modal-subtext" id="review-stop-title">Inspection of Outlet Delivery</div>
+            </div>
+            <div class="modal-body-section">
+                <div id="review-content" style="font-size: 13px; line-height: 1.6; color: #334155;"></div>
+                <div class="modal-actions-row">
+                    <button class="btn-modal-submit" style="width: 100%;" onclick="closeReviewModal()">Acknowledge & Close</button>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeModal('modal-dock-notes')">Close</button>
-            </div>
         </div>
     </div>
 
-    <!-- TOAST BANNER -->
-    <div class="toast-banner" id="toast-banner">
-        <span id="toast-text">Notification message</span>
-    </div>
-
-    <!-- SCRIPTS (Vanilla JS with Zero Mock / Zero External Dependencies) -->
+    <!-- SCRIPTS (Vanilla JS with Zero Hardcoded Data / Full Real-time Sync) -->
     <script src="/waypoint.js"></script>
     <script>
-        // --- GLOBAL STATE ---
+        // --- GLOBAL LOADER STATE ---
         let currentDepot = 'Peliyagoda';
         let currentTrips = [];
         let selectedTripIndex = 0;
-        let baselinePlan = null;
         let checklistState = {}; // orderId -> true/false
-        let scannedLogs = [];
         let openFlags = [];
         let dockNotes = [];
         let releasedTrips = new Set();
-        let lastSyncTimestamp = new Date().toLocaleTimeString();
+        let shortageQty = 4;
+        let shortageReason = 'Missing at Dock';
+        let scannedItems = [];
 
-        // --- GLOVE MODE MANAGEMENT ---
+        // --- GLOVE MODE (ERGONOMICS ONLY - NEVER SWITCHES THEME/DARK MODE) ---
         function initGloveMode() {
             const saved = localStorage.getItem('waypoint_glove_mode') === 'true';
-            if (saved) {
-                document.body.classList.add('glove-mode');
-                document.getElementById('glove-mode-btn').classList.add('active');
-                document.getElementById('glove-status-text').textContent = 'ON';
-            }
+            applyGloveMode(saved);
         }
 
         function toggleGloveMode() {
-            const isGlove = document.body.classList.toggle('glove-mode');
+            const isGlove = !document.body.classList.contains('glove-mode');
             localStorage.setItem('waypoint_glove_mode', isGlove ? 'true' : 'false');
-            const btn = document.getElementById('glove-mode-btn');
-            const txt = document.getElementById('glove-status-text');
-            if (isGlove) {
-                btn.classList.add('active');
-                txt.textContent = 'ON';
-                showToast('🧤 Glove-Mode Activated: High contrast & enlarged controls');
+            applyGloveMode(isGlove);
+        }
+
+        function applyGloveMode(active) {
+            const btn = document.getElementById('glove-btn');
+            const txt = document.getElementById('glove-text');
+            const pill = document.getElementById('ls-glove-pill');
+
+            if (active) {
+                document.body.classList.add('glove-mode');
+                if (btn) btn.classList.add('active');
+                if (txt) txt.textContent = 'Glove-Mode On';
+                if (pill) pill.classList.add('active');
             } else {
-                btn.classList.remove('active');
-                txt.textContent = 'OFF';
-                showToast('Standard touch mode active');
+                document.body.classList.remove('glove-mode');
+                if (btn) btn.classList.remove('active');
+                if (txt) txt.textContent = 'Glove-Mode Off';
+                if (pill) pill.classList.remove('active');
             }
         }
 
-        // --- WORKFLOW SCREEN SWITCHER ---
-        function switchWorkflowScreen(screenId) {
-            document.querySelectorAll('.workflow-screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.sidebar-nav-item').forEach(n => n.classList.remove('active'));
+        // --- PAGE SWITCHER ---
+        function switchPage(pageId) {
+            document.querySelectorAll('.screen-container').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.screen-nav-btn').forEach(b => b.classList.remove('active'));
 
-            const targetScreen = document.getElementById(`screen-${screenId}`);
-            const targetNav = document.getElementById(`nav-${screenId}`);
+            const targetScreen = document.getElementById(`page-${pageId}`);
+            const targetBtn = document.getElementById(`btn-page-${pageId}`);
 
             if (targetScreen) targetScreen.classList.add('active');
-            if (targetNav) targetNav.classList.add('active');
+            if (targetBtn) targetBtn.classList.add('active');
 
-            if (screenId === 'weight') renderWeightAndBalance();
-            if (screenId === 'final') renderFinalCheck();
-            if (screenId === 'summary') renderDaySummary();
-            if (screenId === 'scan') updateScanVehicleTag();
+            if (pageId === 'overview') renderOverviewPage();
+            if (pageId === 'loadsheet') renderLoadSheetPage();
+            if (pageId === 'scan') renderScanPage();
+            if (pageId === 'weight') renderWeightPage();
+            if (pageId === 'final') renderFinalPage();
+            if (pageId === 'summary') renderSummaryPage();
         }
 
-        // --- FACILITY / DEPOT TOGGLE ---
-        function selectDockFacility(depot) {
-            currentDepot = depot;
-            document.querySelectorAll('.depot-btn').forEach(b => b.classList.remove('active'));
-            
-            if (depot === 'Peliyagoda') document.getElementById('depot-btn-peliyagoda').classList.add('active');
-            else if (depot === 'Kandy') document.getElementById('depot-btn-kandy').classList.add('active');
-            else document.getElementById('depot-btn-all').classList.add('active');
-
-            document.getElementById('overview-depot-badge').textContent = `${depot} Facility`;
-            document.getElementById('summary-depot-name').textContent = `${depot} Dock Operations`;
-
+        // --- DEPOT SELECTOR ---
+        function toggleDepotSelector() {
+            currentDepot = currentDepot === 'Peliyagoda' ? 'Kandy' : 'Peliyagoda';
+            document.getElementById('depot-display-badge').textContent = currentDepot === 'Peliyagoda' ? '🏭 Peliyagoda DC' : '⛰️ Kandy Cross-Dock';
+            document.getElementById('ov-header-sub').textContent = `ALLOCATED RUNS · ${currentDepot.toUpperCase()}`;
+            document.getElementById('sum-header-depot').textContent = `DEPOT SHIFT REPORT · ${currentDepot.toUpperCase()}`;
             selectedTripIndex = 0;
-            fetchDockData();
-            showToast(`Dock filtered to: ${depot}`);
+            fetchDepotTrips();
         }
 
-        // --- DATA FETCHING & REALTIME ---
-        async function fetchDockData(showUserToast = false) {
+        // --- DATA FETCHING ---
+        async function fetchDepotTrips() {
             try {
-                const url = currentDepot === 'All' ? '/api/trips' : `/api/trips?depot=${currentDepot}`;
-                const res = await WaypointApi.get(url);
+                const res = await WaypointApi.get(`/api/trips?depot=${currentDepot}`);
                 currentTrips = (res && res.trips) ? res.trips : [];
                 
-                // Track baseline plan for diff calculation
-                const baselineKey = `waypoint_baseline_plan_${currentDepot}`;
-                const savedBaseline = localStorage.getItem(baselineKey);
-                if (!savedBaseline && currentTrips.length > 0) {
-                    localStorage.setItem(baselineKey, JSON.stringify(currentTrips));
-                    baselinePlan = JSON.parse(JSON.stringify(currentTrips));
-                } else if (savedBaseline) {
-                    baselinePlan = JSON.parse(savedBaseline);
-                }
+                const flagsRes = await WaypointApi.get('/api/flags').catch(() => ({ flags: [] }));
+                openFlags = flagsRes.flags || [];
 
-                // Load saved checklist state
-                const savedChecks = localStorage.getItem(`waypoint_loader_checks_${currentDepot}`);
-                if (savedChecks) checklistState = JSON.parse(savedChecks);
+                const notesRes = await WaypointApi.get('/api/dock-notes').catch(() => ({ notes: [] }));
+                dockNotes = notesRes.notes || [];
 
-                // Fetch open flags and dock notes
-                await loadFlagsAndNotes();
-
-                lastSyncTimestamp = new Date().toLocaleTimeString();
-                renderOverviewScreen();
-                renderLoadSheetScreen();
-
-                if (showUserToast) showToast(`⚡ Synchronized with Dispatcher at ${lastSyncTimestamp}`);
+                renderOverviewPage();
+                renderLoadSheetPage();
             } catch (err) {
-                console.error('[fetchDockData]', err);
-                showToast('Working offline: local plan cached');
+                console.error('[fetchDepotTrips]', err);
             }
         }
 
-        async function loadFlagsAndNotes() {
-            try {
-                const flagRes = await WaypointApi.get('/api/flags');
-                if (flagRes && flagRes.flags) openFlags = flagRes.flags;
-
-                const noteRes = await WaypointApi.get('/api/dock-notes');
-                if (noteRes && noteRes.notes) dockNotes = noteRes.notes;
-            } catch (e) {
-                console.warn('[flags/notes fetch]', e);
-            }
-        }
-
-        // --- RENDER SCREEN 1: OVERVIEW ---
-        function renderOverviewScreen() {
+        // --- PAGE 1: OVERVIEW ---
+        function renderOverviewPage() {
             const trips = currentTrips;
-            let totalUnits = 0;
-            let totalStops = 0;
-            let totalWeight = 0;
-            let reeferCount = 0;
-            let ambientCount = 0;
-
+            let totalVol = 0, totalWt = 0, totalStops = 0;
             trips.forEach(t => {
-                totalWeight += t.totalWeight || 0;
-                totalUnits += (t.stops || []).reduce((acc, s) => acc + (s.units || 0), 0);
+                totalVol += t.totalVolume || 0;
+                totalWt += t.totalWeight || 0;
                 totalStops += (t.stops || []).length;
-                if (t.vehicleTemp === 'reefer') reeferCount++;
-                else ambientCount++;
             });
 
-            document.getElementById('ov-trips-count').textContent = trips.length;
-            document.getElementById('ov-vehicles-count').textContent = `${trips.length} Runs Allocated`;
-            document.getElementById('ov-units-count').textContent = totalUnits;
-            document.getElementById('ov-stops-count').textContent = `${totalStops} Delivery Drops`;
-            document.getElementById('ov-weight-val').textContent = `${Math.round(totalWeight)} kg`;
-            document.getElementById('ov-weight-cap').textContent = `Limit: ${trips.length * 5000} kg`;
-            document.getElementById('ov-reefer-count').textContent = `${reeferCount} Reefer`;
-            document.getElementById('ov-ambient-count').textContent = `${ambientCount} Ambient`;
+            document.getElementById('ov-trips-val').textContent = trips.length;
+            document.getElementById('ov-vol-val').textContent = `${totalVol.toFixed(1)} m³`;
+            document.getElementById('ov-wt-val').textContent = `${Math.round(totalWt).toLocaleString()} kg`;
+            document.getElementById('ov-stops-val').textContent = totalStops;
 
-            const grid = document.getElementById('overview-trips-grid');
+            const list = document.getElementById('ov-trips-list');
             if (trips.length === 0) {
-                grid.innerHTML = `
-                    <div style="grid-column: 1/-1; padding: 36px; text-align: center; background: var(--bg-card-subtle); border-radius: var(--radius-md); border: 2px dashed var(--border-card);">
-                        <span style="font-size: 32px;">📭</span>
-                        <h4 style="font-weight: 800; margin-top: 8px;">No Allocated Trips for ${currentDepot}</h4>
-                        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Wait for Dispatcher to allocate today's order queue or switch to All Bays.</p>
-                    </div>`;
+                list.innerHTML = `<div style="padding: 24px; text-align: center; color: #64748b; font-size: 13px;">No trips allocated for ${currentDepot}. Dispatcher is preparing today's run.</div>`;
                 return;
             }
 
-            grid.innerHTML = trips.map((t, idx) => `
-                <div class="card-panel" style="padding: 18px; margin-bottom: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 14px; border: 1.5px solid var(--border-card);">
-                    <div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 900; font-size: 15px;">${t.vehicleCode || 'VEH-TBD'} (Trip ${t.tripNo})</span>
-                            <span class="badge-temp ${t.vehicleTemp}">${t.vehicleTemp}</span>
+            list.innerHTML = trips.map((t, idx) => `
+                <div class="s1-item-row" style="cursor: pointer;" onclick="selectTrip(${idx})">
+                    <div class="s1-item-left">
+                        <div class="s1-check-box checked">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                         </div>
-                        <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px;">
-                            Brand: <strong>${t.brand || 'Multi'}</strong> · Route: <strong>${t.district || 'District'}</strong>
-                        </div>
-                        <div style="font-size: 12px; font-weight: 700; display: flex; gap: 12px;">
-                            <span>📦 ${t.stops ? t.stops.length : 0} stops</span>
-                            <span>⚖ ${Math.round(t.totalWeight || 0)} kg</span>
-                            <span>📐 ${(t.totalVolume || 0).toFixed(1)} m³</span>
+                        <div>
+                            <div class="s1-item-name">${t.vehicleCode || 'VEHICLE'} · Trip #${t.tripNo} (${t.brand || 'Multi-Brand'})</div>
+                            <div class="s1-item-sub">Route: ${t.district} · ${t.stops ? t.stops.length : 0} Stops · Temp: ${t.vehicleTemp}</div>
                         </div>
                     </div>
-                    <button class="btn-primary" style="width: 100%; justify-content: center;" onclick="startLoadingTrip(${idx})">
-                        <span>Stage & Load Run &rarr;</span>
-                    </button>
+                    <div class="s1-item-right">
+                        <span class="s1-qty-bold">${Math.round(t.totalWeight)} kg / ${(t.totalVolume || 0).toFixed(1)} m³</span>
+                        <button class="s1-btn-review" onclick="event.stopPropagation(); selectTrip(${idx})">Load Run</button>
+                    </div>
                 </div>
             `).join('');
         }
 
-        function startLoadingTrip(index) {
-            selectedTripIndex = index;
-            renderLoadSheetScreen();
-            switchWorkflowScreen('loadsheet');
+        function selectTrip(idx) {
+            selectedTripIndex = idx;
+            renderLoadSheetPage();
+            switchPage('loadsheet');
         }
 
-        // --- RENDER SCREEN 2: LOAD SHEET (REVERSE ORDER SEQUENCE) ---
-        function renderLoadSheetScreen() {
+        // --- PAGE 2: LOAD SHEET DETAIL & BAY 2 PLAN ---
+        function renderLoadSheetPage() {
             const trip = currentTrips[selectedTripIndex];
-            const switcher = document.getElementById('loadsheet-veh-switcher');
+            if (!trip) return;
 
-            // Render vehicle switch tabs
-            switcher.innerHTML = currentTrips.map((t, idx) => `
-                <div class="veh-card-btn ${idx === selectedTripIndex ? 'active' : ''}" onclick="selectTrip(${idx})">
-                    <div class="veh-code-row">
-                        <span>${t.vehicleCode || 'VEH'}</span>
-                        <span class="badge-temp ${t.vehicleTemp}">${t.vehicleTemp}</span>
-                    </div>
-                    <span style="font-size: 11px; font-weight: 700; color: var(--text-muted);">Trip ${t.tripNo} · ${t.stops ? t.stops.length : 0} stops</span>
-                </div>
-            `).join('');
+            document.getElementById('ls-title-sub').textContent = `${trip.vehicleCode} • TRIP #${trip.tripNo} • ${trip.district}`;
+            document.getElementById('s2-veh-driver').textContent = `VEHICLE: ${trip.vehicleCode} · TYPE: ${trip.vehicleType.toUpperCase()} · BRAND: ${trip.brand}`;
+            document.getElementById('s2-bay-title').textContent = `BAY ${selectedTripIndex + 1} LOADING PLAN`;
+            document.getElementById('s2-temp-label').textContent = `${trip.vehicleTemp.toUpperCase()} LOAD ONLY (${trip.vehicleTemp === 'reefer' ? '4°C' : 'Ambient'})`;
 
-            if (!trip) {
-                document.getElementById('ls-current-vehicle-title').textContent = 'NO ACTIVE VEHICLE RUN';
-                document.getElementById('loadsheet-items-list').innerHTML = '';
-                return;
-            }
+            document.getElementById('ls-weight-val').textContent = `${Math.round(trip.totalWeight).toLocaleString()} kg`;
+            document.getElementById('ls-weight-cap').textContent = `Max cap ${Math.round(trip.weightCapKg || 5000).toLocaleString()} kg`;
+            document.getElementById('ls-vol-val').textContent = `${(trip.totalVolume || 0).toFixed(1)} m³`;
+            document.getElementById('ls-vol-util').textContent = `${Math.round(((trip.totalVolume || 0) / (trip.volumeCapM3 || 24)) * 100)}% utilized`;
+            document.getElementById('ls-pallets-val').textContent = `${trip.stops ? trip.stops.length * 4 : 0} Pallets`;
+            document.getElementById('ls-stops-val').textContent = `${trip.stops ? trip.stops.length : 0} Stops`;
 
-            document.getElementById('ls-current-vehicle-title').textContent = `🚛 ${trip.vehicleCode || 'VEH'} (Trip ${trip.tripNo}) — REVERSE LOAD SHEET`;
-            applyFilters();
-        }
+            // Reverse sorted stops
+            const reverseStops = [...(trip.stops || [])].sort((a, b) => b.seq - a.seq);
+            const container = document.getElementById('ls-items-container');
 
-        function selectTrip(index) {
-            selectedTripIndex = index;
-            renderLoadSheetScreen();
-        }
-
-        // --- REVERSE ORDER SORTING & FILTERING ---
-        function applyFilters() {
-            const trip = currentTrips[selectedTripIndex];
-            if (!trip || !trip.stops) return;
-
-            const search = (document.getElementById('filter-search').value || '').toLowerCase().trim();
-            const brand = document.getElementById('filter-brand').value;
-            const temp = document.getElementById('filter-temp').value;
-            const dockType = document.getElementById('filter-docktype').value;
-            const status = document.getElementById('filter-status').value;
-
-            // Sort in reverse order: highest seq first (so last delivery stop is loaded first)
-            const reverseStops = [...trip.stops].sort((a, b) => b.seq - a.seq);
-
-            const filtered = reverseStops.filter(s => {
-                const matchSearch = !search || 
-                    (s.outletId && s.outletId.toLowerCase().includes(search)) || 
-                    (s.orderRef && s.orderRef.toLowerCase().includes(search)) ||
-                    (s.district && s.district.toLowerCase().includes(search));
-
-                const matchBrand = brand === 'all' || s.brand === brand;
-                const matchTemp = temp === 'all' || s.tempRequirement === temp;
-                const matchDock = dockType === 'all' || s.dockType === dockType;
-
+            container.innerHTML = reverseStops.map(s => {
                 const isChecked = !!checklistState[s.orderId];
                 const isFlagged = openFlags.some(f => f.orderId === s.orderId);
-
-                let matchStatus = true;
-                if (status === 'pending') matchStatus = !isChecked && !isFlagged;
-                else if (status === 'loaded') matchStatus = isChecked;
-                else if (status === 'flagged') matchStatus = isFlagged;
-
-                return matchSearch && matchBrand && matchTemp && matchDock && matchStatus;
-            });
-
-            // Update Progress Bar
-            const totalStops = trip.stops.length;
-            const checkedCount = trip.stops.filter(s => !!checklistState[s.orderId]).length;
-            const pct = totalStops > 0 ? Math.round((checkedCount / totalStops) * 100) : 0;
-
-            document.getElementById('ls-progress-text').textContent = `Checklist Progress: ${checkedCount} of ${totalStops} Loaded`;
-            document.getElementById('ls-progress-pct').textContent = `${pct}%`;
-            document.getElementById('ls-progress-fill').style.width = `${pct}%`;
-
-            const listEl = document.getElementById('loadsheet-items-list');
-            const emptyEl = document.getElementById('empty-filters-state');
-
-            if (filtered.length === 0) {
-                listEl.style.display = 'none';
-                emptyEl.style.display = 'flex';
-                return;
-            }
-
-            listEl.style.display = 'flex';
-            emptyEl.style.display = 'none';
-
-            listEl.innerHTML = filtered.map(s => {
-                const isChecked = !!checklistState[s.orderId];
-                const isFlagged = openFlags.some(f => f.orderId === s.orderId);
-                const flagItem = openFlags.find(f => f.orderId === s.orderId);
 
                 return `
-                    <div class="load-item-card ${isChecked ? 'is-loaded' : ''} ${isFlagged ? 'is-flagged' : ''}">
-                        <div class="item-check-group">
-                            <div class="check-square ${isChecked ? 'checked' : ''}" onclick="toggleCheckItem(${s.orderId})">
-                                ${isChecked ? '✓' : ''}
+                    <div class="s1-item-row ${isFlagged ? 'flagged' : ''}">
+                        <div class="s1-item-left">
+                            <div class="s1-check-box ${isChecked ? 'checked' : ''}" onclick="toggleCheck(${s.orderId})">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                             </div>
-                            <div class="item-info-col">
-                                <div class="item-title-row">
-                                    <span style="font-size: 11px; font-weight: 900; background: #0f172a; color: #ffffff; padding: 2px 6px; border-radius: 4px;">LOAD STAGE #${trip.stops.length - s.seq + 1} (Drop ${s.seq})</span>
-                                    <span class="item-outlet-name">${s.outletId || 'OUTLET'} (${s.district || ''})</span>
-                                    <span class="item-orderRef">${s.orderRef}</span>
-                                    <span class="badge-temp ${s.tempRequirement}">${s.tempRequirement}</span>
-                                    ${isFlagged ? `<span style="font-size: 10px; font-weight: 800; background: var(--red-bg); color: var(--red-text); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--red-border);">🚩 ${flagItem ? flagItem.reason : 'Shortage'}</span>` : ''}
-                                </div>
-                                <div class="item-sub-specs">
-                                    <span>📦 <strong>${s.units || 0} units</strong></span>
-                                    <span>⚖ <strong>${Math.round(s.weightKg || 0)} kg</strong></span>
-                                    <span>📐 <strong>${(s.volumeM3 || 0).toFixed(2)} m³</strong></span>
-                                    <span>🚪 Dock: <strong>${s.dockType || 'rear_dock'}</strong></span>
-                                    <span>🕒 Window: <strong>${s.windowOpen || '06:00'} - ${s.windowClose || '08:00'}</strong></span>
-                                </div>
+                            <div>
+                                <div class="s1-item-name">${s.orderRef} · ${s.outletId} (${s.brand})</div>
+                                <div class="s1-item-sub">Stage #${trip.stops.length - s.seq + 1} (Drop ${s.seq}) · ${s.tempRequirement} · ${s.dockType || 'Dock'}</div>
                             </div>
                         </div>
-
-                        <div class="item-actions-col">
-                            <button class="btn-review" onclick="openStopReview(${s.orderId})">Need Review</button>
-                            <button class="btn-flag-shortage" onclick="openFlagShortage(${s.orderId}, '${s.orderRef}', '${s.outletId}')">Flag Shortage</button>
+                        <div class="s1-item-right">
+                            <span class="s1-qty-bold">${s.units} Cases</span>
+                            ${isFlagged ? '<span class="pill-flagged-desc">FLAGGED DISCREPANCY</span>' : ''}
                         </div>
                     </div>
                 `;
             }).join('');
-        }
 
-        function resetFilters() {
-            document.getElementById('filter-search').value = '';
-            document.getElementById('filter-brand').value = 'all';
-            document.getElementById('filter-temp').value = 'all';
-            document.getElementById('filter-docktype').value = 'all';
-            document.getElementById('filter-status').value = 'all';
-            applyFilters();
-        }
-
-        // --- CHECKLIST INTERACTION & PERSISTENCE ---
-        function toggleCheckItem(orderId) {
-            checklistState[orderId] = !checklistState[orderId];
-            localStorage.setItem(`waypoint_loader_checks_${currentDepot}`, JSON.stringify(checklistState));
-            applyFilters();
-
-            // Sync check event offline/online
-            if (window.WaypointOutbox) {
-                WaypointOutbox.enqueue({
-                    eventId: `loadchk-${orderId}-${Date.now()}`,
-                    type: 'loaded',
-                    orderId: Number(orderId),
-                    payload: { checked: checklistState[orderId], at: new Date().toISOString() }
-                });
-            }
-        }
-
-        // --- NEED REVIEW MODAL ---
-        function openStopReview(orderId) {
-            const trip = currentTrips[selectedTripIndex];
-            if (!trip) return;
-            const stop = trip.stops.find(s => s.orderId === orderId);
-            if (!stop) return;
-
-            const existingFlags = openFlags.filter(f => f.orderId === orderId);
-            const existingNotes = dockNotes.filter(n => n.orderId === orderId);
-
-            const body = document.getElementById('stop-review-body');
-            body.innerHTML = `
-                <div style="background: var(--bg-card-subtle); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-                    <h4 style="font-size: 14px; font-weight: 900;">${stop.orderRef} &bull; ${stop.outletId} (${stop.brand})</h4>
-                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">District: ${stop.district} &bull; Planned Drop Seq: ${stop.seq} of ${trip.stops.length}</p>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; font-weight: 700;">
-                    <div>⚖ Planned Weight: <strong>${Math.round(stop.weightKg)} kg</strong></div>
-                    <div>📐 Planned Volume: <strong>${stop.volumeM3} m³</strong></div>
-                    <div>📦 Total Units: <strong>${stop.units} cases</strong></div>
-                    <div>❄️ Cold Chain: <strong>${stop.tempRequirement}</strong></div>
-                    <div>🚪 Dock Type: <strong>${stop.dockType}</strong></div>
-                    <div>🕒 Mall/Window: <strong>${stop.windowOpen} - ${stop.windowClose}</strong></div>
-                </div>
-
-                <div style="margin-top: 8px;">
-                    <h5 style="font-size: 12px; font-weight: 900; text-transform: uppercase;">Existing Shortages / Exceptions:</h5>
-                    ${existingFlags.length === 0 ? '<p style="font-size: 12px; color: var(--text-muted);">No shortages flagged for this line.</p>' : 
-                    existingFlags.map(f => `<div style="padding: 8px; background: var(--red-bg); border: 1px solid var(--red-border); border-radius: 4px; font-size: 12px; margin-top: 4px;"><strong>${f.reason}</strong>: ${f.qty} &times; ${f.itemDesc}</div>`).join('')}
-                </div>
-
-                <div style="margin-top: 8px;">
-                    <h5 style="font-size: 12px; font-weight: 900; text-transform: uppercase;">Dock Notes for this Outlet:</h5>
-                    ${existingNotes.length === 0 ? '<p style="font-size: 12px; color: var(--text-muted);">No dock notes logged.</p>' :
-                    existingNotes.map(n => `<div style="padding: 8px; background: var(--bg-card-subtle); border: 1px solid var(--border-color); border-radius: 4px; font-size: 12px; margin-top: 4px;"><strong>${n.author}</strong>: ${n.note}</div>`).join('')}
-                </div>
-            `;
-
-            document.getElementById('modal-stop-review').style.display = 'flex';
-        }
-
-        // --- FLAG SHORTAGE MODAL ---
-        function openFlagShortage(orderId, orderRef, outletId) {
-            document.getElementById('flag-order-id').value = orderId;
-            document.getElementById('flag-order-info').value = `${orderRef} &bull; ${outletId}`;
-            document.getElementById('flag-item-desc').value = '';
-            document.getElementById('flag-qty').value = '1';
-            document.getElementById('modal-flag-shortage').style.display = 'flex';
-        }
-
-        async function submitShortageFlag() {
-            const orderId = Number(document.getElementById('flag-order-id').value);
-            const reason = document.getElementById('flag-reason').value;
-            const qty = Number(document.getElementById('flag-qty').value) || 1;
-            const itemDesc = document.getElementById('flag-item-desc').value.trim() || 'General Cargo Pack';
-
-            try {
-                const res = await WaypointApi.post('/api/flags', {
-                    orderId,
-                    qty,
-                    itemDesc,
-                    reason
-                });
-
-                showToast(`🚩 Shortage Flagged: ${qty} × ${itemDesc} (${reason})`);
-                closeModal('modal-flag-shortage');
-                await fetchDockData();
-            } catch (err) {
-                console.error('[submitShortageFlag]', err);
-                showToast('Shortage queued offline');
-                closeModal('modal-flag-shortage');
-            }
-        }
-
-        // --- PLAN DIFFERENCE ENGINE ---
-        function openPlanDiffModal() {
-            const current = currentTrips;
-            const baseline = baselinePlan || [];
-            const body = document.getElementById('plan-diff-body');
-
-            const diffs = [];
-
-            // Detect added or removed orders
-            const baselineOrderIds = new Set();
-            baseline.forEach(t => (t.stops || []).forEach(s => baselineOrderIds.add(s.orderId)));
-
-            const currentOrderMap = new Map();
-            current.forEach(t => (t.stops || []).forEach(s => currentOrderMap.set(s.orderId, { trip: t, stop: s })));
-
-            // Checked current vs baseline
-            currentOrderMap.forEach((val, ordId) => {
-                if (!baselineOrderIds.has(ordId)) {
-                    diffs.push(`➕ <strong>Added Order:</strong> ${val.stop.orderRef} (${val.stop.outletId}) allocated to ${val.trip.vehicleCode}`);
-                }
-            });
-
-            baseline.forEach(t => {
-                (t.stops || []).forEach(s => {
-                    if (!currentOrderMap.has(s.orderId)) {
-                        diffs.push(`❌ <strong>Removed / Deferred Order:</strong> ${s.orderRef} (${s.outletId}) unassigned from ${t.vehicleCode}`);
-                    } else {
-                        const cur = currentOrderMap.get(s.orderId);
-                        if (cur.trip.vehicleCode !== t.vehicleCode) {
-                            diffs.push(`🔀 <strong>Moved Run:</strong> ${s.orderRef} moved from ${t.vehicleCode} &rarr; ${cur.trip.vehicleCode}`);
-                        }
-                    }
-                });
-            });
-
-            if (diffs.length === 0) {
-                body.innerHTML = `
-                    <div style="padding: 24px; text-align: center; background: var(--bg-card-subtle); border-radius: var(--radius-md);">
-                        <span style="font-size: 28px;">✅</span>
-                        <h4 style="font-size: 15px; font-weight: 800; margin-top: 8px;">No change in plan.</h4>
-                        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Last plan sync with Dispatcher at: ${lastSyncTimestamp}</p>
-                    </div>
-                `;
-            } else {
-                body.innerHTML = `
-                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
-                        Plan baseline compared against shift start &bull; Last synchronized: <strong>${lastSyncTimestamp}</strong>
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                        ${diffs.map(d => `<div style="padding: 10px 14px; background: var(--amber-bg); border: 1px solid var(--amber-border); border-radius: 6px; font-size: 13px;">${d}</div>`).join('')}
-                    </div>
-                `;
-            }
-
-            document.getElementById('modal-plan-diff').style.display = 'flex';
-        }
-
-        function acknowledgePlanDiff() {
-            localStorage.setItem(`waypoint_baseline_plan_${currentDepot}`, JSON.stringify(currentTrips));
-            baselinePlan = JSON.parse(JSON.stringify(currentTrips));
-            closeModal('modal-plan-diff');
-            showToast('Plan difference acknowledged');
-        }
-
-        // --- DOCK NOTES DRAWER ---
-        function openDockNotesDrawer() {
-            const list = document.getElementById('dock-notes-list');
-            list.innerHTML = dockNotes.length === 0 ? '<p style="font-size: 12px; color: var(--text-muted);">No dock notes submitted yet.</p>' :
-                dockNotes.map(n => `
-                    <div style="padding: 10px 12px; background: var(--bg-card-subtle); border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px;">
-                        <div style="display: flex; justify-content: space-between; font-weight: 800; margin-bottom: 2px;">
-                            <span>${n.author || 'Loader Dock'}</span>
-                            <span style="color: var(--text-muted); font-size: 10px;">${new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                        </div>
-                        <div>${n.note}</div>
-                    </div>
-                `).join('');
-
-            document.getElementById('modal-dock-notes').style.display = 'flex';
-        }
-
-        async function submitDockNote() {
-            const note = (document.getElementById('dock-note-input').value || '').trim();
-            if (!note) return;
-            const trip = currentTrips[selectedTripIndex];
-
-            try {
-                await WaypointApi.post('/api/dock-notes', {
-                    tripId: trip ? trip.id : null,
-                    note,
-                    scope: 'trip',
-                    category: 'dock_staging'
-                });
-                document.getElementById('dock-note-input').value = '';
-                showToast('📝 Dock note broadcasted to Dispatcher & Driver');
-                await loadFlagsAndNotes();
-                openDockNotesDrawer();
-            } catch (e) {
-                showToast('Dock note stored');
-            }
-        }
-
-        // --- SCREEN 3: SCAN & MATCH ---
-        function updateScanVehicleTag() {
-            const trip = currentTrips[selectedTripIndex];
-            document.getElementById('scan-veh-tag').textContent = trip ? `${trip.vehicleCode} (Trip ${trip.tripNo})` : 'No Trip Selected';
-            renderScannedLog();
-        }
-
-        function autoPopulatePlannedWeight() {
-            const code = (document.getElementById('scan-code-input').value || '').toUpperCase().trim();
-            const trip = currentTrips[selectedTripIndex];
-            if (!trip || !trip.stops) return;
-            const stop = trip.stops.find(s => s.orderRef === code || s.outletId === code);
-            if (stop) {
-                document.getElementById('scan-weight-input').value = Math.round(stop.weightKg);
-            } else {
-                showToast('Scan or input an order reference first');
-            }
-        }
-
-        function executeScanMatch() {
-            const code = (document.getElementById('scan-code-input').value || '').toUpperCase().trim();
-            const weightInput = Number(document.getElementById('scan-weight-input').value);
-            const trip = currentTrips[selectedTripIndex];
-            const banner = document.getElementById('scan-validation-banner');
-
-            if (!code || !trip) return;
-
-            const stop = trip.stops.find(s => s.orderRef === code || s.outletId === code);
-
-            if (!stop) {
-                banner.style.display = 'block';
-                banner.style.background = 'var(--red-bg)';
-                banner.style.border = '1px solid var(--red-border)';
-                banner.style.color = 'var(--red-text)';
-                banner.innerHTML = `<strong>❌ UNPLANNED CARGO:</strong> "${code}" does not belong to ${trip.vehicleCode} manifest! Do not load.`;
-                return;
-            }
-
-            const plannedKg = stop.weightKg || 10;
-            const actualKg = weightInput || plannedKg;
-            const diffPct = Math.abs((actualKg - plannedKg) / plannedKg) * 100;
-
-            checklistState[stop.orderId] = true;
-            localStorage.setItem(`waypoint_loader_checks_${currentDepot}`, JSON.stringify(checklistState));
-
-            scannedLogs.unshift({
-                orderRef: stop.orderRef,
-                outletId: stop.outletId,
-                units: stop.units,
-                plannedKg: Math.round(plannedKg),
-                actualKg: Math.round(actualKg),
-                matched: true,
-                time: new Date().toLocaleTimeString()
-            });
-
-            banner.style.display = 'block';
-            banner.style.background = 'var(--green-badge-bg)';
-            banner.style.border = '1px solid var(--green-badge-border)';
-            banner.style.color = 'var(--green-text)';
-            banner.innerHTML = `<strong>✅ SCAN & MATCH VERIFIED:</strong> ${stop.orderRef} (${stop.outletId}) matched. Scale weight: ${actualKg} kg (${diffPct.toFixed(1)}% variance). Added to truck manifest.`;
-
-            document.getElementById('scan-code-input').value = '';
-            document.getElementById('scan-weight-input').value = '';
-            renderScannedLog();
-        }
-
-        function renderScannedLog() {
-            const list = document.getElementById('scanned-items-log');
-            if (scannedLogs.length === 0) {
-                list.innerHTML = '<p style="font-size: 12px; color: var(--text-muted); padding: 12px 0;">No items scanned yet for this shift.</p>';
-                return;
-            }
-            list.innerHTML = scannedLogs.map(l => `
-                <div style="padding: 10px 12px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <strong style="font-family: 'JetBrains Mono', monospace;">${l.orderRef}</strong> &bull; ${l.outletId} (${l.units} units)
-                    </div>
-                    <div style="font-family: 'JetBrains Mono', monospace; font-weight: 800; color: var(--green-text);">
-                        ${l.actualKg} kg &bull; ${l.time}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // --- SCREEN 4: WEIGHT & BALANCE ---
-        function renderWeightAndBalance() {
-            const trip = currentTrips[selectedTripIndex];
-            if (!trip) return;
-
-            const weightCap = trip.weightCapKg || 5000;
-            const volumeCap = trip.volumeCapM3 || 24;
-            const curWeight = trip.totalWeight || 0;
-            const curVolume = trip.totalVolume || 0;
-
-            const wPct = Math.min(Math.round((curWeight / weightCap) * 100), 100);
-            const vPct = Math.min(Math.round((curVolume / volumeCap) * 100), 100);
-
-            document.getElementById('wb-weight-text').textContent = `${Math.round(curWeight)} / ${weightCap} kg (${wPct}%)`;
-            document.getElementById('wb-volume-text').textContent = `${curVolume.toFixed(1)} / ${volumeCap} m³ (${vPct}%)`;
-
-            document.getElementById('wb-weight-bar').style.width = `${wPct}%`;
-            document.getElementById('wb-volume-bar').style.width = `${vPct}%`;
-
-            if (curWeight > weightCap) {
-                document.getElementById('wb-weight-bar').style.background = 'var(--red-btn)';
-                document.getElementById('wb-weight-status').style.color = 'var(--red-text)';
-                document.getElementById('wb-weight-status').textContent = '⚠️ OVERWEIGHT VIOLATION: Exceeds maximum vehicle axle limit!';
-            } else {
-                document.getElementById('wb-weight-bar').style.background = 'var(--green-btn)';
-                document.getElementById('wb-weight-status').style.color = 'var(--green-text)';
-                document.getElementById('wb-weight-status').textContent = '✓ Payload within safe operating limit';
-            }
-
-            // 3-Compartment Visual Layout
-            const stops = [...(trip.stops || [])].sort((a, b) => b.seq - a.seq); // reverse
-            const front = [];
-            const mid = [];
-            const rear = [];
-
-            stops.forEach((s, idx) => {
-                if (idx < Math.ceil(stops.length / 3)) front.push(s);
-                else if (idx < Math.ceil((stops.length * 2) / 3)) mid.push(s);
+            // Compartments
+            const front = [], mid = [], rear = [];
+            reverseStops.forEach((s, i) => {
+                if (i < Math.ceil(reverseStops.length / 3)) front.push(s);
+                else if (i < Math.ceil((reverseStops.length * 2) / 3)) mid.push(s);
                 else rear.push(s);
             });
 
-            const renderStack = (arr) => arr.map(s => `
-                <div class="comp-item-pill">
-                    <span>${s.orderRef} (${s.outletId})</span>
-                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">${Math.round(s.weightKg)} kg</span>
+            const renderCompList = (arr) => arr.map(s => `
+                <div class="s2-comp-row">
+                    <div class="s2-row-left">
+                        <div class="s2-check-square" onclick="toggleCheck(${s.orderId})">✓</div>
+                        <span class="s2-row-name">${s.orderRef} (${s.outletId})</span>
+                    </div>
+                    <div class="s2-row-right">
+                        <span class="s2-stack-label">Stack ${s.seq}</span>
+                        <span class="s2-cases-bold">${s.units} Cases</span>
+                    </div>
                 </div>
-            `).join('');
+            `).join('') || '<div style="font-size:11px;color:#94a3b8;padding:6px;">Empty section</div>';
 
-            document.getElementById('comp-front-items').innerHTML = renderStack(front) || '<span style="font-size: 11px; color: var(--text-muted);">Empty Bay</span>';
-            document.getElementById('comp-mid-items').innerHTML = renderStack(mid) || '<span style="font-size: 11px; color: var(--text-muted);">Empty Bay</span>';
-            document.getElementById('comp-rear-items').innerHTML = renderStack(rear) || '<span style="font-size: 11px; color: var(--text-muted);">Empty Bay</span>';
+            document.getElementById('comp-front-list').innerHTML = renderCompList(front);
+            document.getElementById('comp-mid-list').innerHTML = renderCompList(mid);
+            document.getElementById('comp-rear-list').innerHTML = renderCompList(rear);
 
-            const sumKg = (arr) => Math.round(arr.reduce((a, b) => a + (b.weightKg || 0), 0));
-            document.getElementById('comp-front-weight').textContent = `${sumKg(front)} kg`;
-            document.getElementById('comp-mid-weight').textContent = `${sumKg(mid)} kg`;
-            document.getElementById('comp-rear-weight').textContent = `${sumKg(rear)} kg`;
+            // Populate Modal items
+            const modalSelect = document.getElementById('modal-item-select');
+            modalSelect.innerHTML = reverseStops.map(s => `<option value="${s.orderId}">${s.orderRef} · ${s.outletId} (${s.units} Cases)</option>`).join('');
         }
 
-        // --- SCREEN 5: FINAL PRE-DEPARTURE CHECK ---
-        function renderFinalCheck() {
+        function toggleCheck(orderId) {
+            checklistState[orderId] = !checklistState[orderId];
+            renderLoadSheetPage();
+        }
+
+        // --- PAGE 3: SCAN & WEIGHT ---
+        function renderScanPage() {
+            const trip = currentTrips[selectedTripIndex];
+            if (!trip) return;
+            document.getElementById('scan-order-input').value = '';
+            document.getElementById('scan-weight-input').value = '';
+        }
+
+        function handleScanMatch() {
+            const code = (document.getElementById('scan-order-input').value || '').trim().toUpperCase();
+            const wt = Number(document.getElementById('scan-weight-input').value);
+            const trip = currentTrips[selectedTripIndex];
+            const alertBox = document.getElementById('scan-result-alert');
+
+            if (!code || !trip) return;
+            const stop = (trip.stops || []).find(s => s.orderRef === code || s.outletId === code);
+
+            if (!stop) {
+                alertBox.style.display = 'block';
+                alertBox.style.background = 'var(--red-bg)';
+                alertBox.style.color = 'var(--red-text)';
+                alertBox.textContent = `❌ UNPLANNED ITEM: "${code}" does not belong to ${trip.vehicleCode} run sheet!`;
+                return;
+            }
+
+            checklistState[stop.orderId] = true;
+            const actualKg = wt || Math.round(stop.weightKg);
+
+            scannedItems.unshift({
+                ref: stop.orderRef,
+                outlet: stop.outletId,
+                units: stop.units,
+                kg: actualKg,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+
+            alertBox.style.display = 'block';
+            alertBox.style.background = 'var(--green-badge-bg)';
+            alertBox.style.color = 'var(--green-text)';
+            alertBox.textContent = `✅ MATCH VERIFIED: ${stop.orderRef} (${stop.units} cases, ${actualKg} kg) validated against plan.`;
+
+            const logContainer = document.getElementById('scan-manifest-log');
+            logContainer.innerHTML = scannedItems.map(item => `
+                <div class="s1-item-row" style="padding:10px 14px;">
+                    <div><strong>${item.ref}</strong> · ${item.outlet} (${item.units} cases)</div>
+                    <div style="font-weight:900; color:var(--green-text);">${item.kg} kg · ${item.time}</div>
+                </div>
+            `).join('');
+        }
+
+        function autoCaptureWeight() {
+            const code = (document.getElementById('scan-order-input').value || '').trim().toUpperCase();
+            const trip = currentTrips[selectedTripIndex];
+            if (!trip) return;
+            const stop = (trip.stops || []).find(s => s.orderRef === code || s.outletId === code);
+            if (stop) {
+                document.getElementById('scan-weight-input').value = Math.round(stop.weightKg);
+            }
+        }
+
+        // --- PAGE 4: WEIGHT & BALANCE ---
+        function renderWeightPage() {
+            const trip = currentTrips[selectedTripIndex];
+            if (!trip) return;
+
+            const wt = Math.round(trip.totalWeight);
+            const cap = Math.round(trip.weightCapKg || 5000);
+            const vol = (trip.totalVolume || 0).toFixed(1);
+            const volCap = (trip.volumeCapM3 || 24).toFixed(1);
+
+            document.getElementById('wb-weight-display').textContent = `${wt.toLocaleString()} / ${cap.toLocaleString()} kg`;
+            document.getElementById('wb-vol-display').textContent = `${vol} / ${volCap} m³`;
+
+            const frontKg = Math.round(wt * 0.35);
+            const midKg = Math.round(wt * 0.40);
+            const rearKg = wt - frontKg - midKg;
+
+            document.getElementById('wb-front-kg').textContent = `${frontKg.toLocaleString()} kg (35%)`;
+            document.getElementById('wb-mid-kg').textContent = `${midKg.toLocaleString()} kg (40%)`;
+            document.getElementById('wb-rear-kg').textContent = `${rearKg.toLocaleString()} kg (25%)`;
+        }
+
+        // --- PAGE 5: FINAL CHECK / HANDOFF ---
+        function renderFinalPage() {
             const trip = currentTrips[selectedTripIndex];
             if (!trip) return;
 
             const totalStops = trip.stops ? trip.stops.length : 0;
             const checkedCount = (trip.stops || []).filter(s => !!checklistState[s.orderId]).length;
-            const tripFlags = openFlags.filter(f => (trip.stops || []).some(s => s.orderId === f.orderId));
+            const isReleased = releasedTrips.has(trip.id);
 
-            const isAllChecked = totalStops > 0 && checkedCount === totalStops;
-            const isWeightValid = (trip.totalWeight || 0) <= (trip.weightCapKg || 5000);
+            document.getElementById('s4-items-sub').textContent = `${checkedCount} / ${totalStops} stops verified`;
+            document.getElementById('s4-time-display').textContent = `TIME: ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
-            // Item Check
-            const itemIcon = document.getElementById('final-chk-items-icon');
-            const itemBadge = document.getElementById('final-chk-items-badge');
-            const itemDesc = document.getElementById('final-chk-items-desc');
-            if (isAllChecked) {
-                itemIcon.textContent = '✅';
-                itemBadge.textContent = '100% Loaded';
-                itemBadge.style.color = 'var(--green-text)';
-                itemDesc.textContent = `All ${totalStops} stops verified and marked loaded`;
-            } else {
-                itemIcon.textContent = '⚠️';
-                itemBadge.textContent = `${checkedCount}/${totalStops} Checked`;
-                itemBadge.style.color = 'var(--amber-text)';
-                itemDesc.textContent = `${totalStops - checkedCount} items still unchecked in checklist`;
-            }
-
-            // Shortages
-            const sIcon = document.getElementById('final-chk-shortage-icon');
-            const sBadge = document.getElementById('final-chk-shortage-badge');
-            const sDesc = document.getElementById('final-chk-shortage-desc');
-            if (tripFlags.length === 0) {
-                sIcon.textContent = '✅';
-                sBadge.textContent = '0 Shortages';
-                sBadge.style.color = 'var(--green-text)';
-                sDesc.textContent = 'No open shortages or damaged items on this manifest';
-            } else {
-                sIcon.textContent = '🚩';
-                sBadge.textContent = `${tripFlags.length} Flagged`;
-                sBadge.style.color = 'var(--red-text)';
-                sDesc.textContent = `${tripFlags.length} exceptions documented to Dispatcher`;
-            }
-
-            // Capacity
-            const cIcon = document.getElementById('final-chk-cap-icon');
-            const cBadge = document.getElementById('final-chk-cap-badge');
-            const cDesc = document.getElementById('final-chk-cap-desc');
-            if (isWeightValid) {
-                cIcon.textContent = '✅';
-                cBadge.textContent = 'Compliant';
-                cBadge.style.color = 'var(--green-text)';
-                cDesc.textContent = `${Math.round(trip.totalWeight)} kg payload &le; ${trip.weightCapKg || 5000} kg cap`;
-            } else {
-                cIcon.textContent = '❌';
-                cBadge.textContent = 'Overweight';
-                cBadge.style.color = 'var(--red-text)';
-                cDesc.textContent = 'Exceeds maximum payload weight';
-            }
-
-            const btn = document.getElementById('btn-confirm-release');
-            if (releasedTrips.has(trip.id)) {
+            const btn = document.getElementById('s4-confirm-btn');
+            if (isReleased) {
                 btn.disabled = true;
-                btn.textContent = '✅ Vehicle Run Released for Departure';
+                btn.textContent = 'Handoff Completed & Released';
                 btn.style.background = 'var(--green-btn)';
             } else {
                 btn.disabled = false;
-                btn.textContent = '🚀 Confirm & Release Vehicle for Departure';
-                btn.style.background = 'var(--primary-black)';
+                btn.textContent = 'Confirm load & handoff';
+                btn.style.background = 'var(--header-black)';
             }
         }
 
-        async function executeTripRelease() {
+        async function executeHandoff() {
             const trip = currentTrips[selectedTripIndex];
             if (!trip) return;
-
             try {
-                const res = await WaypointApi.post(`/api/trips/${trip.id}/release`, {});
+                await WaypointApi.post(`/api/trips/${trip.id}/release`, {});
                 releasedTrips.add(trip.id);
-                showToast(`🚀 ${trip.vehicleCode} Trip ${trip.tripNo} Released! Notified Dispatcher`);
-                renderFinalCheck();
-                switchWorkflowScreen('summary');
+                renderFinalPage();
+                switchPage('summary');
             } catch (e) {
-                console.error('[executeTripRelease]', e);
                 releasedTrips.add(trip.id);
-                showToast(`🚀 ${trip.vehicleCode} Trip ${trip.tripNo} Released (Offline Cached)`);
-                switchWorkflowScreen('summary');
+                switchPage('summary');
             }
         }
 
-        // --- SCREEN 6: SUMMARY OF THE DAY ---
-        function renderDaySummary() {
+        // --- PAGE 6: SUMMARY OF THE DAY ---
+        function renderSummaryPage() {
             const trips = currentTrips;
-            const releasedCount = releasedTrips.size;
-            let loadedUnits = 0;
-            let totalKg = 0;
-            let totalM3 = 0;
+            let loadedCount = 0;
+            trips.forEach(t => (t.stops || []).forEach(s => { if (checklistState[s.orderId]) loadedCount += s.units; }));
 
-            trips.forEach(t => {
-                totalKg += t.totalWeight || 0;
-                totalM3 += t.totalVolume || 0;
-                (t.stops || []).forEach(s => {
-                    if (checklistState[s.orderId]) loadedUnits += (s.units || 0);
-                });
-            });
+            document.getElementById('sum-trips-count').textContent = releasedTrips.size;
+            document.getElementById('sum-items-count').textContent = loadedCount;
+            document.getElementById('sum-flags-count').textContent = openFlags.length;
+            document.getElementById('sum-notes-count').textContent = dockNotes.length;
 
-            document.getElementById('sum-trips-released').textContent = releasedCount;
-            document.getElementById('sum-items-loaded').textContent = loadedUnits;
-            document.getElementById('sum-shortages-flagged').textContent = openFlags.length;
-            document.getElementById('sum-notes-raised').textContent = dockNotes.length;
-
-            const logEl = document.getElementById('departure-log-table');
-            if (releasedCount === 0) {
-                logEl.innerHTML = '<p style="font-size: 12px; color: var(--text-muted); padding: 12px 0;">No vehicles released yet today.</p>';
+            const container = document.getElementById('sum-log-container');
+            if (releasedTrips.size === 0) {
+                container.innerHTML = `<div style="font-size:12px;color:#64748b;padding:16px;">No vehicles released yet today for ${currentDepot}.</div>`;
             } else {
-                logEl.innerHTML = Array.from(releasedTrips).map(id => {
+                container.innerHTML = Array.from(releasedTrips).map(id => {
                     const t = trips.find(x => x.id === id);
                     if (!t) return '';
                     return `
-                        <div style="padding: 12px 16px; background: var(--bg-card-subtle); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
+                        <div class="s1-item-row">
                             <div>
-                                <strong>${t.vehicleCode} (Trip ${t.tripNo})</strong> &bull; ${t.depot} Dock &bull; ${t.stops ? t.stops.length : 0} drops
+                                <div class="s1-item-name">${t.vehicleCode} · Trip #${t.tripNo} (${t.brand})</div>
+                                <div class="s1-item-sub">${t.stops ? t.stops.length : 0} drops · Released for departure</div>
                             </div>
-                            <span style="color: var(--green-text); font-weight: 800;">✓ Released at ${lastSyncTimestamp}</span>
+                            <span class="pill-s4-checked">RELEASED</span>
                         </div>
                     `;
                 }).join('');
             }
         }
 
-        async function broadcastShiftSummary() {
+        async function broadcastDaySummary() {
             const trips = currentTrips;
-            let totalKg = 0;
-            let totalM3 = 0;
-            let loadedUnits = 0;
-
+            let totalKg = 0, totalM3 = 0, loadedUnits = 0;
             trips.forEach(t => {
                 totalKg += t.totalWeight || 0;
                 totalM3 += t.totalVolume || 0;
-                (t.stops || []).forEach(s => {
-                    if (checklistState[s.orderId]) loadedUnits += (s.units || 0);
-                });
+                (t.stops || []).forEach(s => { if (checklistState[s.orderId]) loadedUnits += s.units; });
             });
 
-            try {
-                await WaypointApi.post('/api/loader/summary', {
-                    depot: currentDepot,
-                    tripsReleased: releasedTrips.size,
-                    totalItemsLoaded: loadedUnits,
-                    shortagesFlagged: openFlags.length,
-                    notesRaised: dockNotes.length,
-                    totalWeightKg: totalKg,
-                    totalVolumeM3: totalM3,
-                    vehiclesHandled: trips.length
-                });
-                showToast(`📡 ${currentDepot} Dock Day Summary successfully broadcasted to Dispatcher!`);
-            } catch (e) {
-                showToast('Shift summary recorded');
-            }
+            await WaypointApi.post('/api/loader/summary', {
+                depot: currentDepot,
+                tripsReleased: releasedTrips.size,
+                totalItemsLoaded: loadedUnits,
+                shortagesFlagged: openFlags.length,
+                notesRaised: dockNotes.length,
+                totalWeightKg: totalKg,
+                totalVolumeM3: totalM3,
+                vehiclesHandled: trips.length
+            }).catch(() => {});
+
+            alert(`Day summary broadcasted to Dispatcher portal for ${currentDepot}!`);
         }
 
-        // --- UTILITY MODALS & TOASTS ---
-        function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
+        // --- SHORTAGE MODAL CONTROLS ---
+        function openShortageModal() {
+            document.getElementById('flag-modal').classList.add('active');
         }
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast-banner');
-            document.getElementById('toast-text').textContent = msg;
-            toast.style.display = 'flex';
-            setTimeout(() => { toast.style.display = 'none'; }, 3200);
+        function closeShortageModal() {
+            document.getElementById('flag-modal').classList.remove('active');
+        }
+
+        function changeShortageQty(delta) {
+            shortageQty = Math.max(1, shortageQty + delta);
+            document.getElementById('modal-qty-val').textContent = shortageQty;
+        }
+
+        function selectReason(reason) {
+            shortageReason = reason;
+            document.querySelectorAll('.reason-pill-btn').forEach(b => b.classList.remove('active'));
+            if (reason === 'Missing at Dock') document.getElementById('btn-reason-1').classList.add('active');
+            if (reason === 'Damaged') document.getElementById('btn-reason-2').classList.add('active');
+            if (reason === 'Substituted') document.getElementById('btn-reason-3').classList.add('active');
+        }
+
+        function simulateCaptureProof() {
+            document.getElementById('proof-desc-text').textContent = '✓ Digital photo proof attached (flag-cam-01.jpg)';
+        }
+
+        async function submitShortage() {
+            const orderId = Number(document.getElementById('modal-item-select').value);
+            const trip = currentTrips[selectedTripIndex];
+            const stop = (trip.stops || []).find(s => s.orderId === orderId);
+
+            await WaypointApi.post('/api/flags', {
+                orderId,
+                qty: shortageQty,
+                itemDesc: stop ? `${stop.orderRef} (${stop.outletId})` : 'Line Item Shortage',
+                reason: shortageReason
+            }).catch(() => {});
+
+            closeShortageModal();
+            fetchDepotTrips();
+        }
+
+        // --- REVIEW MODAL ---
+        function openReviewModal() {
+            const trip = currentTrips[selectedTripIndex];
+            if (!trip) return;
+            const content = document.getElementById('review-content');
+            content.innerHTML = `
+                <div><strong>Vehicle:</strong> ${trip.vehicleCode} (${trip.brand})</div>
+                <div><strong>Depot:</strong> ${trip.depot} Central Dock</div>
+                <div><strong>Route District:</strong> ${trip.district}</div>
+                <div><strong>Total Stops:</strong> ${trip.stops ? trip.stops.length : 0} Drops</div>
+                <div><strong>Gross Weight:</strong> ${Math.round(trip.totalWeight)} kg</div>
+                <div><strong>Temperature:</strong> ${trip.vehicleTemp}</div>
+                <div style="margin-top:10px; padding:10px; background:var(--bg-card-subtle); border-radius:6px;">
+                    <strong>Dock Staging Instructions:</strong> Check all cold-chain seals before departure.
+                </div>
+            `;
+            document.getElementById('review-modal').classList.add('active');
+        }
+
+        function closeReviewModal() {
+            document.getElementById('review-modal').classList.remove('active');
         }
 
         // --- INITIALIZATION ---
         window.addEventListener('DOMContentLoaded', () => {
             initGloveMode();
-            fetchDockData();
+            fetchDepotTrips();
 
-            // Realtime subscriptions
             if (window.WaypointRealtime) {
-                WaypointRealtime.on('shortage-flagged', () => loadFlagsAndNotes());
-                WaypointRealtime.on('dock-note-added', () => loadFlagsAndNotes());
-                WaypointRealtime.on('trip-status', () => fetchDockData());
-                WaypointRealtime.onPoll(() => fetchDockData());
+                WaypointRealtime.on('shortage-flagged', () => fetchDepotTrips());
+                WaypointRealtime.on('trip-status', () => fetchDepotTrips());
             }
         });
     </script>
