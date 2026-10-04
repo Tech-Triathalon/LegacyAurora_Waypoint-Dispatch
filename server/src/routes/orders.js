@@ -93,6 +93,7 @@ router.get('/orders', requireAuth, readLimiter, async (req, res) => {
 // POST /api/orders — store manager places an order for their outlet (status queued).
 // Accepts an optional `clientRef` (UUID) so queued offline replays are idempotent.
 const orderShape = {
+  brand: vEnum(['Fresh', 'Style', 'Tech', 'fresh', 'style', 'tech'], { optional: true }),
   tempRequirement: vEnum(['chilled', 'ambient']),
   units: vNumber({ min: 1, max: 100000, int: true }),
   weightKg: vNumber({ min: 0, max: 100000 }),
@@ -107,7 +108,7 @@ router.post('/orders', requireAuth, requireRole('manager'), writeLimiter, idempo
   if (!parsed.ok) {
     return res.status(400).json({ error: 'invalid order fields', detail: parsed.errors });
   }
-  const { tempRequirement, units, weightKg, volumeM3, orderDate, windowOpen, windowClose } = parsed.value;
+  const { brand, tempRequirement, units, weightKg, volumeM3, orderDate, windowOpen, windowClose } = parsed.value;
   const note = isPlainObject(req.body) && typeof req.body.note === 'string' ? req.body.note.slice(0, 500) : undefined;
   const unitsNum = Number(units);
 
@@ -129,10 +130,12 @@ router.post('/orders', requireAuth, requireRole('manager'), writeLimiter, idempo
   if (!outlet) return res.status(404).json({ error: 'no outlet linked to manager account' });
 
   const date = orderDate || DEMO_DAY;
+  const chosenBrand = brand ? (brand.charAt(0).toUpperCase() + brand.slice(1).toLowerCase()) : outlet.brand;
+
   const order = await prisma.order.create({
     data: {
       outletId: outlet.outletId,
-      brand: outlet.brand,
+      brand: chosenBrand,
       district: outlet.district,
       depot: outlet.depot,
       tempRequirement,
@@ -146,12 +149,31 @@ router.post('/orders', requireAuth, requireRole('manager'), writeLimiter, idempo
     },
   });
 
-  // Wake the dispatcher desk — a new drop landed in their queue.
+  // Wake the dispatcher desk — a new drop landed in their queue in real time.
   publish('dispatcher', 'new-order', {
-    id: order.id, orderRef: `ORD-${String(order.id).padStart(4, '0')}`, outletId: outlet.outletId,
-    brand: order.brand, district: order.district, tempRequirement: order.tempRequirement,
-    units: order.units, weightKg: order.weightKg, volumeM3: order.volumeM3,
-    windowOpen: order.windowOpen, windowClose: order.windowClose, status: order.status, note: note || null,
+    id: order.id, 
+    orderRef: `ORD-${String(order.id).padStart(4, '0')}`, 
+    outletId: outlet.outletId,
+    brand: order.brand, 
+    district: order.district, 
+    tempRequirement: order.tempRequirement,
+    units: order.units, 
+    weightKg: order.weightKg, 
+    volumeM3: order.volumeM3,
+    windowOpen: order.windowOpen, 
+    windowClose: order.windowClose, 
+    status: order.status, 
+    note: note || null,
+  });
+
+  // Notify store subscribers as well
+  publish(`store:${outlet.outletId}`, 'new-order', {
+    id: order.id,
+    orderRef: `ORD-${String(order.id).padStart(4, '0')}`,
+    brand: order.brand,
+    tempRequirement: order.tempRequirement,
+    units: order.units,
+    status: order.status,
   });
 
   return res.json({ ok: true, order: shapeOrder(order) });

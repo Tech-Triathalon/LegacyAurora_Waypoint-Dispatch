@@ -4255,8 +4255,27 @@
         function startDispatcherRealtime() {
             WaypointRealtime.start(dspChannel());
             WaypointRealtime.on('new-order', (o) => {
-                showToast(`🆕 New order ${o.orderRef || orderRef(o.id)} from ${o.outletId} (${o.units} units) — queue updated`);
+                const brand = o.brand || 'Fresh';
+                const temp = o.tempRequirement || 'ambient';
+                showToast(`🆕 New order ${o.orderRef || orderRef(o.id)} from ${o.outletId} (${brand} · ${temp} · ${o.units} units) landed in queue!`);
                 loadQueue();
+                
+                // Auto-expand the relevant accordion section in WDI Order Queue
+                let targetSection = 'fresh';
+                if (brand === 'Style') targetSection = 'style';
+                else if (brand === 'Tech') targetSection = 'tech';
+                else if (temp === 'chilled') targetSection = 'chilled';
+                else if (temp === 'ambient') targetSection = 'ambient';
+
+                const secTable = document.getElementById(`${targetSection}-queue-table`);
+                if (secTable) {
+                    const sec = secTable.closest('.accordion-section');
+                    if (sec && !sec.classList.contains('open')) {
+                        sec.classList.add('open');
+                        const arrow = sec.querySelector('.accordion-header span:last-child');
+                        if (arrow) arrow.textContent = '▲';
+                    }
+                }
             });
             WaypointRealtime.on('order-allocated', (a) => {
                 showToast(`📦 Order ${a.orderRef || ''} allocated to ${a.vehicleCode || 'vehicle'} (${a.dockBay || 'bay'})`);

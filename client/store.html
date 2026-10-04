@@ -1424,19 +1424,31 @@
             </div>
             <form onsubmit="handleCreateOrder(event)" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
                 <div class="store-modal-body">
-                    <div style="margin-bottom: 14px;">
-                        <label style="display: block; font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; margin-bottom: 6px;">Brand & Outlet</label>
-                        <input type="text" id="order-outlet-display" disabled value="Fresh · Oakwood Store #12 (OUT012)" style="width: 100%; padding: 10px 12px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 700; color: #1e293b;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                        <div>
+                            <label style="display: block; font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; margin-bottom: 6px;">Brand *</label>
+                            <select id="order-brand-select" onchange="calcOrderPayload()" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 700; color: #0f172a; background: #fff;">
+                                <option value="Fresh" selected>🍃 Fresh</option>
+                                <option value="Style">👔 Style</option>
+                                <option value="Tech">💻 Tech</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; margin-bottom: 6px;">Outlet</label>
+                            <input type="text" id="order-outlet-display" disabled value="Oakwood Store #12 (OUT012)" style="width: 100%; padding: 10px 12px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 700; color: #1e293b;">
+                        </div>
                     </div>
 
                     <div style="margin-bottom: 14px;">
                         <label style="display: block; font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; margin-bottom: 6px;">Order Category & Goods Type *</label>
                         <select id="order-category-select" onchange="calcOrderPayload()" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 700; color: #0f172a; background: #fff;" required>
-                            <option value="dairy_meat_chilled">Dairy, Poultry & Fresh Meat (Chilled Reefer)</option>
-                            <option value="produce_greens_chilled">Fresh Produce & Fruits (Chilled Reefer)</option>
-                            <option value="packaged_dry">Dry Groceries & Packaged Goods (Ambient)</option>
-                            <option value="beverages_dry">Beverages & Bottled Water (Ambient)</option>
-                            <option value="bakery_ambient">Daily Bakery & Bread (Ambient)</option>
+                            <option value="dairy_meat_chilled">Fresh: Dairy, Poultry & Meat (Chilled Reefer)</option>
+                            <option value="produce_greens_chilled">Fresh: Produce & Fruits (Chilled Reefer)</option>
+                            <option value="packaged_dry">Fresh: Dry Groceries & Packaged (Ambient)</option>
+                            <option value="style_apparel_ambient">Style: Apparel, Footwear & Fashion (Ambient)</option>
+                            <option value="style_accessories_ambient">Style: Seasonal Retail Goods (Ambient)</option>
+                            <option value="tech_electronics_ambient">Tech: Consumer Electronics & Hardware (Ambient)</option>
+                            <option value="tech_accessories_ambient">Tech: Mobile & High-Value Devices (Ambient)</option>
                         </select>
                     </div>
 
@@ -2172,13 +2184,19 @@
             const cat = document.getElementById('order-category-select') ? document.getElementById('order-category-select').value : 'dairy_meat_chilled';
             const units = Number(document.getElementById('order-units-input') ? document.getElementById('order-units-input').value : 120) || 120;
             const tempSel = document.getElementById('order-temp-select');
+            const brandSel = document.getElementById('order-brand-select');
 
-            // Auto-adjust temp dropdown according to category
-            if (tempSel) {
-                if (cat.includes('chilled')) {
-                    tempSel.value = 'chilled';
-                } else {
-                    tempSel.value = 'ambient';
+            // Auto-adjust brand and temp dropdown according to category
+            if (cat.startsWith('style')) {
+                if (brandSel) brandSel.value = 'Style';
+                if (tempSel) tempSel.value = 'ambient';
+            } else if (cat.startsWith('tech')) {
+                if (brandSel) brandSel.value = 'Tech';
+                if (tempSel) tempSel.value = 'ambient';
+            } else {
+                if (brandSel) brandSel.value = 'Fresh';
+                if (tempSel) {
+                    tempSel.value = cat.includes('chilled') ? 'chilled' : 'ambient';
                 }
             }
 
@@ -2197,6 +2215,7 @@
 
         async function handleCreateOrder(e) {
             e.preventDefault();
+            const brand = document.getElementById('order-brand-select') ? document.getElementById('order-brand-select').value : 'Fresh';
             const units = Number(document.getElementById('order-units-input').value) || 100;
             const tempRequirement = document.getElementById('order-temp-select').value;
             const winVal = document.getElementById('order-window-select').value.split('-');
@@ -2208,6 +2227,7 @@
             const volumeM3 = Number((units * 0.002).toFixed(2));
 
             const body = {
+                brand,
                 units,
                 tempRequirement,
                 weightKg,
