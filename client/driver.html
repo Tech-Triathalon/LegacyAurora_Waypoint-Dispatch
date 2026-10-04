@@ -1929,7 +1929,11 @@
         const state = { user: null, manifest: null, currentSeq: null, issueOrderId: null };
 
         function driverChannel() {
-            return state.user && state.user.vehicleNumericId ? [`driver:${state.user.vehicleNumericId}`] : [];
+            const ch = ['driver'];
+            if (state.user && state.user.vehicleNumericId) ch.push(`driver:${state.user.vehicleNumericId}`);
+            if (state.user && state.user.vehicleCode) ch.push(`driver:${state.user.vehicleCode}`);
+            if (state.manifest && state.manifest.vehicle) ch.push(`driver:${state.manifest.vehicle}`);
+            return ch;
         }
 
         async function loadManifest() {
@@ -2120,12 +2124,22 @@
             jumpToScreen('stop-list');
         }
 
-        // --- REALTIME: plan updates from dispatcher + polling fallback ---
+        // --- REALTIME: plan updates from dispatcher + loader messages + polling fallback ---
         function startRealtime() {
             WaypointRealtime.start(driverChannel());
             WaypointRealtime.on('plan-committed', () => {
                 showToastBanner('📥 New route plan received from dispatcher');
                 loadManifest();
+            });
+            WaypointRealtime.on('order-allocated', (data) => {
+                showToastBanner(`📦 Order ${data.orderRef || ''} allocated to your vehicle`);
+                loadManifest();
+            });
+            WaypointRealtime.on('dock-note-added', (n) => {
+                showToastBanner(`📢 Dock Alert from ${n.author || 'Loader'}: ${n.note}`);
+            });
+            WaypointRealtime.on('final-check-completed', (f) => {
+                showToastBanner(`🔒 Vehicle Final Check Verified by ${f.confirmedBy || 'Loader'} — Ready for departure`);
             });
             WaypointRealtime.onPoll(loadManifest);
         }

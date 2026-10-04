@@ -2903,28 +2903,42 @@
                             </button>
                         </div>
 
-                        <!-- FRESH (18) -->
-                        <div class="accordion-section">
+                        <!-- FRESH -->
+                        <div class="accordion-section open">
                             <div class="accordion-header" onclick="toggleAccordion(this)">
                                 <div class="accordion-title-left">
                                     <span>🍃 FRESH</span>
-                                    <span class="accordion-count-badge">18</span>
+                                    <span class="accordion-count-badge" id="fresh-count-badge">0</span>
                                 </div>
-                                <span style="font-size: 12px; color: var(--text-muted);">▼</span>
+                                <span style="font-size: 12px; color: var(--text-muted);">▲</span>
                             </div>
                             <div class="accordion-body">
-                                <div style="padding: 14px; font-size: 12px; color: var(--text-muted);">
-                                    18 fresh orders allocated to Morning Run 1. No critical binds.
+                                <div class="data-table-container">
+                                    <table class="data-table" id="fresh-queue-table">
+                                        <thead>
+                                            <tr>
+                                                <th><input type="checkbox" onchange="toggleAllOrders(this)"></th>
+                                                <th>ORDER REF</th>
+                                                <th>OUTLET</th>
+                                                <th>DISTRICT</th>
+                                                <th>KG - M³</th>
+                                                <th>WINDOW</th>
+                                                <th>ACCESS</th>
+                                                <th>ACTION</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- CHILLED (24) -->
+                        <!-- CHILLED -->
                         <div class="accordion-section open">
                             <div class="accordion-header" onclick="toggleAccordion(this)">
                                 <div class="accordion-title-left">
                                     <span>❄️ CHILLED</span>
-                                    <span class="accordion-count-badge" style="background-color: #fee2e2; color: #991b1b;">24</span>
+                                    <span class="accordion-count-badge" id="chilled-count-badge" style="background-color: #fee2e2; color: #991b1b;">0</span>
                                 </div>
                                 <span style="font-size: 12px; color: var(--text-muted);">▲</span>
                             </div>
@@ -2943,127 +2957,99 @@
                                                 <th>ACTION</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            <tr data-weight="412" data-volume="28">
-                                                <td><input type="checkbox" class="order-chk"></td>
-                                                <td style="font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 12px;">CHL-240611-087</td>
-                                                <td style="font-weight: 700;">TRITON LANKA</td>
-                                                <td>COLOMBO</td>
-                                                <td><strong>412 kg</strong> · 28 m³</td>
-                                                <td>13:00 - 15:00</td>
-                                                <td>
-                                                    <span class="tag-pill van">VAN-ONLY</span>
-                                                    <span class="tag-pill mall">MALL</span>
-                                                    <span class="tag-pill deferred">DEFERRED YESTERDAY</span>
-                                                </td>
-                                                <td>
-                                                    <button class="btn-outline-dark" style="padding: 3px 8px; font-size: 11px;" onclick="openDeferModal('CHL-240611-087', 'Chilled Capacity Constraint')">Defer</button>
-                                                </td>
-                                            </tr>
-                                            <tr data-weight="196" data-volume="14">
-                                                <td><input type="checkbox" class="order-chk"></td>
-                                                <td style="font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 12px;">CHL-240611-092</td>
-                                                <td style="font-weight: 700;">COLD STORAGE LK</td>
-                                                <td>KANDY</td>
-                                                <td><strong>196 kg</strong> · 14 m³</td>
-                                                <td>14:00 - 16:00</td>
-                                                <td>
-                                                    <span class="tag-pill van">VAN-ONLY</span>
-                                                    <span class="tag-pill mall">MALL</span>
-                                                </td>
-                                                <td>
-                                                    <button class="btn-outline-dark" style="padding: 3px 8px; font-size: 11px;" onclick="openDeferModal('CHL-240611-092', 'Chilled Shortage')">Defer</button>
-                                                </td>
-                                            </tr>
-                                            <tr data-weight="168" data-volume="12">
-                                                <td><input type="checkbox" class="order-chk"></td>
-                                                <td style="font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 12px;">CHL-240611-095</td>
-                                                <td style="font-weight: 700;">PERERA & SONS</td>
-                                                <td>COLOMBO</td>
-                                                <td><strong>168 kg</strong> · 12 m³</td>
-                                                <td>09:00 - 11:00</td>
-                                                <td>
-                                                    <span class="tag-pill van">VAN-ONLY</span>
-                                                </td>
-                                                <td>
-                                                    <button class="btn-outline-dark" style="padding: 3px 8px; font-size: 11px;" onclick="openDeferModal('CHL-240611-095', 'Schedule window bind')">Defer</button>
-                                                </td>
-                                            </tr>
-                                            <tr data-weight="224" data-volume="16">
-                                                <td><input type="checkbox" class="order-chk"></td>
-                                                <td style="font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 12px;">CHL-240611-101</td>
-                                                <td style="font-weight: 700;">KEELLS SUPER</td>
-                                                <td>KANDY</td>
-                                                <td><strong>224 kg</strong> · 16 m³</td>
-                                                <td>11:00 - 13:00</td>
-                                                <td>
-                                                    <span class="tag-pill van">VAN-ONLY</span>
-                                                    <span class="tag-pill mall">MALL</span>
-                                                    <span class="tag-pill deferred">DEFERRED YESTERDAY</span>
-                                                </td>
-                                                <td>
-                                                    <button class="btn-outline-dark" style="padding: 3px 8px; font-size: 11px;" onclick="openDeferModal('CHL-240611-101', 'Recurring deferral check')">Defer</button>
-                                                </td>
-                                            </tr>
-                                            <tr data-weight="140" data-volume="10">
-                                                <td><input type="checkbox" class="order-chk"></td>
-                                                <td style="font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 12px;">CHL-240611-106</td>
-                                                <td style="font-weight: 700;">ARUNA FOODS</td>
-                                                <td>COLOMBO</td>
-                                                <td><strong>140 kg</strong> · 10 m³</td>
-                                                <td>15:00 - 17:00</td>
-                                                <td>
-                                                    <span class="tag-pill van">VAN-ONLY</span>
-                                                </td>
-                                                <td>
-                                                    <button class="btn-outline-dark" style="padding: 3px 8px; font-size: 11px;" onclick="openDeferModal('CHL-240611-106', 'Capacity bind')">Defer</button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
+                                        <tbody></tbody>
                                     </table>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- AMBIENT (31) -->
+                        <!-- AMBIENT -->
                         <div class="accordion-section">
                             <div class="accordion-header" onclick="toggleAccordion(this)">
                                 <div class="accordion-title-left">
                                     <span>📦 AMBIENT</span>
-                                    <span class="accordion-count-badge">31</span>
+                                    <span class="accordion-count-badge" id="ambient-count-badge">0</span>
                                 </div>
                                 <span style="font-size: 12px; color: var(--text-muted);">▼</span>
                             </div>
                             <div class="accordion-body">
-                                <div style="padding: 14px; font-size: 12px; color: var(--text-muted);">31 items buffered across standard freight trucks.</div>
+                                <div class="data-table-container">
+                                    <table class="data-table" id="ambient-queue-table">
+                                        <thead>
+                                            <tr>
+                                                <th><input type="checkbox" onchange="toggleAllOrders(this)"></th>
+                                                <th>ORDER REF</th>
+                                                <th>OUTLET</th>
+                                                <th>DISTRICT</th>
+                                                <th>KG - M³</th>
+                                                <th>WINDOW</th>
+                                                <th>ACCESS</th>
+                                                <th>ACTION</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- STYLE (15) -->
+                        <!-- STYLE -->
                         <div class="accordion-section">
                             <div class="accordion-header" onclick="toggleAccordion(this)">
                                 <div class="accordion-title-left">
                                     <span>👔 STYLE</span>
-                                    <span class="accordion-count-badge">15</span>
+                                    <span class="accordion-count-badge" id="style-count-badge">0</span>
                                 </div>
                                 <span style="font-size: 12px; color: var(--text-muted);">▼</span>
                             </div>
                             <div class="accordion-body">
-                                <div style="padding: 14px; font-size: 12px; color: var(--text-muted);">15 apparel crates scheduled for afternoon distribution.</div>
+                                <div class="data-table-container">
+                                    <table class="data-table" id="style-queue-table">
+                                        <thead>
+                                            <tr>
+                                                <th><input type="checkbox" onchange="toggleAllOrders(this)"></th>
+                                                <th>ORDER REF</th>
+                                                <th>OUTLET</th>
+                                                <th>DISTRICT</th>
+                                                <th>KG - M³</th>
+                                                <th>WINDOW</th>
+                                                <th>ACCESS</th>
+                                                <th>ACTION</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- TECH (9) -->
+                        <!-- TECH -->
                         <div class="accordion-section">
                             <div class="accordion-header" onclick="toggleAccordion(this)">
                                 <div class="accordion-title-left">
                                     <span>💻 TECH</span>
-                                    <span class="accordion-count-badge">9</span>
+                                    <span class="accordion-count-badge" id="tech-count-badge">0</span>
                                 </div>
                                 <span style="font-size: 12px; color: var(--text-muted);">▼</span>
                             </div>
                             <div class="accordion-body">
-                                <div style="padding: 14px; font-size: 12px; color: var(--text-muted);">9 high-value electronics shipments secured under lock and key.</div>
+                                <div class="data-table-container">
+                                    <table class="data-table" id="tech-queue-table">
+                                        <thead>
+                                            <tr>
+                                                <th><input type="checkbox" onchange="toggleAllOrders(this)"></th>
+                                                <th>ORDER REF</th>
+                                                <th>OUTLET</th>
+                                                <th>DISTRICT</th>
+                                                <th>KG - M³</th>
+                                                <th>WINDOW</th>
+                                                <th>ACCESS</th>
+                                                <th>ACTION</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
 
@@ -3073,48 +3059,21 @@
                     <div class="right-panel-column">
                         <div class="panel-card">
                             <div class="panel-card-header">
-                                <span class="panel-card-title">Tomorrow's Orders</span>
+                                <span class="panel-card-title">Quarantined / Upcoming</span>
                             </div>
                             <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
-                                Quarantined · Post-Cutoff
+                                Deferred & High-Scarcity Orders
                             </div>
 
-                            <div class="tomorrow-order-item" onclick="openOrderInspect('ORD-240612-044')">
-                                <div style="display: flex; justify-content: space-between;">
-                                    <span class="tomorrow-order-time">09:12</span>
-                                    <span style="font-size: 11px; font-family: monospace; font-weight: 700;">ORD-240612-044</span>
-                                </div>
-                                <div class="tomorrow-order-name">SEA SIDE CAFE</div>
-                                <div style="font-size: 11px; color: var(--text-muted);">NEGOMBO</div>
-                                <span class="tomorrow-order-badge">NO REEFER SLOT</span>
-                            </div>
-
-                            <div class="tomorrow-order-item" onclick="openOrderInspect('ORD-240612-057')">
-                                <div style="display: flex; justify-content: space-between;">
-                                    <span class="tomorrow-order-time">09:47</span>
-                                    <span style="font-size: 11px; font-family: monospace; font-weight: 700;">ORD-240612-057</span>
-                                </div>
-                                <div class="tomorrow-order-name">HILLTOP MART</div>
-                                <div style="font-size: 11px; color: var(--text-muted);">KANDY</div>
-                                <span class="tomorrow-order-badge">NO DRIVER</span>
-                            </div>
-
-                            <div class="tomorrow-order-item" onclick="openOrderInspect('ORD-240612-061')">
-                                <div style="display: flex; justify-content: space-between;">
-                                    <span class="tomorrow-order-time">10:23</span>
-                                    <span style="font-size: 11px; font-family: monospace; font-weight: 700;">ORD-240612-061</span>
-                                </div>
-                                <div class="tomorrow-order-name">DAIRY DELIGHT</div>
-                                <div style="font-size: 11px; color: var(--text-muted);">GAMPOLE</div>
-                                <span class="tomorrow-order-badge">WEIGHT MISSING</span>
+                            <div id="tomorrow-orders-container" style="display: flex; flex-direction: column; gap: 8px;">
                             </div>
 
                             <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border);">
                                 <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">
                                     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                                    <span>Exceptions Inbox · 3 pending</span>
+                                    <span id="all-orders-queue-btn-label">Master Directory</span>
                                 </div>
-                                <button class="auth-submit-btn" style="padding: 10px; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="showToast('Viewing all quarantined orders')">
+                                <button class="auth-submit-btn" style="padding: 10px; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;" onclick="openAllOrdersModal()">
                                     VIEW ALL ORDERS →
                                 </button>
                             </div>
@@ -3176,12 +3135,13 @@
                                 Entries 23 · Total cost estimate $3,805 · Avg. cost per deferral $165
                             </span>
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <button class="btn-outline-dark" style="padding: 4px 8px;" onclick="showToast('Previous page')">&lt;</button>
-                                <span style="font-size: 12px; font-weight: 700;">1 / 3</span>
-                                <button class="btn-outline-dark" style="padding: 4px 8px;" onclick="showToast('Next page')">&gt;</button>
-                                <select class="select-filter" style="padding: 4px 8px;">
-                                    <option>10 / page</option>
-                                    <option>25 / page</option>
+                                <button class="btn-outline-dark" style="padding: 4px 8px; cursor: pointer;" onclick="prevLedgerPage()">&lt;</button>
+                                <span style="font-size: 12px; font-weight: 700;" id="ledger-page-indicator">1 / 1</span>
+                                <button class="btn-outline-dark" style="padding: 4px 8px; cursor: pointer;" onclick="nextLedgerPage()">&gt;</button>
+                                <select class="select-filter" style="padding: 4px 8px;" onchange="changeLedgerPageSize(this.value)">
+                                    <option value="10" selected>10 / page</option>
+                                    <option value="25">25 / page</option>
+                                    <option value="50">50 / page</option>
                                 </select>
                             </div>
                         </div>
@@ -3698,6 +3658,127 @@
                 <button class="btn-primary-yellow" onclick="verifyCurrentStop()">Verify & Confirm Stop</button>
             </div>
         </div>
+    <!-- ALLOCATE ORDER MODAL -->
+    <div class="modal-overlay" id="allocate-order-modal">
+        <div class="modal-container" style="max-width: 520px;">
+            <div class="modal-header">
+                <div class="modal-title">
+                    Allocate Order <span style="font-size: 13px; color: var(--brand-blue); font-family: monospace;" id="alloc-order-ref-title">ORD-0001</span>
+                </div>
+                <button class="modal-close-btn" onclick="closeModal('allocate-order-modal')">&times;</button>
+            </div>
+            
+            <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="background: var(--bg-subtle); padding: 12px; border-radius: 8px; border: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
+                    <div><span style="color: var(--text-muted);">Outlet:</span> <strong id="alloc-outlet-val">—</strong></div>
+                    <div><span style="color: var(--text-muted);">Brand / Dist:</span> <strong id="alloc-brand-dist-val">—</strong></div>
+                    <div><span style="color: var(--text-muted);">Payload:</span> <strong id="alloc-payload-val">—</strong></div>
+                    <div><span style="color: var(--text-muted);">Temp Req:</span> <strong id="alloc-temp-val">—</strong></div>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: var(--text-main);">Assign to Vehicle</label>
+                    <select id="alloc-vehicle-select" class="form-control-input" style="width: 100%;">
+                    </select>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: var(--text-main);">Dock Facility / Bay</label>
+                        <select id="alloc-dock-select" class="form-control-input" style="width: 100%;">
+                            <option value="Bay 1 (Peliyagoda Ambient)">Bay 1 (Peliyagoda Ambient)</option>
+                            <option value="Bay 2 (Peliyagoda Standard)" selected>Bay 2 (Peliyagoda Standard)</option>
+                            <option value="Cold Dock 1 (Peliyagoda Reefer)">Cold Dock 1 (Peliyagoda Reefer)</option>
+                            <option value="Cold Dock 2 (Peliyagoda Reefer)">Cold Dock 2 (Peliyagoda Reefer)</option>
+                            <option value="Bay 3 (Kandy Hub)">Bay 3 (Kandy Hub)</option>
+                            <option value="Bay 4 (Kandy Hub)">Bay 4 (Kandy Hub)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: var(--text-main);">Trip Slot</label>
+                        <select id="alloc-trip-select" class="form-control-input" style="width: 100%;">
+                            <option value="1" selected>Trip 1 (Morning Dispatch)</option>
+                            <option value="2">Trip 2 (Afternoon Dispatch)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: var(--text-main);">Operating Day</label>
+                    <input type="date" id="alloc-date-input" class="form-control-input" style="width: 100%;">
+                </div>
+
+                <div style="font-size: 11px; color: #166534; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 6px; line-height: 1.4;">
+                    🔔 Realtime alerts will immediately reach the assigned <strong>Driver</strong>, <strong>Dock Loader</strong>, and <strong>Store Manager</strong>.
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-outline-dark" onclick="closeModal('allocate-order-modal')">Cancel</button>
+                <button class="btn-primary-yellow" id="btn-confirm-alloc" onclick="confirmOrderAllocation()" style="background: #10b981; color: #fff;">Confirm Allocation 🚀</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ALL ORDERS DIRECTORY MODAL -->
+    <div class="modal-overlay" id="all-orders-modal">
+        <div class="modal-container" style="max-width: 980px; max-height: 88vh; display: flex; flex-direction: column;">
+            <div class="modal-header">
+                <div class="modal-title" style="display: flex; align-items: center; gap: 8px;">
+                    📋 All Orders Master Directory
+                    <span id="all-orders-count-badge" class="badge" style="background:#e0f2fe;color:#0369a1;font-size:11px;padding:3px 8px;border-radius:999px;">0 orders</span>
+                </div>
+                <button class="modal-close-btn" onclick="closeModal('all-orders-modal')">&times;</button>
+            </div>
+            
+            <div style="padding: 12px 18px; background: var(--bg-subtle); border-bottom: 1px solid var(--border); display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <input type="text" id="all-orders-search" class="form-control-input" placeholder="🔍 Search Order Ref, Outlet, District..." style="flex: 1; min-width: 200px;" oninput="renderAllOrdersModalTable()">
+                <select id="all-orders-brand-filter" class="select-filter" onchange="renderAllOrdersModalTable()">
+                    <option value="all">All Brands</option>
+                    <option value="Fresh">Fresh</option>
+                    <option value="Style">Style</option>
+                    <option value="Tech">Tech</option>
+                </select>
+                <select id="all-orders-temp-filter" class="select-filter" onchange="renderAllOrdersModalTable()">
+                    <option value="all">All Temperatures</option>
+                    <option value="chilled">Chilled</option>
+                    <option value="ambient">Ambient</option>
+                </select>
+                <select id="all-orders-status-filter" class="select-filter" onchange="renderAllOrdersModalTable()">
+                    <option value="all">All Statuses</option>
+                    <option value="queued">Queued</option>
+                    <option value="allocated">Allocated</option>
+                    <option value="deferred">Deferred</option>
+                    <option value="delivered">Delivered</option>
+                </select>
+            </div>
+
+            <div class="modal-body" style="flex: 1; overflow-y: auto; padding: 0;">
+                <div class="data-table-container" style="margin: 0; border: none; border-radius: 0;">
+                    <table class="data-table" id="all-orders-master-table">
+                        <thead>
+                            <tr>
+                                <th>ORDER REF</th>
+                                <th>OUTLET</th>
+                                <th>BRAND / DIST</th>
+                                <th>TEMP</th>
+                                <th>WEIGHT / VOL</th>
+                                <th>WINDOW</th>
+                                <th>STATUS</th>
+                                <th>ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="all-orders-table-tbody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 11px; color: var(--text-muted);" id="all-orders-footer-summary">Showing real database orders</span>
+                <button class="btn-outline-dark" onclick="closeModal('all-orders-modal')">Close</button>
+            </div>
+        </div>
     </div>
 
     <!-- TOAST CONTAINER -->
@@ -3818,12 +3899,49 @@
             }
         }
 
+        function renderOrderRow(o) {
+            const isDef = o.deferredYesterday || o.status === 'deferred';
+            const isAlloc = o.status === 'allocated';
+            const statusBadge = isAlloc 
+                ? `<span class="tag-pill" style="background:#dcfce7;color:#15803d;font-weight:800;">ALLOCATED</span>`
+                : (isDef 
+                    ? `<span class="tag-pill deferred">DEFERRED</span>` 
+                    : `<span class="tag-pill" style="background:#f1f5f9;color:#475569;">QUEUED</span>`);
+            const accessTags = [];
+            if (o.tempRequirement === 'chilled') accessTags.push('<span class="tag-pill" style="background:#dbeafe;color:#1d4ed8;">CHILLED</span>');
+            if (o.brand) accessTags.push(`<span class="tag-pill van">${esc(o.brand)}</span>`);
+            if (o.deferredYesterday) accessTags.push('<span class="tag-pill deferred">DEFERRED YESTERDAY</span>');
+
+            return `
+                <tr data-weight="${o.weightKg}" data-volume="${o.volumeM3}">
+                    <td><input type="checkbox" class="order-chk" data-order-id="${o.id}"></td>
+                    <td style="font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 12px; cursor: pointer; color: var(--brand-blue);" onclick="openOrderInspect('${esc(o.orderRef || orderRef(o.id))}')">${esc(o.orderRef || orderRef(o.id))}</td>
+                    <td style="font-weight: 700;">${esc(o.outletId)}</td>
+                    <td>${esc(o.district)}</td>
+                    <td><strong>${o.weightKg} kg</strong> · ${o.volumeM3} m³</td>
+                    <td>${esc(o.windowOpen || '—')} - ${esc(o.windowClose || '—')}</td>
+                    <td>
+                        <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                            ${accessTags.join('')}
+                            ${statusBadge}
+                        </div>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="btn-primary-yellow" style="padding: 3px 8px; font-size: 11px; background: #10b981; color: #fff;" onclick="openAllocateModal(${o.id}, '${esc(o.orderRef || orderRef(o.id))}', '${esc(o.outletId)}', '${esc(o.brand)}', '${esc(o.district)}', ${o.weightKg}, ${o.volumeM3}, '${esc(o.tempRequirement)}')">Allocate</button>
+                            <button class="btn-outline-dark" style="padding: 3px 8px; font-size: 11px;" onclick="openDeferModal('${esc(o.orderRef || orderRef(o.id))}', 'Capacity Constraint', ${o.id})">Defer</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+
         function renderQueueVerdict() {
             const q = dps.queue;
-            if (!q || !q.verdict) return;
-            const v = q.verdict;
+            if (!q || !q.orders) return;
+            const v = q.verdict || {};
             const banner = document.getElementById('queue-capacity-banner');
-            if (banner) {
+            if (banner && v.totalOrders != null) {
                 const danger = v.overloaded || v.reeferShortfall;
                 banner.className = `alert-banner ${danger ? 'danger' : ''}`;
                 const content = banner.querySelector('.alert-banner-content span:last-child');
@@ -3833,13 +3951,255 @@
                         : `<strong>CAPACITY VERDICT:</strong> Demand ${v.demandM3} m³ / Capacity ${v.capM3} m³ → <strong>feasible</strong>`;
                 }
             }
-            const freshAcc = document.querySelector('.accordion-section.open .accordion-count-badge');
-            const accs = document.querySelectorAll('.accordion-count-badge');
-            if (accs.length >= 2) {
-                const chilled = q.orders.filter((o) => o.tempRequirement === 'chilled').length;
-                const ambient = q.orders.length - chilled;
-                accs[0].textContent = String(ambient);
-                accs[1].textContent = String(chilled);
+
+            const orders = q.orders;
+            const freshOrders = orders.filter(o => o.brand === 'Fresh');
+            const chilledOrders = orders.filter(o => o.tempRequirement === 'chilled');
+            const ambientOrders = orders.filter(o => o.tempRequirement === 'ambient');
+            const styleOrders = orders.filter(o => o.brand === 'Style');
+            const techOrders = orders.filter(o => o.brand === 'Tech');
+
+            // Badges
+            const setBadge = (id, count) => { const el = document.getElementById(id); if (el) el.textContent = String(count); };
+            setBadge('fresh-count-badge', freshOrders.length);
+            setBadge('chilled-count-badge', chilledOrders.length);
+            setBadge('ambient-count-badge', ambientOrders.length);
+            setBadge('style-count-badge', styleOrders.length);
+            setBadge('tech-count-badge', techOrders.length);
+
+            // Populate Tables
+            const setTable = (tableId, list) => {
+                const tbody = document.querySelector(`#${tableId} tbody`);
+                if (!tbody) return;
+                if (list.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:14px;font-size:11px;">No orders currently in queue for this category.</td></tr>';
+                } else {
+                    tbody.innerHTML = list.map(renderOrderRow).join('');
+                }
+            };
+
+            setTable('fresh-queue-table', freshOrders);
+            setTable('chilled-queue-table', chilledOrders);
+            setTable('ambient-queue-table', ambientOrders);
+            setTable('style-queue-table', styleOrders);
+            setTable('tech-queue-table', techOrders);
+
+            // Right panel: Quarantined / Deferred Orders
+            const tomWrap = document.getElementById('tomorrow-orders-container');
+            if (tomWrap) {
+                const deferredOrLate = orders.filter(o => o.deferredYesterday || o.status === 'deferred');
+                if (deferredOrLate.length === 0) {
+                    tomWrap.innerHTML = '<div style="font-size: 11px; color: var(--text-muted); padding: 8px 0;">No quarantined orders at this time.</div>';
+                } else {
+                    tomWrap.innerHTML = deferredOrLate.slice(0, 5).map(o => `
+                        <div class="tomorrow-order-item" onclick="openOrderInspect('${esc(o.orderRef || orderRef(o.id))}')" style="cursor: pointer;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span class="tomorrow-order-time">${esc(o.windowOpen || '09:00')}</span>
+                                <span style="font-size: 11px; font-family: monospace; font-weight: 700;">${esc(o.orderRef || orderRef(o.id))}</span>
+                            </div>
+                            <div class="tomorrow-order-name">${esc(o.outletId)} · ${esc(o.brand)}</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">${esc(o.district)} · ${o.weightKg}kg</div>
+                            <span class="tomorrow-order-badge" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;">${o.deferralReason || 'CAPACITY BIND'}</span>
+                        </div>
+                    `).join('');
+                }
+            }
+        }
+
+        let activeAllocOrderId = null;
+
+        async function openAllocateModal(orderId, ref, outletId, brand, district, weightKg, volumeM3, temp) {
+            activeAllocOrderId = orderId;
+            document.getElementById('alloc-order-ref-title').textContent = ref;
+            document.getElementById('alloc-outlet-val').textContent = outletId || '—';
+            document.getElementById('alloc-brand-dist-val').textContent = `${brand || 'Fresh'} · ${district || 'Peliyagoda'}`;
+            document.getElementById('alloc-payload-val').textContent = `${weightKg || 0} kg · ${volumeM3 || 0} m³`;
+            document.getElementById('alloc-temp-val').textContent = (temp || 'ambient').toUpperCase();
+
+            const dateInput = document.getElementById('alloc-date-input');
+            if (dateInput) {
+                dateInput.value = (dps.queue && dps.queue.date) || new Date().toISOString().slice(0, 10);
+            }
+
+            await populateAllocVehicleSelect(temp);
+            openModal('allocate-order-modal');
+        }
+
+        async function populateAllocVehicleSelect(tempReq) {
+            const sel = document.getElementById('alloc-vehicle-select');
+            if (!sel) return;
+            sel.innerHTML = '<option value="">Loading vehicles...</option>';
+            try {
+                const res = await WaypointUtil.api('/api/vehicles');
+                const list = res.vehicles || [];
+                sel.innerHTML = list.map(v => {
+                    const matchTemp = tempReq === 'chilled' ? (v.temp === 'reefer' ? ' [REEFER MATCH]' : ' [AMBIENT]') : '';
+                    const util = `${v.weightPct}% W / ${v.volumePct}% V`;
+                    return `<option value="${v.vehicleId}">${v.vehicleId} · ${v.type.toUpperCase()} (${v.depot}) · ${util}${matchTemp}</option>`;
+                }).join('');
+            } catch (err) {
+                sel.innerHTML = Array.from({ length: 48 }, (_, i) => {
+                    const code = `VEH${String(i + 1).padStart(3, '0')}`;
+                    return `<option value="${code}">${code} (Peliyagoda)</option>`;
+                }).join('');
+            }
+        }
+
+        async function confirmOrderAllocation() {
+            if (!activeAllocOrderId) return;
+            const vehicleCode = document.getElementById('alloc-vehicle-select').value;
+            const dockBay = document.getElementById('alloc-dock-select').value;
+            const tripNo = document.getElementById('alloc-trip-select').value;
+            const date = document.getElementById('alloc-date-input').value;
+
+            if (!vehicleCode) {
+                showToast('⚠️ Please select a vehicle for allocation.');
+                return;
+            }
+
+            const btn = document.getElementById('btn-confirm-alloc');
+            if (btn) { btn.disabled = true; btn.textContent = 'Allocating...'; }
+
+            try {
+                const res = await WaypointUtil.api(`/api/orders/${activeAllocOrderId}/allocate`, {
+                    method: 'POST',
+                    body: JSON.stringify({ vehicleCode, dockBay, tripNo, date })
+                });
+
+                closeModal('allocate-order-modal');
+                showToast(`✅ Order ${res.allocation.orderRef} allocated to ${vehicleCode} (${dockBay}) on Day ${date}! Driver, Loader & Store notified.`);
+                await loadQueue();
+                await loadTripsBoard();
+                await loadVehiclesFleetBoard();
+            } catch (err) {
+                showToast(`❌ Allocation failed: ${err.message}`);
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = 'Confirm Allocation 🚀'; }
+            }
+        }
+
+        function openAllOrdersModal() {
+            renderAllOrdersModalTable();
+            openModal('all-orders-modal');
+        }
+
+        function renderAllOrdersModalTable() {
+            const tbody = document.getElementById('all-orders-table-tbody');
+            if (!tbody || !dps.queue || !dps.queue.orders) return;
+
+            const search = (document.getElementById('all-orders-search')?.value || '').toLowerCase();
+            const brandF = document.getElementById('all-orders-brand-filter')?.value || 'all';
+            const tempF = document.getElementById('all-orders-temp-filter')?.value || 'all';
+            const statusF = document.getElementById('all-orders-status-filter')?.value || 'all';
+
+            const filtered = dps.queue.orders.filter(o => {
+                if (brandF !== 'all' && o.brand !== brandF) return false;
+                if (tempF !== 'all' && o.tempRequirement !== tempF) return false;
+                if (statusF !== 'all' && o.status !== statusF) return false;
+                if (search) {
+                    const text = `${o.orderRef} ${o.outletId} ${o.district} ${o.brand} ${o.status}`.toLowerCase();
+                    if (!text.includes(search)) return false;
+                }
+                return true;
+            });
+
+            document.getElementById('all-orders-count-badge').textContent = `${filtered.length} of ${dps.queue.orders.length} orders`;
+            document.getElementById('all-orders-footer-summary').textContent = `Displaying ${filtered.length} orders from PostgreSQL database`;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text-muted);">No orders matching current filters.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(o => {
+                const statusCls = o.status === 'allocated' ? 'tag-pill van' : o.status === 'deferred' ? 'tag-pill deferred' : 'tag-pill';
+                return `
+                    <tr>
+                        <td style="font-weight:800;font-family:monospace;color:var(--brand-blue);">${esc(o.orderRef || orderRef(o.id))}</td>
+                        <td style="font-weight:700;">${esc(o.outletId)}</td>
+                        <td>${esc(o.brand)} · ${esc(o.district)}</td>
+                        <td><span class="tag-pill ${o.tempRequirement === 'chilled' ? 'reefer' : 'ambient'}">${esc(o.tempRequirement.toUpperCase())}</span></td>
+                        <td><strong>${o.weightKg} kg</strong> · ${o.volumeM3} m³</td>
+                        <td>${esc(o.windowOpen || '09:00')} - ${esc(o.windowClose || '17:00')}</td>
+                        <td><span class="${statusCls}">${esc((o.status || 'queued').toUpperCase())}</span></td>
+                        <td>
+                            <div style="display:flex;gap:4px;">
+                                <button class="btn-primary-yellow" style="padding:3px 8px;font-size:11px;background:#10b981;color:#fff;" onclick="closeModal('all-orders-modal'); openAllocateModal(${o.id}, '${esc(o.orderRef || orderRef(o.id))}', '${esc(o.outletId)}', '${esc(o.brand)}', '${esc(o.district)}', ${o.weightKg}, ${o.volumeM3}, '${esc(o.tempRequirement)}')">Allocate</button>
+                                <button class="btn-outline-dark" style="padding:3px 8px;font-size:11px;" onclick="closeModal('all-orders-modal'); openDeferModal('${esc(o.orderRef || orderRef(o.id))}', 'Capacity Constraint', ${o.id})">Defer</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function loadVehiclesFleetBoard() {
+            const grid = document.querySelector('.fleet-cards-grid');
+            if (!grid) return;
+            try {
+                const res = await WaypointUtil.api('/api/vehicles');
+                const vehicles = res.vehicles || [];
+                if (vehicles.length === 0) return;
+
+                grid.innerHTML = vehicles.map(v => {
+                    const isReefer = v.temp === 'reefer';
+                    const ordersHtml = v.orders && v.orders.length > 0
+                        ? v.orders.slice(0, 4).map(o => `
+                            <div class="order-mini-card" onclick="openOrderInspect('${esc(o.orderRef)}')" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; display: flex; justify-content: space-between; font-size: 11px; cursor: pointer;">
+                                <span class="order-mini-ref" style="font-weight: 700; color: var(--text-main);">${esc(o.orderRef)} (${esc(o.outletId)})</span>
+                                <span class="order-mini-specs" style="color: var(--text-muted);">${o.weightKg}kg · ${o.volumeM3}m³</span>
+                            </div>
+                        `).join('') + (v.orders.length > 4 ? `<div style="font-size:10px;color:var(--text-muted);text-align:center;">+${v.orders.length - 4} more orders assigned</div>` : '')
+                        : `<div style="font-size: 11px; color: var(--text-muted); padding: 8px; text-align: center; background: var(--bg-subtle); border-radius: 6px;">Available · No active trips assigned</div>`;
+
+                    const wColor = v.weightPct > 90 ? '#ef4444' : v.weightPct > 70 ? '#f59e0b' : '#10b981';
+                    const vColor = v.volumePct > 90 ? '#ef4444' : v.volumePct > 70 ? '#f59e0b' : '#3b82f6';
+
+                    return `
+                        <div class="fleet-card" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-sm);">
+                            <div class="fleet-card-top" style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="vehicle-icon-box" style="width: 32px; height: 32px; border-radius: 8px; background: ${isReefer ? '#dbeafe' : 'var(--bg-subtle)'}; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                                        ${isReefer ? '❄️' : '🚚'}
+                                    </div>
+                                    <div class="fleet-card-title-group">
+                                        <h3 style="font-size: 14px; font-weight: 800; color: var(--text-main); margin: 0;">${esc(v.vehicleId)}</h3>
+                                        <div class="fleet-card-subtitle" style="font-size: 10px; color: var(--text-muted);">${esc(v.type.toUpperCase())} · ${esc(v.depot)} · Driver: ${esc(v.driverName)}</div>
+                                    </div>
+                                </div>
+                                <span class="tag-pill" style="font-size:9px;background:${v.orders.length > 0 ? '#dcfce7;color:#166534;' : '#f1f5f9;color:#64748b;'}">${v.orders.length > 0 ? `${v.orders.length} DROPS` : 'AVAILABLE'}</span>
+                            </div>
+
+                            <div class="metric-track-group" style="display: flex; flex-direction: column; gap: 8px;">
+                                <div class="metric-track-row">
+                                    <div class="metric-track-label" style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; color: var(--text-muted);">
+                                        <span>WEIGHT</span>
+                                        <span>${v.allocatedWeight.toLocaleString()} / ${v.weightCapKg.toLocaleString()} kg (${v.weightPct}%)</span>
+                                    </div>
+                                    <div class="metric-track-bar" style="height: 6px; background: var(--bg-subtle); border-radius: 999px; overflow: hidden; border: 1px solid var(--border);">
+                                        <div class="metric-track-fill" style="width: ${v.weightPct}%; height: 100%; background: ${wColor}; border-radius: 999px;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="metric-track-row">
+                                    <div class="metric-track-label" style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; color: var(--text-muted);">
+                                        <span>VOLUME</span>
+                                        <span>${v.allocatedVolume} / ${v.volumeCapM3} m³ (${v.volumePct}%)</span>
+                                    </div>
+                                    <div class="metric-track-bar" style="height: 6px; background: var(--bg-subtle); border-radius: 999px; overflow: hidden; border: 1px solid var(--border);">
+                                        <div class="metric-track-fill" style="width: ${v.volumePct}%; height: 100%; background: ${vColor}; border-radius: 999px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="orders-mini-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 150px; overflow-y: auto;">
+                                ${ordersHtml}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error('[vehicles]', err.message);
             }
         }
 
@@ -3880,13 +4240,20 @@
                 showToast(`🆕 New order ${o.orderRef || orderRef(o.id)} from ${o.outletId} (${o.units} units) — queue updated`);
                 loadQueue();
             });
+            WaypointRealtime.on('order-allocated', (a) => {
+                showToast(`📦 Order ${a.orderRef || ''} allocated to ${a.vehicleCode || 'vehicle'} (${a.dockBay || 'bay'})`);
+                loadQueue();
+                loadTripsBoard();
+                loadVehiclesFleetBoard();
+            });
             WaypointRealtime.on('driver-event', (e) => {
                 const labels = { departed: '🚚 departed depot', arrived: '📍 arrived at stop', pod: '✅ POD captured', issue: '⚠️ driver issue', loaded: '📦 loaded' };
                 showToast(`${labels[e.type] || e.type}${e.orderId ? ' · ' + orderRef(e.orderId) : ''} — Live Runs updated`);
                 loadTripsBoard();
+                loadVehiclesFleetBoard();
             });
-            WaypointRealtime.on('trip-status', () => loadTripsBoard());
-            WaypointRealtime.on('vehicle-status', () => loadTripsBoard());
+            WaypointRealtime.on('trip-status', () => { loadTripsBoard(); loadVehiclesFleetBoard(); });
+            WaypointRealtime.on('vehicle-status', () => { loadTripsBoard(); loadVehiclesFleetBoard(); });
             WaypointRealtime.on('shortage-flagged', (f) => {
                 showToast(`🚩 Shortage flagged: ${f.qty} × ${f.itemDesc} (${orderRef(f.orderId)})`);
                 loadFlagsDesk();
@@ -3900,7 +4267,7 @@
                 loadTripsBoard();
             });
             WaypointRealtime.on('dock-note-added', (n) => {
-                showToast(`📝 Dock Note (${n.author}): ${n.note.slice(0, 50)}...`);
+                showToast(`📝 Dock Note from ${n.author} (${n.vehicleCode || n.depot}): ${n.note}`);
             });
             WaypointRealtime.on('loader-day-summary', (s) => {
                 showToast(`📋 ${s.depot} Dock Day Summary: ${s.tripsReleased}/${s.totalTrips} trips released, ${s.totalOrdersLoaded} items loaded (${s.shortagesFlagged} shortages)`);
@@ -3910,7 +4277,7 @@
                 showToast(`🔒 ${f.vehicleCode || 'Vehicle'} Final Check Completed by ${f.confirmedBy} — Ready for Departure`);
                 loadTripsBoard();
             });
-            WaypointRealtime.onPoll(() => { loadTripsBoard(); loadFlagsDesk(); });
+            WaypointRealtime.onPoll(() => { loadTripsBoard(); loadFlagsDesk(); loadVehiclesFleetBoard(); loadDeferralsLedger(); });
         }
 
         // 1. REAL TIME & DYNAMIC DATE ENGINE
@@ -3981,7 +4348,6 @@
         const authErrorBox = document.getElementById('auth-error-box');
         const quickFillBtn = document.getElementById('quick-fill-auth');
 
-        // --- AUTH (real JWT via /api/auth/me + /api/auth/login) ---
         async function checkAuthSession() {
             const user = await WaypointAuth.guard('dispatcher', { lockElId: 'auth-lock-screen' });
             if (!user) return;
@@ -3996,9 +4362,10 @@
             document.getElementById('user-avatar-initials').textContent = name.split(' ').map(n => n[0]).join('').substring(0, 2);
             showToast(`Dispatcher ${name} Authenticated · Live Data Connected`);
             initLiveMapCanvas();
-            renderLedgerTable();
+            loadDeferralsLedger();
             loadQueue();
             loadTripsBoard();
+            loadVehiclesFleetBoard();
             loadFlagsDesk();
             loadAnalytics();
             startDispatcherRealtime();
@@ -4069,7 +4436,6 @@
                 }
             });
 
-            // Sync top center nav pills
             const navPills = {
                 'vehicle-allocation': 'nav-pill-plan',
                 'live-runs': 'nav-pill-network',
@@ -4092,25 +4458,48 @@
             if (screenId === 'map-view') {
                 setTimeout(drawRadarMap, 60);
             }
-            // Lazy-refresh boards with live data on entry.
             if (screenId === 'live-runs') loadTripsBoard();
             if (screenId === 'order-queue') loadQueue();
+            if (screenId === 'vehicle-allocation') loadVehiclesFleetBoard();
+            if (screenId === 'deferral-ledger') loadDeferralsLedger();
             if (screenId === 'exceptions') loadFlagsDesk();
             if (screenId === 'analytics') loadAnalytics();
         }
 
-        // 4. CUTOFF & SILENCE TIMERS
-        let cutoffSeconds = 41 * 60 + 12;
-        setInterval(() => {
-            if (cutoffSeconds > 0) {
-                cutoffSeconds--;
-                const m = Math.floor(cutoffSeconds / 60);
-                const s = cutoffSeconds % 60;
-                const formatted = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-                const el = document.getElementById('cutoff-countdown');
-                if (el) el.textContent = formatted;
+        // 4. DYNAMIC 4:00 PM CUTOFF & SILENCE TIMERS
+        function updateCutoffCountdown() {
+            const now = new Date();
+            const target = new Date(now);
+            target.setHours(16, 0, 0, 0);
+
+            const diffMs = target.getTime() - now.getTime();
+            const el = document.getElementById('cutoff-countdown');
+            const sub = document.querySelector('.cutoff-subtext');
+            if (!el) return;
+
+            if (diffMs > 0) {
+                const totalSec = Math.floor(diffMs / 1000);
+                const h = Math.floor(totalSec / 3600);
+                const m = Math.floor((totalSec % 3600) / 60);
+                const s = totalSec % 60;
+                if (h > 0) {
+                    el.textContent = `${h}h ${String(m).padStart(2, '0')}m`;
+                } else {
+                    el.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                }
+                if (sub) sub.textContent = '16:00 close';
+                el.style.color = m < 15 && h === 0 ? '#ef4444' : 'var(--text-main)';
+            } else {
+                const pastSec = Math.floor(-diffMs / 1000);
+                const pastH = Math.floor(pastSec / 3600);
+                const pastM = Math.floor((pastSec % 3600) / 60);
+                el.textContent = `+${pastH}h ${pastM}m`;
+                el.style.color = '#ef4444';
+                if (sub) sub.textContent = 'Post-Cutoff';
             }
-        }, 1000);
+        }
+        setInterval(updateCutoffCountdown, 1000);
+        updateCutoffCountdown();
 
         let silenceSeconds = 15 * 60;
         let silenceInterval = null;
@@ -4152,58 +4541,106 @@
             document.getElementById('main-sidebar').classList.toggle('open');
         });
 
-        // 5. DEFERRAL LEDGER DATA STORE & ENGINE
-        const todayDateFormatted = new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
-        const yesterdayDateFormatted = new Date(Date.now() - 86400000).toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
-
-        let deferralLedgerData = [
-            { id: 1, date: `${todayDateFormatted} 13:41`, order: 'ORD00987', outlet: 'OUT074', reason: 'CAP', dispatcher: 'A. Patel', cost: 320, promise: 'Tomorrow 06:00', status: 'DUE' },
-            { id: 2, date: `${todayDateFormatted} 11:22`, order: 'ORD00945', outlet: 'OUT058', reason: 'INV', dispatcher: 'M. Singh', cost: 185, promise: `${todayDateFormatted} 18:00`, status: 'KEPT' },
-            { id: 3, date: `${todayDateFormatted} 11:22`, order: 'ORD00921', outlet: 'OUT014', reason: 'REE', dispatcher: 'J. Nguyen', cost: 610, promise: 'Tomorrow 07:00', status: 'KEPT' },
-            { id: 4, date: `${todayDateFormatted} 09:17`, order: 'ORD00921', outlet: 'OUT074', reason: 'REE', dispatcher: 'J. Nguyen', cost: 610, promise: `${todayDateFormatted} 07:00`, status: 'BROKEN' },
-            { id: 5, date: `${yesterdayDateFormatted} 17:33`, order: 'ORD00875', outlet: 'OUT031', reason: 'CAP', dispatcher: 'A. Patel', cost: 275, promise: `${todayDateFormatted} 09:00`, status: 'KEPT' },
-            { id: 6, date: `${yesterdayDateFormatted} 14:18`, order: 'ORD00842', outlet: 'OUT014', reason: 'REE', dispatcher: 'J. Nguyen', cost: 560, promise: `${todayDateFormatted} 11:00`, status: 'DUE' },
-            { id: 7, date: `${yesterdayDateFormatted} 10:52`, order: 'ORD00819', outlet: 'OUT022', reason: 'INV', dispatcher: 'M. Singh', cost: 150, promise: `${todayDateFormatted} 08:00`, status: 'KEPT' }
-        ];
-
+        // 5. DEFERRAL LEDGER DATA STORE & ENGINE WITH REAL DB DATA & PAGINATION
+        let ledgerPage = 1;
+        let ledgerPageSize = 10;
+        let dbDeferrals = [];
         let activeLedgerFilter = 'all';
+
+        async function loadDeferralsLedger() {
+            try {
+                const res = await WaypointUtil.api('/api/deferrals');
+                dbDeferrals = res.ledger || [];
+                renderLedgerTable();
+            } catch (err) {
+                console.error('[deferrals]', err.message);
+            }
+        }
 
         function renderLedgerTable() {
             const tbody = document.getElementById('deferral-ledger-tbody');
             if (!tbody) return;
 
-            let filtered = deferralLedgerData;
+            let filtered = dbDeferrals;
             if (activeLedgerFilter === 'DUE') {
-                filtered = deferralLedgerData.filter(d => d.status === 'DUE');
-            } else if (activeLedgerFilter === 'REE') {
-                filtered = deferralLedgerData.filter(d => d.reason === 'REE');
+                filtered = dbDeferrals.filter(d => d.kept === null);
+            } else if (activeLedgerFilter === 'REE' || activeLedgerFilter === 'REF') {
+                filtered = dbDeferrals.filter(d => d.reason === 'REF' || d.reason === 'REE');
             } else if (activeLedgerFilter === 'CAP') {
-                filtered = deferralLedgerData.filter(d => d.reason === 'CAP');
+                filtered = dbDeferrals.filter(d => d.reason === 'CAP');
+            } else if (activeLedgerFilter === 'INV') {
+                filtered = dbDeferrals.filter(d => d.reason === 'INV');
             }
 
+            const totalCount = filtered.length;
+            const totalPages = Math.max(1, Math.ceil(totalCount / ledgerPageSize));
+            if (ledgerPage > totalPages) ledgerPage = totalPages;
+            if (ledgerPage < 1) ledgerPage = 1;
+
+            const start = (ledgerPage - 1) * ledgerPageSize;
+            const pageItems = filtered.slice(start, start + ledgerPageSize);
+
             tbody.innerHTML = '';
-            filtered.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${item.date}</td>
-                    <td style="font-family: monospace; font-weight: 700;">${item.order}</td>
-                    <td style="font-weight: 700;">${item.outlet}</td>
-                    <td><span class="reason-code-pill ${item.reason.toLowerCase()}">${item.reason}</span></td>
-                    <td>${item.dispatcher}</td>
-                    <td style="font-weight: 700;">$${item.cost}</td>
-                    <td>${item.promise}</td>
-                    <td><span class="promise-status-badge ${item.status.toLowerCase()}">${item.status}</span></td>
-                `;
-                tbody.appendChild(tr);
-            });
+            if (pageItems.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:20px;">No deferral records found in database.</td></tr>';
+            } else {
+                pageItems.forEach(item => {
+                    const tr = document.createElement('tr');
+                    const dStr = item.promiseDate ? new Date(item.promiseDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Next Cycle';
+                    const statusLabel = item.kept === true ? 'KEPT' : item.kept === false ? 'BROKEN' : 'DUE';
+                    const statusCls = item.kept === true ? 'kept' : item.kept === false ? 'broken' : 'due';
+                    const cost = item.reason === 'REF' ? 610 : item.reason === 'CAP' ? 320 : 185;
+                    tr.innerHTML = `
+                        <td>${item.promiseDate ? item.promiseDate.slice(0, 10) : '2026-06-25'}</td>
+                        <td style="font-family: monospace; font-weight: 700;">${esc(item.orderRef || 'ORD-' + item.orderId)}</td>
+                        <td style="font-weight: 700;">${esc(item.outletId || item.brand || 'Outlet')}</td>
+                        <td><span class="reason-code-pill ${String(item.reason).toLowerCase()}">${esc(item.reason)}</span></td>
+                        <td>Dispatcher</td>
+                        <td style="font-weight: 700;">$${cost}</td>
+                        <td>${dStr} 06:00</td>
+                        <td><span class="promise-status-badge ${statusCls}">${statusLabel}</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
 
-            const count = deferralLedgerData.length;
-            const totalCost = deferralLedgerData.reduce((acc, curr) => acc + curr.cost, 0);
-            const avgCost = Math.round(totalCost / count);
+            const pageIndicator = document.getElementById('ledger-page-indicator');
+            if (pageIndicator) pageIndicator.textContent = `${ledgerPage} / ${totalPages}`;
+            const sideCount = document.getElementById('sidebar-ledger-count');
+            if (sideCount) sideCount.textContent = totalCount;
+            const ind = document.getElementById('ledger-count-indicator');
+            if (ind) ind.textContent = `Showing ${pageItems.length} of ${totalCount} deferrals (Page ${ledgerPage} of ${totalPages})`;
+            const costSummary = document.getElementById('ledger-cost-summary');
+            if (costSummary) {
+                const totalCost = filtered.reduce((acc, curr) => acc + (curr.reason === 'REF' ? 610 : curr.reason === 'CAP' ? 320 : 185), 0);
+                const avgCost = totalCount > 0 ? Math.round(totalCost / totalCount) : 0;
+                costSummary.textContent = `Entries ${totalCount} · Total cost estimate $${totalCost.toLocaleString()} · Avg. cost per deferral $${avgCost}`;
+            }
+        }
 
-            document.getElementById('sidebar-ledger-count').textContent = count;
-            document.getElementById('ledger-count-indicator').textContent = `Showing ${filtered.length} of ${count} deferrals`;
-            document.getElementById('ledger-cost-summary').textContent = `Entries ${count} · Total cost estimate $${totalCost.toLocaleString()} · Avg. cost per deferral $${avgCost}`;
+        function prevLedgerPage() {
+            if (ledgerPage > 1) {
+                ledgerPage--;
+                renderLedgerTable();
+            }
+        }
+
+        function nextLedgerPage() {
+            let filtered = dbDeferrals;
+            if (activeLedgerFilter === 'DUE') filtered = dbDeferrals.filter(d => d.kept === null);
+            else if (activeLedgerFilter === 'REE' || activeLedgerFilter === 'REF') filtered = dbDeferrals.filter(d => d.reason === 'REF' || d.reason === 'REE');
+            else if (activeLedgerFilter === 'CAP') filtered = dbDeferrals.filter(d => d.reason === 'CAP');
+            const totalPages = Math.max(1, Math.ceil(filtered.length / ledgerPageSize));
+            if (ledgerPage < totalPages) {
+                ledgerPage++;
+                renderLedgerTable();
+            }
+        }
+
+        function changeLedgerPageSize(newSize) {
+            ledgerPageSize = Number(newSize) || 10;
+            ledgerPage = 1;
+            renderLedgerTable();
         }
 
         function filterLedgerByTag(tag, element) {
@@ -4216,8 +4653,8 @@
 
         function exportLedgerCSV() {
             let csvContent = "data:text/csv;charset=utf-8,Date/Time,Order,Outlet,Reason Code,Dispatcher,Cost Est,Promise,Status\n";
-            deferralLedgerData.forEach(r => {
-                csvContent += `"${r.date}","${r.order}","${r.outlet}","${r.reason}","${r.dispatcher}",${r.cost},"${r.promise}","${r.status}"\n`;
+            dbDeferrals.forEach(r => {
+                csvContent += `"${r.promiseDate ? r.promiseDate.slice(0, 10) : ''}","${r.orderRef || ''}","${r.outletId || ''}","${r.reason || ''}","Dispatcher",320,"${r.promiseDate || ''}","${r.kept === true ? 'KEPT' : r.kept === false ? 'BROKEN' : 'DUE'}"\n`;
             });
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");

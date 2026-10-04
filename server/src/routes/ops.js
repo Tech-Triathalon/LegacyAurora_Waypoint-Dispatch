@@ -102,12 +102,82 @@ function shapeTrip(t) {
 // GET /api/trips — committed trips for all vehicles (or by ?depot=Peliyagoda|Kandy).
 router.get('/trips', requireAuth, readLimiter, async (req, res) => {
   const where = {};
-  if (req.query.depot) {
+  if (req.query.depot && req.query.depot !== 'all') {
     where.depot = req.query.depot;
   }
   const trips = await prisma.trip.findMany({ where, include: { stops: { include: { order: true } }, vehicle: true } });
   trips.sort((a, b) => String(a.vehicle ? a.vehicle.vehicleId : '').localeCompare(String(b.vehicle ? b.vehicle.vehicleId : '')) || a.tripNo - b.tripNo);
   return res.json({ trips: trips.map(shapeTrip) });
+});
+
+// GET /api/vehicles — complete vehicle fleet with today's trip allocation metrics
+router.get('/vehicles', requireAuth, readLimiter, async (req, res) => {
+  const depot = req.query.depot;
+  const where = depot && depot !== 'all' ? { depot } : {};
+  const vehicles = await prisma.vehicle.findMany({
+    where,
+    include: {
+      trips: {
+        include: {
+          stops: {
+            include: { order: true },
+          },
+        },
+      },
+      user: true,
+    },
+    orderBy: { vehicleId: 'asc' },
+  });
+
+  const shaped = vehicles.map((v) => {
+    let allocatedWeight = 0;
+    let allocatedVolume = 0;
+    const ordersList = [];
+    
+    for (const t of v.trips) {
+      allocatedWeight += (t.totalWeight || 0);
+      allocatedVolume += (t.totalVolume || 0);
+      for (const s of (t.stops || [])) {
+        if (s.order) {
+          ordersList.push({
+            orderId: s.order.id,
+            orderRef: `ORD-${String(s.order.id).padStart(4, '0')}`,
+            outletId: s.order.outletId,
+            brand: s.order.brand,
+            weightKg: s.order.weightKg,
+            volumeM3: s.order.volumeM3,
+            tripNo: t.tripNo,
+            seq: s.seq,
+            status: s.order.status,
+            plannedArrival: s.plannedArrival,
+          });
+        }
+      }
+    }
+
+    const weightPct = v.weightCapKg > 0 ? Math.min(100, Math.round((allocatedWeight / v.weightCapKg) * 100)) : 0;
+    const volumePct = v.volumeCapM3 > 0 ? Math.min(100, Math.round((allocatedVolume / v.volumeCapM3) * 100)) : 0;
+
+    return {
+      id: v.id,
+      vehicleId: v.vehicleId,
+      type: v.type,
+      temp: v.temp,
+      depot: v.depot,
+      weightCapKg: v.weightCapKg,
+      volumeCapM3: v.volumeCapM3,
+      allocatedWeight,
+      allocatedVolume: Math.round(allocatedVolume * 10) / 10,
+      weightPct,
+      volumePct,
+      tripsCount: v.trips.length,
+      driverName: v.user ? v.user.name : 'Unassigned',
+      orders: ordersList,
+      trips: v.trips.map(shapeTrip),
+    };
+  });
+
+  return res.json({ vehicles: shaped });
 });
 
 router.get('/trips/for-driver', requireAuth, requireRole('driver'), readLimiter, async (req, res) => {
@@ -467,6 +537,19 @@ router.post('/dock-notes', requireAuth, requireRole('loader', 'dispatcher'), syn
   publish('dispatcher', 'dock-note-added', notePayload);
   publish('driver', 'dock-note-added', notePayload);
   publish('loader', 'dock-note-added', notePayload);
+  if (vehicleCode) {
+    publish(`driver:${vehicleCode}`, 'dock-note-added', notePayload);
+    publish(`loader:${vehicleCode}`, 'dock-note-added', notePayload);
+  }
+  if (tripId) {
+    try {
+      const tripObj = await prisma.trip.findUnique({ where: { id: Number(tripId) }, include: { vehicle: true } });
+      if (tripObj) {
+        if (tripObj.vehicleId) publish(`driver:${tripObj.vehicleId}`, 'dock-note-added', notePayload);
+        if (tripObj.vehicle && tripObj.vehicle.vehicleId) publish(`driver:${tripObj.vehicle.vehicleId}`, 'dock-note-added', notePayload);
+      }
+    } catch {}
+  }
 
   return res.json({ ok: true, note: notePayload });
 });

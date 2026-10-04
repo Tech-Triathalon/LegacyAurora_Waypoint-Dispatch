@@ -452,6 +452,142 @@ router.post('/orders/:id/defer', requireAuth, requireRole('dispatcher'), writeLi
   return res.json({ ok: true, order: shapeOrder(updated) });
 });
 
+// POST /api/orders/:id/allocate — manually allocate an order to a vehicle, dock bay, day, and trip.
+router.post('/orders/:id/allocate', requireAuth, requireRole('dispatcher'), writeLimiter, idempotency.middleware, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'invalid order id' });
+  
+  const { vehicleCode, vehicleId, dockBay, date, tripNo } = req.body || {};
+  const targetDate = date || DEMO_DAY;
+  const targetTripNo = Number(tripNo) || 1;
+  const targetBay = dockBay || 'Bay 2';
+
+  const order = await prisma.order.findUnique({ where: { id }, include: { outlet: true } });
+  if (!order) return res.status(404).json({ error: 'order not found' });
+
+  // Resolve vehicle
+  let vehicle = null;
+  if (vehicleCode) {
+    vehicle = await prisma.vehicle.findUnique({ where: { vehicleId: vehicleCode } });
+  } else if (vehicleId) {
+    vehicle = await prisma.vehicle.findUnique({ where: { id: Number(vehicleId) } });
+  } else {
+    vehicle = await prisma.vehicle.findFirst({
+      where: {
+        depot: order.depot || 'Peliyagoda',
+        temp: order.tempRequirement === 'chilled' ? 'reefer' : undefined,
+      },
+    });
+  }
+
+  if (!vehicle) {
+    return res.status(404).json({ error: 'no matching vehicle found for allocation' });
+  }
+
+  // Find or create trip for this vehicle and date
+  let trip = await prisma.trip.findFirst({
+    where: {
+      vehicleId: vehicle.id,
+      tripNo: targetTripNo,
+    },
+    include: { stops: true },
+  });
+
+  if (!trip) {
+    trip = await prisma.trip.create({
+      data: {
+        vehicleId: vehicle.id,
+        tripNo: targetTripNo,
+        brand: order.brand,
+        district: order.district,
+        depot: order.depot || vehicle.depot,
+        totalWeight: order.weightKg,
+        totalVolume: order.volumeM3,
+        estMinutes: 120,
+        distanceKm: 35.0,
+        fuelLiters: 8.5,
+        status: 'planned',
+        committedAt: new Date(),
+      },
+      include: { stops: true },
+    });
+  } else {
+    await prisma.trip.update({
+      where: { id: trip.id },
+      data: {
+        totalWeight: (trip.totalWeight || 0) + order.weightKg,
+        totalVolume: Math.round(((trip.totalVolume || 0) + order.volumeM3) * 10) / 10,
+        status: trip.status === 'completed' ? 'planned' : trip.status,
+      },
+    });
+  }
+
+  // Remove existing stop if any for this order
+  await prisma.tripStop.deleteMany({ where: { orderId: id } });
+
+  const nextSeq = (trip.stops ? trip.stops.length : 0) + 1;
+  await prisma.tripStop.create({
+    data: {
+      tripId: trip.id,
+      seq: nextSeq,
+      orderId: id,
+      plannedArrival: order.windowOpen || '08:30',
+    },
+  });
+
+  // Update order status to allocated
+  const updatedOrder = await prisma.order.update({
+    where: { id },
+    data: {
+      status: 'allocated',
+      deferralReason: null,
+    },
+  });
+
+  const eventPayload = {
+    orderId: id,
+    orderRef: `ORD-${String(id).padStart(4, '0')}`,
+    outletId: order.outletId,
+    brand: order.brand,
+    vehicleCode: vehicle.vehicleId,
+    vehicleId: vehicle.id,
+    dockBay: targetBay,
+    date: targetDate,
+    tripNo: targetTripNo,
+    allocatedBy: (req.user && req.user.name) || 'Dispatcher',
+    allocatedAt: new Date().toISOString(),
+  };
+
+  // Record delivery event
+  await prisma.deliveryEvent.create({
+    data: {
+      eventId: `alloc-${id}-${Date.now()}`,
+      type: 'loaded',
+      orderId: id,
+      payload: { isAllocation: true, ...eventPayload },
+      syncedFlag: true,
+    },
+  });
+
+  // Realtime fan-out: dispatcher, driver, loader, store manager
+  publish('dispatcher', 'order-allocated', eventPayload);
+  publish('driver', 'order-allocated', eventPayload);
+  publish(`driver:${vehicle.id}`, 'order-allocated', eventPayload);
+  publish(`driver:${vehicle.vehicleId}`, 'order-allocated', eventPayload);
+  publish('loader', 'order-allocated', eventPayload);
+  publish(`loader:${vehicle.id}`, 'order-allocated', eventPayload);
+  publish(`loader:${vehicle.vehicleId}`, 'order-allocated', eventPayload);
+  if (order.outletId) {
+    publish(`store:${order.outletId}`, 'order-allocated', eventPayload);
+  }
+
+  return res.json({
+    ok: true,
+    order: shapeOrder(updatedOrder),
+    allocation: eventPayload,
+  });
+});
+
 // GET /api/analytics/summary?date=YYYY-MM-DD — real KPIs for the dispatcher analytics screen.
 // Delivery performance, capacity disposition and fleet effort for one operating day.
 router.get('/analytics/summary', requireAuth, readLimiter, async (req, res) => {
