@@ -65,6 +65,8 @@ function shapeTrip(t) {
     id: t.id,
     vehicleId: t.vehicleId,
     vehicleCode: t.vehicle ? t.vehicle.vehicleId : null,
+    vehicleType: t.vehicle ? t.vehicle.type : 'truck',
+    vehicleTemp: t.vehicle ? t.vehicle.temp : 'ambient',
     tripNo: t.tripNo,
     brand: t.brand,
     district: t.district,
@@ -82,6 +84,12 @@ function shapeTrip(t) {
         orderId: s.orderId,
         orderRef: `ORD-${String(s.orderId).padStart(4, '0')}`,
         outletId: s.order ? s.order.outletId : null,
+        brand: s.order ? s.order.brand : null,
+        district: s.order ? s.order.district : null,
+        units: s.order ? s.order.units : 0,
+        weightKg: s.order ? s.order.weightKg : 0,
+        volumeM3: s.order ? s.order.volumeM3 : 0,
+        tempRequirement: s.order ? s.order.tempRequirement : 'ambient',
         windowOpen: s.order ? s.order.windowOpen : null,
         windowClose: s.order ? s.order.windowClose : null,
         plannedArrival: s.plannedArrival,
@@ -91,9 +99,13 @@ function shapeTrip(t) {
 }
 
 // GET /api/trips/for-driver — manifest for the logged-in driver's vehicle.
-// GET /api/trips — committed trips for all vehicles (dispatcher live runs board).
+// GET /api/trips — committed trips for all vehicles (or by ?depot=Peliyagoda|Kandy).
 router.get('/trips', requireAuth, readLimiter, async (req, res) => {
-  const trips = await prisma.trip.findMany({ include: { stops: { include: { order: true } }, vehicle: true } });
+  const where = {};
+  if (req.query.depot) {
+    where.depot = req.query.depot;
+  }
+  const trips = await prisma.trip.findMany({ where, include: { stops: { include: { order: true } }, vehicle: true } });
   trips.sort((a, b) => String(a.vehicle ? a.vehicle.vehicleId : '').localeCompare(String(b.vehicle ? b.vehicle.vehicleId : '')) || a.tripNo - b.tripNo);
   return res.json({ trips: trips.map(shapeTrip) });
 });

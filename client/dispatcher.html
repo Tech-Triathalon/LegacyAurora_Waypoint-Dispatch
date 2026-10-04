@@ -2549,7 +2549,7 @@
                     </div>
                     <div class="alert-banner-actions" style="display: flex; align-items: center; gap: 10px;">
                         <button class="btn-outline-dark" style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 7px 14px; font-size: 12px; font-weight: 700; cursor: pointer;" onclick="autoAllocateSecondary()">Auto-allocate secondary</button>
-                        <button class="btn-primary-yellow" style="background: #f59e0b; color: #121212; border: none; border-radius: 6px; padding: 7px 16px; font-size: 12px; font-weight: 800; cursor: pointer;" onclick="commitFleetPlan()">Commit plan</button>
+                        <button class="btn-primary-yellow" style="background: #10b981; color: #ffffff; border: none; border-radius: 6px; padding: 7px 16px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px;" onclick="commitFleetPlan()">🚀 Dispatch to Peliyagoda & Kandy Loaders</button>
                     </div>
                 </div>
 
@@ -4407,14 +4407,16 @@
                 showToast('⛔ Allocation needs a connection. Reconnect and retry — other actions keep working offline.');
                 return;
             }
-            showToast('⚡ Running allocation engine (dry-run)…');
+            showToast('⚡ Running allocation engine across Peliyagoda & Kandy...');
             try {
                 const proposal = await WaypointUtil.api('/api/plan/allocate', { method: 'POST', body: {} });
                 const res = await WaypointUtil.api('/api/plan/commit', {
                     method: 'POST',
                     body: { plan: { trips: proposal.trips, deferred: proposal.deferred } },
                 });
-                showToast(`🚀 Plan committed: ${res.trips} trips · ${res.deferred} deferred — drivers & loaders notified`);
+                const peliTrips = (proposal.trips || []).filter(t => (t.depot || '').toLowerCase().includes('peli')).length;
+                const kandyTrips = (proposal.trips || []).filter(t => (t.depot || '').toLowerCase().includes('kandy')).length;
+                showToast(`🚀 Dispatched to Loaders: 🏭 Peliyagoda (${peliTrips} runs) · ⛰️ Kandy (${kandyTrips} runs) · ${res.deferred || 0} deferred`);
                 loadTripsBoard();
                 loadQueue();
             } catch (err) {

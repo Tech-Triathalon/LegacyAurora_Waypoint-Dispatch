@@ -1505,7 +1505,7 @@
         /* Printable manifest (dock clipboard): hide interactive chrome, flatten to one page */
         @media print {
             body { background: #ffffff; color: #000000; padding: 12mm 14mm; }
-            .top-screen-nav-bar, .btn-logout, .screen-nav-pill-group, .glove-toggle-btn { display: none !important; }
+            .top-screen-nav-bar, .depot-vehicle-bar, .btn-logout, .screen-nav-pill-group, .glove-toggle-btn { display: none !important; }
             .loader-viewport-container { max-width: 100%; padding: 0; }
             .s1-footer-bar, .s1-btn-review, .s1-back-btn { display: none !important; }
             .s1-card, .s2-card, .s3-layout-card, .s4-card { box-shadow: none !important; border: 1px solid #cccccc !important; break-inside: avoid; }
@@ -1513,6 +1513,91 @@
             .modal-overlay { display: none !important; }
             @page { size: A4; margin: 12mm 14mm; }
         }
+
+        /* --- DEPOT & VEHICLE SELECTION COMMAND BAR --- */
+        .depot-vehicle-bar {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 14px 18px;
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: var(--shadow-card);
+        }
+        .depot-pill-btn {
+            background: transparent;
+            border: none;
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .depot-pill-btn.active {
+            background: var(--header-black);
+            color: #ffffff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .vehicle-card-pill {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 8px 14px;
+            cursor: pointer;
+            min-width: 160px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+            text-align: left;
+        }
+        .vehicle-card-pill:hover {
+            border-color: #cbd5e1;
+            background: #ffffff;
+        }
+        .vehicle-card-pill.active {
+            background: #0f172a;
+            color: #ffffff;
+            border-color: #0f172a;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .vehicle-card-pill.active .v-code {
+            color: #f59e0b;
+        }
+        .vehicle-card-pill.active .v-meta {
+            color: #cbd5e1;
+        }
+        .v-code {
+            font-size: 12px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .v-meta {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .tag-spec-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        .tag-spec-chilled { background: #fee2e2; color: #991b1b; }
+        .tag-spec-ambient { background: #f1f5f9; color: #475569; }
+        .tag-spec-fresh { background: #ecfdf5; color: #065f46; }
     </style>
 </head>
 <body>
@@ -1569,6 +1654,35 @@
 
     <!-- MAIN VIEWPORT CONTAINER -->
     <main class="loader-viewport-container">
+
+        <!-- DEPOT & VEHICLE SELECTION COMMAND BAR -->
+        <div class="depot-vehicle-bar" id="depot-vehicle-bar">
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <span style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted);">Loading Dock:</span>
+                    <div class="depot-pill-group" style="display:inline-flex; background:#f1f5f9; padding:3px; border-radius:var(--radius-pill); border:1px solid #e2e8f0;">
+                        <button type="button" class="depot-pill-btn active" id="depot-btn-peliyagoda" onclick="switchDepot('Peliyagoda')">🏭 Peliyagoda Dock</button>
+                        <button type="button" class="depot-pill-btn" id="depot-btn-kandy" onclick="switchDepot('Kandy')">⛰️ Kandy Cross-Dock</button>
+                        <button type="button" class="depot-pill-btn" id="depot-btn-all" onclick="switchDepot('all')">🌐 All Bays</button>
+                    </div>
+                </div>
+                <div id="loader-plan-status" style="font-size:11px; font-weight:700; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+                    <span class="live-pulse-dot" style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block;"></span>
+                    <span id="loader-status-text">Synced with Dispatcher</span>
+                </div>
+            </div>
+            
+            <!-- Vehicle Selection Carousel / Badges -->
+            <div style="display:flex; flex-direction:column; gap:6px;">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <span style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-light);" id="vehicle-list-title">Assigned Vehicles · Peliyagoda Dock</span>
+                    <span style="font-size:10px; font-weight:700; color:#059669;" id="vehicle-count-badge">0 vehicles</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px; overflow-x:auto; padding:4px 0 6px;" id="loader-vehicle-pills">
+                    <div style="font-size:12px; color:var(--text-muted); padding:6px 0;">Loading vehicles...</div>
+                </div>
+            </div>
+        </div>
 
         <!-- ====================================================================
              SCREEN 1: LOAD SHEET DETAIL (MATCHING SCREENSHOT 1 EXACTLY)
@@ -2224,41 +2338,116 @@
     <script>
         // --- LOADER APP STATE + REAL MANIFEST ---
         const { orderRef, hhmm, esc } = WaypointUtil;
-        const state = { user: null, vehicleCode: null, manifest: null, flags: [], shortageQty: 4, selectedReason: 'Missing at Dock' };
+        const state = {
+            user: null,
+            allTrips: [],
+            selectedDepot: 'Peliyagoda',
+            vehicleCode: null,
+            manifest: null,
+            selectedTrip: null,
+            flags: [],
+            shortageQty: 4,
+            selectedReason: 'Missing at Dock'
+        };
 
         function ldrToast(msg) {
             let t = document.getElementById('ldr-toast');
             if (!t) {
                 t = document.createElement('div');
                 t.id = 'ldr-toast';
-                t.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;font-size:12px;font-weight:700;padding:10px 16px;border-radius:9999px;z-index:9999;box-shadow:0 8px 20px rgba(0,0,0,.35);max-width:86vw;text-align:center;';
+                t.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;font-size:12px;font-weight:700;padding:10px 18px;border-radius:9999px;z-index:9999;box-shadow:0 8px 20px rgba(0,0,0,.35);max-width:86vw;text-align:center;';
                 document.body.appendChild(t);
             }
             t.textContent = msg;
             t.style.display = 'block';
             clearTimeout(t._h);
-            t._h = setTimeout(() => { t.style.display = 'none'; }, 3200);
+            t._h = setTimeout(() => { t.style.display = 'none'; }, 3400);
         }
 
-        function firstTrip() {
-            return (state.manifest && state.manifest.trips && state.manifest.trips[0]) || null;
+        function getDepotTrips() {
+            if (state.selectedDepot === 'all') return state.allTrips;
+            return (state.allTrips || []).filter(t => (t.depot || '').toLowerCase().includes(state.selectedDepot.toLowerCase()));
+        }
+
+        function currentTrip() {
+            return state.selectedTrip || (state.manifest && state.manifest.trips && state.manifest.trips[0]) || null;
+        }
+
+        function switchDepot(depot) {
+            state.selectedDepot = depot;
+            state.vehicleCode = null;
+            document.querySelectorAll('.depot-pill-btn').forEach(b => b.classList.remove('active'));
+            if (depot === 'Peliyagoda') document.getElementById('depot-btn-peliyagoda')?.classList.add('active');
+            else if (depot === 'Kandy') document.getElementById('depot-btn-kandy')?.classList.add('active');
+            else if (depot === 'all') document.getElementById('depot-btn-all')?.classList.add('active');
+
+            ldrToast(`Switched to ${depot === 'all' ? 'All Bays' : depot + ' Dock'}`);
+            loadManifest();
+        }
+
+        function selectVehicle(vCode) {
+            state.vehicleCode = vCode;
+            loadManifest();
         }
 
         async function loadManifest() {
             try {
-                if (!state.vehicleCode) {
-                    const all = await WaypointUtil.api('/api/trips');
-                    const withPlan = (all.trips || []).find((t) => t.vehicleCode);
-                    state.vehicleCode = withPlan ? withPlan.vehicleCode : null;
+                const res = await WaypointUtil.api('/api/trips');
+                state.allTrips = res.trips || [];
+
+                const depotTrips = getDepotTrips();
+
+                // If no vehicle selected or current vehicle not in depot, pick first
+                if (!state.vehicleCode || !depotTrips.some(t => t.vehicleCode === state.vehicleCode)) {
+                    state.vehicleCode = depotTrips.length > 0 ? depotTrips[0].vehicleCode : null;
                 }
-                if (!state.vehicleCode) { renderEmpty(); return; }
+
+                renderDepotAndVehicleSelector(depotTrips);
+
+                if (!state.vehicleCode) {
+                    renderEmpty();
+                    return;
+                }
+
                 state.manifest = await WaypointUtil.api(`/api/trips/${state.vehicleCode}`);
+                state.selectedTrip = (state.manifest && state.manifest.trips && state.manifest.trips[0]) || null;
                 await loadFlags();
                 renderLoadSheet();
                 renderBayPlan();
             } catch (err) {
                 ldrToast(`Manifest unavailable: ${err.message}`);
             }
+        }
+
+        function renderDepotAndVehicleSelector(depotTrips) {
+            const title = document.getElementById('vehicle-list-title');
+            const count = document.getElementById('vehicle-count-badge');
+            const pillsBox = document.getElementById('loader-vehicle-pills');
+
+            const depotLabel = state.selectedDepot === 'all' ? 'All Facilities' : `${state.selectedDepot} Dock`;
+            if (title) title.textContent = `Assigned Vehicles · ${depotLabel}`;
+            if (count) count.textContent = `${depotTrips.length} run${depotTrips.length === 1 ? '' : 's'} planned`;
+
+            if (!pillsBox) return;
+
+            if (depotTrips.length === 0) {
+                pillsBox.innerHTML = `<div style="font-size:12px; color:var(--text-muted); padding:6px 0;">No vehicles allocated for ${depotLabel} yet. Dispatcher must commit plan.</div>`;
+                return;
+            }
+
+            pillsBox.innerHTML = depotTrips.map(t => {
+                const isActive = t.vehicleCode === state.vehicleCode;
+                const tempIcon = t.vehicleTemp === 'reefer' ? '❄️ Reefer' : '📦 Ambient';
+                return `
+                <div class="vehicle-card-pill ${isActive ? 'active' : ''}" onclick="selectVehicle('${t.vehicleCode}')">
+                    <div class="v-code">
+                        <span>🚚 ${esc(t.vehicleCode || 'VEH')}</span>
+                        <span style="font-size:9px; background:${isActive ? 'rgba(245,158,11,0.25)' : '#e2e8f0'}; color:${isActive ? '#f59e0b' : '#475569'}; padding:2px 5px; border-radius:4px;">${esc(t.brand || '')}</span>
+                    </div>
+                    <div class="v-meta">${t.stops ? t.stops.length : 0} stops · ${Math.round(t.totalWeight || 0).toLocaleString()} kg</div>
+                    <div class="v-meta" style="font-size:9px; color:${isActive ? '#94a3b8' : '#64748b'};">${tempIcon} · ${esc(t.depot || '')}</div>
+                </div>`;
+            }).join('');
         }
 
         async function loadFlags() {
@@ -2274,31 +2463,45 @@
 
         function renderEmpty() {
             const list = document.querySelector('.s1-item-list');
-            if (list) list.innerHTML = '<div style="padding: 20px; text-align: center; color: #64748b; font-size: 12px;">No committed load plan yet.<br><span style="font-size: 11px;">The plan appears here the moment dispatch commits.</span></div>';
+            if (list) list.innerHTML = `<div style="padding: 24px; text-align: center; color: #64748b; font-size: 13px;">
+                <strong>No committed load plan for this bay yet.</strong><br>
+                <span style="font-size: 11px; color:#94a3b8;">When the dispatcher allocates and commits orders for ${state.selectedDepot}, loading sheets appear automatically.</span>
+            </div>`;
         }
 
         function renderLoadSheet() {
-            const trip = firstTrip();
+            const trip = currentTrip();
             if (!trip) { renderEmpty(); return; }
+
             const sub = document.querySelector('.s1-title-sub');
-            if (sub) sub.textContent = `TRIP #${trip.id} • ${String(trip.depot || '').toUpperCase()} DEPOT • ${trip.vehicleCode || ''}`;
+            if (sub) sub.textContent = `TRIP #${trip.id} • ${String(trip.depot || '').toUpperCase()} DOCK • ${trip.vehicleCode || ''} (${String(trip.brand || '').toUpperCase()})`;
+
             const mets = document.querySelectorAll('.s1-metric-val');
             if (mets.length >= 4) {
                 mets[0].textContent = `${Math.round(trip.totalWeight).toLocaleString()} kg`;
                 mets[1].textContent = `${(Math.round(trip.totalVolume * 10) / 10).toFixed(1)} m³`;
                 const units = trip.stops.reduce((s, x) => s + (x.units || 0), 0);
-                mets[2].textContent = `${Math.max(1, Math.round(units / 45))} Pallets`;
+                mets[2].textContent = `${Math.max(1, Math.round(units / 45))} Pallets (${units} Units)`;
                 mets[3].textContent = `${trip.stops.length} Stops`;
             }
-            // Rebuild the stop sections from the real plan.
+
+            // Rebuild the stop sections from the real plan in reverse-loading order
             const body = document.querySelector('.s1-body');
             if (!body) return;
-            const sections = trip.stops.map((s) => {
+
+            const sections = trip.stops.map((s, idx) => {
                 const flagged = openFlagsFor(s.orderId).length > 0;
+                const isChilled = s.tempRequirement === 'chilled';
                 return `
-                <div class="s1-section-header">
-                    <div class="s1-section-title">STOP ${String(s.seq).padStart(2, '0')}: ${esc(s.outletId || 'OUTLET')}</div>
-                    <div class="s1-section-meta">ETA ${esc(s.plannedArrival || '—')} • ${orderRef(s.orderId)}</div>
+                <div class="s1-section-header" style="display:flex; align-items:center; justify-content:space-between; margin-top:12px;">
+                    <div class="s1-section-title">
+                        STOP ${String(s.seq).padStart(2, '0')}: ${esc(s.outletId || 'OUTLET')} · ${esc(s.district || '')}
+                    </div>
+                    <div class="s1-section-meta" style="display:flex; align-items:center; gap:8px;">
+                        <span class="tag-spec-pill ${isChilled ? 'tag-spec-chilled' : 'tag-spec-ambient'}">${isChilled ? '❄️ CHILLED' : '📦 AMBIENT'}</span>
+                        <span>ETA ${esc(s.plannedArrival || '—')}</span>
+                        <span>• ${orderRef(s.orderId)}</span>
+                    </div>
                 </div>
                 <div class="s1-item-list">
                     <div class="s1-item-row${flagged ? ' flagged' : ''}" id="s1-row-${s.seq}">
@@ -2307,45 +2510,62 @@
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
                             </div>
                             <div>
-                                <div class="s1-item-name">${orderRef(s.orderId)} • ${esc(s.trip ? '' : '')}${esc(s.outletId || '')}</div>
-                                <div class="s1-item-sub">Window ${esc(s.windowOpen || '—')}–${esc(s.windowClose || '—')} • ${esc((s.status || 'allocated').toUpperCase())}</div>
+                                <div class="s1-item-name">${orderRef(s.orderId)} • ${esc(s.outletId || '')} (${esc(s.brand || trip.brand || '')})</div>
+                                <div class="s1-item-sub">Window: ${esc(s.windowOpen || '—')} – ${esc(s.windowClose || '—')} • Status: ${esc((s.status || 'allocated').toUpperCase())} · Drop seq #${s.seq}</div>
                             </div>
                         </div>
-                        <div class="s1-item-right">
-                            <span class="s1-qty-bold">${s.units || '—'} Units</span>
-                            ${flagged ? '<span class="pill-flagged-discrepancy" onclick="openShortageModal()" style="cursor: pointer;">FLAGGED</span>' : ''}
+                        <div class="s1-item-right" style="display:flex; align-items:center; gap:10px;">
+                            <div style="text-align:right;">
+                                <div class="s1-qty-bold">${s.units || '—'} Units</div>
+                                <div style="font-size:10px; color:#64748b;">${s.weightKg || Math.round((s.units||0)*0.5)} kg · ${s.volumeM3 || 0} m³</div>
+                            </div>
+                            <button type="button" class="btn-outline-dark" style="padding:4px 8px; font-size:10px; border-color:#e11d48; color:#e11d48;" onclick="openShortageModalFor(${s.orderId})">Flag</button>
+                            ${flagged ? '<span class="pill-flagged-discrepancy" onclick="openShortageModalFor(' + s.orderId + ')" style="cursor: pointer;">FLAGGED</span>' : ''}
                         </div>
                     </div>
                 </div>`;
             }).join('');
-            // Keep the metrics grid, swap the stop sections.
+
+            // Keep the metrics grid, swap the stop sections
             const grid = body.querySelector('.s1-metrics-grid');
             body.innerHTML = '';
             if (grid) body.appendChild(grid);
             body.insertAdjacentHTML('beforeend', sections);
+
             const done = trip.stops.filter((s) => s.status === 'delivered').length;
             const foot = document.querySelector('.s1-footer-status');
-            if (foot) foot.innerHTML = `${done}/${trip.stops.length} STOPS DELIVERED &nbsp;|&nbsp; ${state.flags.length} FLAG${state.flags.length === 1 ? '' : 'S'} OPEN`;
+            if (foot) foot.innerHTML = `${done}/${trip.stops.length} STOPS DELIVERED &nbsp;|&nbsp; ${state.flags.length} OPEN SHORTAGE FLAG${state.flags.length === 1 ? '' : 'S'}`;
         }
 
         function renderBayPlan() {
-            const trip = firstTrip();
+            const trip = currentTrip();
             if (!trip) return;
+
             const sub = document.querySelector('.s2-title-sub');
-            if (sub) sub.textContent = `VEHICLE: ${trip.vehicleCode || '—'} • ${String(trip.brand || '').toUpperCase()} RUN`;
+            if (sub) sub.textContent = `VEHICLE: ${trip.vehicleCode || '—'} • ${String(trip.brand || '').toUpperCase()} (${String(trip.depot || '').toUpperCase()} DOCK)`;
+
             const upd = document.querySelector('.s2-updated-label');
-            if (upd) upd.textContent = `Plan committed: ${trip.status || 'planned'}`;
+            if (upd) upd.textContent = `Plan status: ${trip.status || 'planned'}`;
+
             const tl = document.getElementById('shortage-trip-label');
             if (tl) tl.textContent = `Reporting discrepancy for Trip #${trip.id} (${trip.vehicleCode || ''})`;
-            // Populate the shortage select with real stops.
+
+            // Populate shortage dropdown
             const sel = document.getElementById('shortage-select');
             if (sel && trip.stops.length) {
-                sel.innerHTML = trip.stops.map((s) => `<option value="${s.orderId}">Stop ${String(s.seq).padStart(2, '0')} • ${orderRef(s.orderId)} • ${esc(s.outletId || '')}</option>`).join('');
+                sel.innerHTML = trip.stops.map((s) => `<option value="${s.orderId}">Stop ${String(s.seq).padStart(2, '0')} • ${orderRef(s.orderId)} • ${esc(s.outletId || '')} (${s.units || 0} units)</option>`).join('');
             }
-            // Fill the three bay compartments with the first stops (reverse-load: last stop nearest door).
+
+            // Reverse-load: stops loaded into 3 compartments (Front/Tail -> Mid -> Tailboard door)
             const cols = document.querySelectorAll('.s2-comp-box');
-            const chunks = [trip.stops.slice(0, Math.ceil(trip.stops.length / 3)), trip.stops.slice(Math.ceil(trip.stops.length / 3), Math.ceil((2 * trip.stops.length) / 3)), trip.stops.slice(Math.ceil((2 * trip.stops.length) / 3))];
-            const titles = ['LOADS FIRST (TAIL)', 'MID LOAD', 'TAILBOARD (LAST STOPS)'];
+            const total = trip.stops.length;
+            const chunks = [
+                trip.stops.slice(0, Math.ceil(total / 3)),
+                trip.stops.slice(Math.ceil(total / 3), Math.ceil((2 * total) / 3)),
+                trip.stops.slice(Math.ceil((2 * total) / 3))
+            ];
+            const titles = ['FRONT COMPARTMENT (LAST DROPS)', 'MID COMPARTMENT', 'TAILBOARD / REAR (FIRST DROPS)'];
+
             cols.forEach((box, i) => {
                 const items = chunks[i] || [];
                 const list = box.querySelector('.s2-comp-items');
@@ -2359,30 +2579,36 @@
                                 <span class="s2-row-name">${orderRef(s.orderId)} • ${esc(s.outletId || '')}</span>
                             </div>
                             <div class="s2-row-right">
-                                <span class="s2-stack-label">Stack ${j + 1}</span>
+                                <span class="s2-stack-label">Stop #${s.seq}</span>
                                 <span class="s2-cases-bold">${s.units || '—'} Units</span>
                             </div>
-                        </div>`).join('') || '<div style="font-size:11px;color:#94a3b8;padding:6px 0;">—</div>';
+                        </div>`).join('') || '<div style="font-size:11px;color:#94a3b8;padding:6px 0;">Empty</div>';
                 }
             });
         }
 
         // --- SHORTAGE FLAG → REAL API ---
         function openShortageModal() {
-            const trip = firstTrip();
+            const trip = currentTrip();
             const tl = document.getElementById('shortage-trip-label');
             if (tl && trip) tl.textContent = `Reporting discrepancy for Trip #${trip.id} (${trip.vehicleCode || ''})`;
             document.getElementById('shortage-modal').classList.add('active');
         }
 
+        function openShortageModalFor(orderId) {
+            const sel = document.getElementById('shortage-select');
+            if (sel) sel.value = String(orderId);
+            openShortageModal();
+        }
+
         async function submitShortage() {
             const sel = document.getElementById('shortage-select');
             const orderId = sel ? Number(sel.value) : null;
-            const itemDesc = sel && sel.selectedOptions[0] ? sel.selectedOptions[0].textContent.trim() : ' unspecified item';
+            const itemDesc = sel && sel.selectedOptions[0] ? sel.selectedOptions[0].textContent.trim() : 'Unspecified item';
             if (!orderId) { ldrToast('No stop selected'); return; }
+
             const body = { orderId, itemDesc, qty: state.shortageQty, reason: state.selectedReason };
-            // Offline-first: shortage flags queue with a photo-less body when offline
-            // (photo capture needs the camera stack anyway) and replay on reconnect.
+
             if (window.WaypointOffline && !WaypointOffline.isOnline()) {
                 WaypointOffline.mutate({ url: '/api/flags', body, label: `shortage ORD-${orderId}` });
                 ldrToast(`📦 Offline — flag queued (${WaypointOffline.count()} pending). Auto-syncs on reconnect.`);
@@ -2391,7 +2617,7 @@
             }
             try {
                 const res = await WaypointUtil.api('/api/flags', { method: 'POST', body });
-                ldrToast(`🚩 Flag #${res.flag.id} sent to dispatcher (${state.selectedReason})`);
+                ldrToast(`🚩 Flag #${res.flag.id} sent to Dispatcher (${state.selectedReason})`);
                 closeShortageModal();
                 await loadFlags();
                 renderLoadSheet();
@@ -2442,8 +2668,7 @@
         function startRealtime() {
             WaypointRealtime.start(['loader']);
             WaypointRealtime.on('plan-committed', () => {
-                ldrToast('📥 New load plan committed — refreshing manifest');
-                state.vehicleCode = null; // re-resolve: a different vehicle may now hold the plan
+                ldrToast('📥 New load plan received from Dispatcher — refreshing bay sheets');
                 loadManifest();
             });
             WaypointRealtime.on('shortage-flagged', () => loadFlags());
@@ -2502,9 +2727,9 @@
         function selectReason(reason) {
             state.selectedReason = reason;
             document.querySelectorAll('.reason-pill-btn').forEach(b => b.classList.remove('active'));
-            if (reason === 'Missing at Dock') document.getElementById('reason-missing').classList.add('active');
-            if (reason === 'Damaged') document.getElementById('reason-damaged').classList.add('active');
-            if (reason === 'Substituted') document.getElementById('reason-sub').classList.add('active');
+            if (reason === 'Missing at Dock') document.getElementById('reason-missing')?.classList.add('active');
+            if (reason === 'Damaged') document.getElementById('reason-damaged')?.classList.add('active');
+            if (reason === 'Substituted') document.getElementById('reason-sub')?.classList.add('active');
         }
 
         // --- S3 REVALIDATE INTERACTIONS ---
@@ -2522,113 +2747,17 @@
         }
 
         function confirmHandoffAction() {
-            // Record 'loaded' events for every stop of the active trip (offline-safe).
-            const trip = firstTrip();
+            const trip = currentTrip();
             if (trip && window.WaypointOutbox) {
                 trip.stops.forEach((s) => WaypointOutbox.enqueue({
                     type: 'loaded',
                     orderId: s.orderId,
-                    payload: { vehicleCode: state.vehicleCode, tripId: trip.id, seq: s.seq },
+                    payload: { vehicleCode: trip.vehicleCode, tripId: trip.id, seq: s.seq },
                 }));
                 ldrToast(`✓ Handoff confirmed · ${trip.stops.length} 'loaded' events queued. Status mirrored to driver.`);
             } else {
                 ldrToast('✓ Load handoff confirmed. Journal entry recorded.');
             }
-        }
-
-        // --- INIT ---
-        window.addEventListener('DOMContentLoaded', () => {
-            checkAuth();
-        });
-    </script>
-
-        // --- SCREEN NAVIGATION ---
-        function showScreen(screenNum) {
-            document.querySelectorAll('.screen-container').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.screen-nav-btn').forEach(el => el.classList.remove('active'));
-
-            const target = document.getElementById('screen-' + screenNum);
-            const btn = document.getElementById('btn-scr-' + screenNum);
-            if (target) target.classList.add('active');
-            if (btn) btn.classList.add('active');
-        }
-
-        // --- GLOVE MODE TOGGLE ---
-        let gloveMode = true;
-        function toggleGloveMode() {
-            gloveMode = !gloveMode;
-            const btn = document.getElementById('glove-btn');
-            const txt = document.getElementById('glove-text');
-            if (gloveMode) {
-                btn.classList.add('active');
-                txt.textContent = 'Glove-Mode On';
-            } else {
-                btn.classList.remove('active');
-                txt.textContent = 'Glove-Mode Off';
-            }
-        }
-
-        // --- S1 CHECKLIST INTERACTION ---
-        function toggleS1Check(rowId) {
-            const row = document.getElementById('s1-row-' + rowId);
-            if (row) {
-                row.classList.toggle('flagged');
-            }
-        }
-
-        // --- SHORTAGE MODAL INTERACTION ---
-        let shortageQty = 4;
-        let selectedReason = 'Missing at Dock';
-
-        function openShortageModal() {
-            document.getElementById('shortage-modal').classList.add('active');
-        }
-
-        function closeShortageModal() {
-            document.getElementById('shortage-modal').classList.remove('active');
-        }
-
-        function closeModalOnBg(e) {
-            if (e.target.id === 'shortage-modal') {
-                closeShortageModal();
-            }
-        }
-
-        function changeQty(delta) {
-            shortageQty = Math.max(1, shortageQty + delta);
-            document.getElementById('shortage-qty').textContent = shortageQty;
-        }
-
-        function selectReason(reason) {
-            selectedReason = reason;
-            document.querySelectorAll('.reason-pill-btn').forEach(b => b.classList.remove('active'));
-            if (reason === 'Missing at Dock') document.getElementById('reason-missing').classList.add('active');
-            if (reason === 'Damaged') document.getElementById('reason-damaged').classList.add('active');
-            if (reason === 'Substituted') document.getElementById('reason-sub').classList.add('active');
-        }
-
-        function submitShortage() {
-            const item = document.getElementById('shortage-select').value;
-            alert(`Discrepancy flagged: ${shortageQty} cases (${selectedReason}) for ${item}. Dispatcher desk notified.`);
-            closeShortageModal();
-        }
-
-        // --- S3 REVALIDATE INTERACTIONS ---
-        function revalidateGroup(grpNum) {
-            alert(`Group ${grpNum} sequence re-validated. Temperature and position within spec.`);
-        }
-
-        function revalidateAllGroups() {
-            alert('All groups (2, 3, 4) re-validated against latest dispatch route update.');
-        }
-
-        function acknowledgeDiff() {
-            alert('Diff acknowledged. Load-sheet synchronized with bay staging.');
-            showScreen(4);
-        }
-
-        function confirmHandoffAction() {
-            alert('✓ Load handoff confirmed. Journal entry recorded. Status mirrored to driver.');
         }
 
         // --- INIT ---
